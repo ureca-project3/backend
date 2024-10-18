@@ -1,4 +1,4 @@
-package com.triple.backend.common.jwt;
+package com.triple.backend.common.config;
 
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;

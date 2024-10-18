@@ -1,6 +1,6 @@
 package com.triple.backend.login.controller;
 
-import com.triple.backend.common.jwt.JWTUtil;
+import com.triple.backend.common.config.JWTUtil;
 import com.triple.backend.login.dto.LoginDto;
 import com.triple.backend.login.dto.LoginRequestDto;
 import com.triple.backend.member.entity.Member;
