@@ -1,6 +1,7 @@
 package com.triple.backend.test.entity;
 
 import com.triple.backend.child.entity.Child;
+import com.triple.backend.common.entity.BaseEntity;
 import jakarta.persistence.*;
 import lombok.Getter;
 
@@ -8,7 +9,7 @@ import java.time.LocalDateTime;
 
 @Entity
 @Getter
-public class TestParticipation {
+public class TestParticipation extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
