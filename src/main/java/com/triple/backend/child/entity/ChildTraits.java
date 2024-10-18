@@ -1,12 +1,13 @@
 package com.triple.backend.child.entity;
 
+import com.triple.backend.common.entity.BaseEntity;
 import com.triple.backend.test.entity.Trait;
 import jakarta.persistence.*;
 import lombok.Getter;
 
 @Entity
 @Getter
-public class ChildTraits {
+public class ChildTraits extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
