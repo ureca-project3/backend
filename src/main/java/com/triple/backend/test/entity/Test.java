@@ -13,8 +13,10 @@ public class Test extends BaseEntity {
     @Column(name = "test_id")
     private Long testId;
 
+    @Column(name = "test_name")
     private String name;
 
+    @Column(name = "test_description")
     private String description;
 
 }
