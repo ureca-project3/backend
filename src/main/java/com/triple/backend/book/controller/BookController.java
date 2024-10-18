@@ -1,9 +1,12 @@
 package com.triple.backend.book.controller;
 
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.triple.backend.book.service.BookService;
@@ -31,4 +34,17 @@ public class BookController {
 		));
 	}
 
+	/**
+	 * 	도서 검색
+	 */
+	@GetMapping("/search")
+	public ResponseEntity<?> getBookDetail(
+		@RequestParam(value = "keyword") String keyword,
+		@PageableDefault(page = 0, size = 10) Pageable pageable
+	) {
+		return ResponseEntity.ok(CommonResponse.ok(
+			"Get BookSearch Success",
+			bookService.getBookSearch(keyword, pageable)
+		));
+	}
 }

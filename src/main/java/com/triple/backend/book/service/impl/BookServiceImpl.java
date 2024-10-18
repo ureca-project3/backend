@@ -1,9 +1,12 @@
 package com.triple.backend.book.service.impl;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.triple.backend.book.dto.BookDetailResponseDto;
+import com.triple.backend.book.dto.BookResponseDto;
 import com.triple.backend.book.entity.Book;
 import com.triple.backend.book.repository.BookRepository;
 import com.triple.backend.book.service.BookService;
@@ -29,4 +32,13 @@ public class BookServiceImpl implements BookService {
 		return new BookDetailResponseDto(book);
 	}
 
+	/**
+	 * 도서 검색
+	 */
+	@Override
+	public Page<BookResponseDto> getBookSearch(String keyword, Pageable pageable) {
+		Page<Book> books = bookRepository.searchBookByKeyword(keyword, pageable);
+
+		return books.map(BookResponseDto::new);
+	}
 }
