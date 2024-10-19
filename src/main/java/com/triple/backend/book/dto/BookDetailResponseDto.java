@@ -11,7 +11,7 @@ public class BookDetailResponseDto {
 	private String title;
 	private String author;
 	private String publisher;
-	private Integer recAge;
+	private String recAge;
 	private String summary;
 	private String imageUrl;
 	private String publishedAt;
