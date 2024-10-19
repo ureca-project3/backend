@@ -6,13 +6,15 @@ import com.triple.backend.admin.dto.AdminBookUpdateRequestDto;
 import com.triple.backend.admin.service.AdminService;
 import com.triple.backend.common.dto.CommonResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
-@ResponseBody
 @RequiredArgsConstructor
 @RequestMapping("/admin")
 public class AdminController {
@@ -26,9 +28,9 @@ public class AdminController {
     }
 
     @GetMapping("/books")
-    public ResponseEntity<?> getBookList(@RequestParam(name = "page", defaultValue = "0") int page,
-                                         @RequestParam(name = "size", defaultValue = "10") int size) {
-        List<AdminBookResponseDto> bookDtoList = adminService.getBookList(page, size);
+    public ResponseEntity<?> getBookList(@PageableDefault(page = 0, size = 10,
+            sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
+        List<AdminBookResponseDto> bookDtoList = adminService.getBookList(pageable);
         return CommonResponse.ok("Get BookList Success", bookDtoList);
     }
 
@@ -39,7 +41,8 @@ public class AdminController {
     }
 
     @PatchMapping("/books/{bookId}")
-    public ResponseEntity<?> updateBook(@RequestBody AdminBookUpdateRequestDto dto, @PathVariable Long bookId) {
+    public ResponseEntity<?> updateBook(@RequestBody AdminBookUpdateRequestDto dto,
+                                        @PathVariable(name = "bookId") Long bookId) {
         adminService.updateBook(bookId, dto);
         return CommonResponse.ok("Update Book Success");
     }
