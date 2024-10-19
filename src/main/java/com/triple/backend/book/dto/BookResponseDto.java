@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class BookResponseDto {
 	private String title;
-	private Integer recAge;
+	private String recAge;
 	private String imageUrl;
 
 	public BookResponseDto(Book book) {
