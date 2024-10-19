@@ -7,25 +7,23 @@ import com.triple.backend.book.entity.Book;
 import com.triple.backend.book.entity.Genre;
 import com.triple.backend.book.repository.BookRepository;
 import com.triple.backend.common.exception.NotFoundException;
-import jakarta.persistence.EntityNotFoundException;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
 @Service
-@Transactional
+@Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class AdminServiceImpl implements AdminService {
 
     private final BookRepository bookRepository;
 
     @Override
+    @Transactional
     public void insertBook(AdminBookRequestDto adminBookRequestDto) {
         String genreName = adminBookRequestDto.getGenreName();
         Book book = AdminBookRequestDto.toEntity(adminBookRequestDto, Genre.getGenreCode(genreName));
@@ -33,9 +31,7 @@ public class AdminServiceImpl implements AdminService {
     }
 
     @Override
-    public List<AdminBookResponseDto> getBookList(int page, int size) {
-        Sort sort = Sort.by(Sort.Direction.DESC, "createdAt");
-        Pageable pageable = PageRequest.of(page, size, sort);
+    public List<AdminBookResponseDto> getBookList(Pageable pageable) {
         Page<Book> books = bookRepository.findAll(pageable);
         List<AdminBookResponseDto> response = books.stream()
                 .map(AdminBookResponseDto::toDto)
@@ -50,6 +46,7 @@ public class AdminServiceImpl implements AdminService {
     }
 
     @Override
+    @Transactional
     public void updateBook(Long bookId, AdminBookUpdateRequestDto adminBookRequestDto) {
         String genreCode = Genre.getGenreCode(adminBookRequestDto.getGenreName());
         Book book = bookRepository.findById(bookId).orElseThrow(() -> NotFoundException.entityNotFound("책"));
@@ -58,6 +55,7 @@ public class AdminServiceImpl implements AdminService {
     }
 
     @Override
+    @Transactional
     public void deleteBook(Long bookId) {
         bookRepository.deleteById(bookId);
     }
