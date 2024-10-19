@@ -6,6 +6,7 @@ import com.triple.backend.admin.dto.AdminBookUpdateRequestDto;
 import com.triple.backend.book.entity.Book;
 import com.triple.backend.book.entity.Genre;
 import com.triple.backend.book.repository.BookRepository;
+import com.triple.backend.common.exception.NotFoundException;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -44,14 +45,14 @@ public class AdminServiceImpl implements AdminService {
 
     @Override
     public AdminBookResponseDto getBookDetail(Long bookId) {
-        Book book = bookRepository.findById(bookId).orElseThrow(() -> new EntityNotFoundException("찾으시는 책이 없습니다."));
+        Book book = bookRepository.findById(bookId).orElseThrow(() -> NotFoundException.entityNotFound("책"));
         return AdminBookResponseDto.toDto(book);
     }
 
     @Override
     public void updateBook(Long bookId, AdminBookUpdateRequestDto adminBookRequestDto) {
         String genreCode = Genre.getGenreCode(adminBookRequestDto.getGenreName());
-        Book book = bookRepository.findById(bookId).orElseThrow(() -> new EntityNotFoundException("찾으시는 책이 없습니다."));
+        Book book = bookRepository.findById(bookId).orElseThrow(() -> NotFoundException.entityNotFound("책"));
         book.updateBook(adminBookRequestDto, genreCode);
         bookRepository.save(book);
     }
