@@ -1,7 +1,10 @@
 package com.triple.backend.test.service;
 
 import com.triple.backend.test.dto.TestQuestionResponseDto;
+import org.springframework.data.domain.Pageable;
+
 
 public interface TestService {
-    TestQuestionResponseDto getTestQuestion(Long testId);
+    // 자녀 성향 질문 조회
+    TestQuestionResponseDto getTestQuestion(Long testId, Pageable pageable);
 }
