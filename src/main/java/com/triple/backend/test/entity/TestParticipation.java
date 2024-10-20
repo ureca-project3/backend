@@ -1,16 +1,14 @@
 package com.triple.backend.test.entity;
 
 import com.triple.backend.child.entity.Child;
+import com.triple.backend.common.entity.BaseEntity;
 import jakarta.persistence.*;
-import lombok.Builder;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
 @Entity
 @Getter
-@NoArgsConstructor(access = lombok.AccessLevel.PROTECTED)
 public class TestParticipation {
 
     @Id
@@ -26,11 +24,4 @@ public class TestParticipation {
     private Child child;
 
     private LocalDateTime createdAt;
-
-    @Builder
-    public TestParticipation(Test test, Child child, LocalDateTime createdAt) {
-        this.test = test;
-        this.child = child;
-        this.createdAt = createdAt;
-    }
 }
