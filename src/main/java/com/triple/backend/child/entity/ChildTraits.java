@@ -5,9 +5,11 @@ import com.triple.backend.test.entity.Trait;
 import jakarta.persistence.*;
 import lombok.Getter;
 
+import java.time.LocalDateTime;
+
 @Entity
 @Getter
-public class ChildTraits extends BaseEntity {
+public class ChildTraits{
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -22,4 +24,6 @@ public class ChildTraits extends BaseEntity {
     private Trait trait;
 
     private Integer traitScore;
+
+    private LocalDateTime createdAt;
 }
