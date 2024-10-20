@@ -18,12 +18,12 @@ public class SecurityConfig {
 
     private final AuthenticationConfiguration authenticationConfiguration; // AuthenticationConfiguration 의존성 주입
     private final JWTUtil jwtUtil; // jwtUtil 주입
-    private final JwtAuthenticationFilter jwtAuthenticationFilter;
+//    private final JwtAuthenticationFilter jwtAuthenticationFilter;
 
     // 생성자
-    public SecurityConfig(AuthenticationConfiguration authenticationConfiguration, JwtAuthenticationFilter jwtAuthenticationFilter,JWTUtil jwtUtil) {
+    public SecurityConfig(AuthenticationConfiguration authenticationConfiguration,  JWTUtil jwtUtil) { // JwtAuthenticationFilter jwtAuthenticationFilter 삭제
         this.authenticationConfiguration = authenticationConfiguration;
-        this.jwtAuthenticationFilter = jwtAuthenticationFilter;
+//        this.jwtAuthenticationFilter = jwtAuthenticationFilter;
         this.jwtUtil = jwtUtil;
     }
 
@@ -42,7 +42,7 @@ public class SecurityConfig {
                 .formLogin(formLogin -> formLogin.disable())    // 기본 로그인 페이지를 비활성화
                 .csrf(csrf -> csrf.disable())                   // CSRF 방어 비활성화
                 .authorizeHttpRequests(auth -> auth             // 인가 작업
-                        .requestMatchers("/auth/**", "/public/**","/join").permitAll()  // 인증 없이 접근 가능
+                        .requestMatchers("/auth/**", "/public/**", "/join").permitAll()  // 인증 없이 접근 가능
                         .anyRequest().authenticated()  // 그 외 요청은 인증 필요
                 )
                 .sessionManagement(session -> session
@@ -50,8 +50,9 @@ public class SecurityConfig {
                 );
 
         // JWT 필터 추가
-        http.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
-
+//        http.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+        //JWTFilter 등록
+        http.addFilterBefore(new JWTFilter(jwtUtil), LoginFilter.class);
         // 로그인 필터 추가 LoginFilter()는 인자를 받음 (AuthenticationManager() 메소드에 authenticationConfiguration 객체를 넣어야 함) 따라서 등록 필요
         http.addFilterAt(new LoginFilter(authenticationManager(authenticationConfiguration), jwtUtil), UsernamePasswordAuthenticationFilter.class);
 

@@ -4,6 +4,7 @@ import com.triple.backend.auth.dto.JoinDto;
 import com.triple.backend.member.entity.Member;
 import com.triple.backend.member.repository.MemberRepository;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -12,13 +13,15 @@ public class JoinService {
     private final MemberRepository memberRepository;
 
     // 비밀번호 가입시 암호화
-    private final BCryptPasswordEncoder bCryptPasswordEncoder;
+
+    private final PasswordEncoder passwordEncoder; // 타입 변경
 
     // 생성자 초기화
-    public JoinService(MemberRepository memberRepository, BCryptPasswordEncoder bCryptPasswordEncoder){
+    public JoinService(MemberRepository memberRepository, PasswordEncoder passwordEncoder) {
         this.memberRepository = memberRepository;
-        this.bCryptPasswordEncoder = bCryptPasswordEncoder;
+        this.passwordEncoder = passwordEncoder; // 초기화
     }
+
 
     public void joinProcess(JoinDto joinDto){
         String memberName = joinDto.getMemberName();
@@ -41,7 +44,7 @@ public class JoinService {
         newMember.setEmail(email);
         newMember.setPhone(phone);
         // 비밀번호 암호화
-        newMember.setPassword(bCryptPasswordEncoder.encode(password));
+        newMember.setPassword(passwordEncoder.encode(password));
 
         memberRepository.save(newMember);
 
