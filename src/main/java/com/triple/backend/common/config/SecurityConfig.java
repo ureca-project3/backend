@@ -16,30 +16,42 @@ import org.springframework.security.web.SecurityFilterChain;
 @EnableWebSecurity
 public class SecurityConfig {
 
+    private final AuthenticationConfiguration authenticationConfiguration; // AuthenticationConfiguration 의존성 주입
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
 
-    // 의존성 주입
-    public SecurityConfig(JwtAuthenticationFilter jwtAuthenticationFilter) {
+    // 생성자
+    public SecurityConfig(AuthenticationConfiguration authenticationConfiguration, JwtAuthenticationFilter jwtAuthenticationFilter) {
+        this.authenticationConfiguration = authenticationConfiguration;
         this.jwtAuthenticationFilter = jwtAuthenticationFilter;
     }
 
-    // HTTP 보안 설정을
+    //AuthenticationManager Bean 등록
+    @Bean
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration) throws Exception {
+
+        return configuration.getAuthenticationManager();
+    }
+
+    // HTTP 보안 설정
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .httpBasic(httpBasic -> httpBasic.disable())    // 노출 방지
                 .formLogin(formLogin -> formLogin.disable())    // 기본 로그인 페이지를 비활성화
-                .csrf(csrf -> csrf.disable())                   // csrf 방어
+                .csrf(csrf -> csrf.disable())                   // CSRF 방어 비활성화
                 .authorizeHttpRequests(auth -> auth             // 인가 작업
-                        .requestMatchers("/auth/**", "/public/**").permitAll()  // 인증 없이 접근 가능
+                        .requestMatchers("/auth/**", "/public/**","/join").permitAll()  // 인증 없이 접근 가능
                         .anyRequest().authenticated()  // 그 외 요청은 인증 필요
                 )
                 .sessionManagement(session -> session
-                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS)  // 세션을 사용하지 않음 (JWT 기반을 사용하겠다)
+                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS)  // 세션을 사용하지 않음 (JWT 기반)
                 );
 
         // JWT 필터 추가
         http.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+
+        // 로그인 필터 추가 LoginFilter()는 인자를 받음 (AuthenticationManager() 메소드에 authenticationConfiguration 객체를 넣어야 함) 따라서 등록 필요
+        http.addFilterAt(new LoginFilter(authenticationManager(authenticationConfiguration)), UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
@@ -48,11 +60,5 @@ public class SecurityConfig {
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
-    }
-
-    // 인증 관리자를 Spring Security에서 사용하도록 설정
-    @Bean
-    public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
-        return authenticationConfiguration.getAuthenticationManager();
     }
 }
