@@ -30,6 +30,6 @@ public class TestController {
     @GetMapping("/result")
     public ResponseEntity<?> getTestResult(@RequestHeader(name = "Child-Id") Long childId) {
         TestResultDto testResultDto = testService.getTestResult(childId);
-        return ResponseEntity.ok(CommonResponse.ok("Get TestResult Success", testResultDto));
+        return CommonResponse.ok("Get TestResult Success", testResultDto);
     }
 }
