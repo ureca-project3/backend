@@ -4,9 +4,11 @@ import com.triple.backend.common.entity.BaseEntity;
 import jakarta.persistence.*;
 import lombok.Getter;
 
+import java.time.LocalDateTime;
+
 @Entity
 @Getter
-public class Test extends BaseEntity {
+public class Test{
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -18,5 +20,7 @@ public class Test extends BaseEntity {
 
     @Column(name = "test_description")
     private String description;
+
+    private LocalDateTime createdAt;
 
 }
