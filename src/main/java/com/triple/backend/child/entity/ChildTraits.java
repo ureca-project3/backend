@@ -35,5 +35,4 @@ public class ChildTraits {
         this.traitScore = traitScore;
         this.createdAt = createdAt;
     }
-
 }

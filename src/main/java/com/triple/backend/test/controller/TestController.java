@@ -2,6 +2,7 @@ package com.triple.backend.test.controller;
 
 import com.triple.backend.common.dto.CommonResponse;
 import com.triple.backend.test.dto.TestAnswerRequestDto;
+import com.triple.backend.test.dto.TestParticipationRequestDto;
 import com.triple.backend.test.service.TestService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
@@ -24,11 +25,23 @@ public class TestController {
     }
 
     // 자녀 성향 진단 결과 등록
-    @PostMapping("/{testId}")
+    @PostMapping("/result/{testId}")
     public ResponseEntity<?> InsertTestResult(@PathVariable(name = "testId") Long testId,
                                               @RequestBody TestAnswerRequestDto testAnswerRequestDto) {
         testService.insertTestResult(testId, testAnswerRequestDto);
         return ResponseEntity.ok(CommonResponse.created("Insert TestResult Success"));
+    }
+
+    /**
+     *	자녀 성향 진단 참여 등록
+     * 	childId 헤더에서 가져온다.
+     */
+    @PostMapping("/{testId}")
+    public ResponseEntity<?> insertTestParticipation(@PathVariable(name = "testId") Long testId,
+                                                     @RequestHeader(name = "Child-Id") Long childId) {
+        TestParticipationRequestDto dto = new TestParticipationRequestDto(testId, childId);
+        testService.insertTestParticipation(dto);
+        return CommonResponse.created("Insert TestParticipation Success");
     }
 
 

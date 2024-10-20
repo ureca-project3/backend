@@ -7,6 +7,7 @@ import com.triple.backend.child.repository.ChildRepository;
 import com.triple.backend.child.repository.ChildTraitsRepository;
 import com.triple.backend.child.repository.MbtiHistoryRepository;
 import com.triple.backend.test.dto.TestAnswerRequestDto;
+import com.triple.backend.test.dto.TestParticipationRequestDto;
 import com.triple.backend.test.dto.TestQuestionResponseDto;
 import com.triple.backend.test.dto.TestQuestionTraitResponseDto;
 import com.triple.backend.test.entity.*;
@@ -163,6 +164,22 @@ public class TestServiceImpl implements TestService {
             }
         }
 
+    }
+
+    // 자녀 성향 진단 참여 등록
+    @Override
+    @Transactional
+    public void insertTestParticipation(TestParticipationRequestDto dto) {
+
+        Test test = testRepository.findById(dto.getTestId())
+                .orElseThrow(() -> new IllegalArgumentException("테스트 정보를 찾을 수 없습니다."));
+
+        Child child = childRepository.findById(dto.getChildId())
+                .orElseThrow(() -> new IllegalArgumentException("아이 정보를 찾을 수 없습니다."));
+
+        TestParticipation testParticipation = dto.toEntity(test, child);
+
+        testParticipationRepository.save(testParticipation);
     }
 
 }
