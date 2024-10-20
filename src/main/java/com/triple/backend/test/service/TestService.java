@@ -11,7 +11,7 @@ public interface TestService {
     TestQuestionResponseDto getTestQuestion(Long testId, Pageable pageable);
 
     // 자녀 성향 진단 결과 등록
-    void insertTestResult(Long testId, TestAnswerRequestDto testAnswerRequestDto);
+    void insertTestResult(Long testId, TestAnswerRequestDto testAnswerRequestDto, Long childId);
 
     // 자녀 성향 진단 참여 등록
     void insertTestParticipation(TestParticipationRequestDto dto);

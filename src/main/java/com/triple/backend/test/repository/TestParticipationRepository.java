@@ -8,6 +8,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 public interface TestParticipationRepository extends JpaRepository<TestParticipation, Long> {
 
     // 성향 진단 테스트 참여 여부 조회
-    TestParticipation findByChildAndTest(Child child, Test test);
+    TestParticipation findTopByChildAndTestOrderByCreatedAtDesc(Child child, Test test);
 
 }

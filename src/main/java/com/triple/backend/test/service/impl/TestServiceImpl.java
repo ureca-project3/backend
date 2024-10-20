@@ -64,19 +64,14 @@ public class TestServiceImpl implements TestService {
     // 자녀 성향 진단 결과 등록
     @Override
     @Transactional
-    public void insertTestResult(Long testId, TestAnswerRequestDto testAnswerRequestDto) {
+    public void insertTestResult(Long testId, TestAnswerRequestDto testAnswerRequestDto, Long childId) {
 
         // Token 자녀ID
-        /*
-        2024.10.20
-        자녀ID Token으로 수정 필요
-         */
-        Long childId = 1L;
         Child child = childRepository.findById(childId).orElseThrow( () -> new IllegalArgumentException("로그인이 되어 있는지 확인 부탁드립니다."));
 
         // 테스트 참여ID 조회
         Test test = testRepository.findById(testId).orElseThrow( () -> new IllegalArgumentException("테스트 정보를 찾을 수 없습니다."));
-        TestParticipation testParticipation = testParticipationRepository.findByChildAndTest(child, test);
+        TestParticipation testParticipation = testParticipationRepository.findTopByChildAndTestOrderByCreatedAtDesc(child, test);
 
         // MBTI 성향 조회
         List<Trait> traitList = traitRepository.findByTest(test);
@@ -99,9 +94,6 @@ public class TestServiceImpl implements TestService {
                 TestQuestion testQuestion = new TestQuestion(testQuestionTraitResponseDto.getQuestionId(), testQuestionTraitResponseDto.getTest(),
                         testQuestionTraitResponseDto.getTrait(), testQuestionTraitResponseDto.getQuestionText());
                 TestAnswerPK testAnswerPK = new TestAnswerPK(testParticipation, testQuestion);
-                System.out.println("testParticipationId : " + testParticipation.getTestParticipationId());
-                System.out.println("questionId " + testQuestion.getQuestionId() + " , test : " + testQuestion.getTest().getTestId() + " , test : " + testQuestion.getTrait().getTraitId());
-                System.out.println("entry.getValue() : " + entry.getValue());
                 testAnswerRepository.save(new TestAnswer(testAnswerPK, entry.getValue()));
 
                 // 성향 점수 증감
@@ -124,7 +116,6 @@ public class TestServiceImpl implements TestService {
             for (String key : traitCount.keySet()) {
                 // 현재 성향 점수 확인 TEST
                 Integer value = traitCount.get(key);
-                System.out.println(key + " : " + value);
 
                 // 현재 성향 MBTI 문자열 구하기
                 /*

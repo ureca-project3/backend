@@ -21,15 +21,16 @@ public class TestController {
     @GetMapping("/{testId}")
     public ResponseEntity<?> getTestQuestion(@PathVariable(name = "testId") Long testId,
                                              @PageableDefault(page = 0, size = 10) Pageable pageable) {
-        return ResponseEntity.ok(CommonResponse.ok("Get TestQuestion Success", testService.getTestQuestion(testId, pageable)));
+        return CommonResponse.ok("Get TestQuestion Success", testService.getTestQuestion(testId, pageable));
     }
 
     // 자녀 성향 진단 결과 등록
     @PostMapping("/result/{testId}")
-    public ResponseEntity<?> InsertTestResult(@PathVariable(name = "testId") Long testId,
-                                              @RequestBody TestAnswerRequestDto testAnswerRequestDto) {
-        testService.insertTestResult(testId, testAnswerRequestDto);
-        return ResponseEntity.ok(CommonResponse.created("Insert TestResult Success"));
+    public ResponseEntity<?> insertTestResult(@PathVariable(name = "testId") Long testId,
+                                              @RequestBody TestAnswerRequestDto testAnswerRequestDto,
+                                              @RequestHeader(name = "Child-Id") Long childId) {
+        testService.insertTestResult(testId, testAnswerRequestDto, childId);
+        return CommonResponse.created("Insert TestResult Success");
     }
 
     /**
