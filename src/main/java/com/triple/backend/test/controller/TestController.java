@@ -1,15 +1,13 @@
 package com.triple.backend.test.controller;
 
 import com.triple.backend.common.dto.CommonResponse;
+import com.triple.backend.test.dto.TestResultDto;
 import com.triple.backend.test.service.TestService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
@@ -25,4 +23,13 @@ public class TestController {
         return ResponseEntity.ok(CommonResponse.ok("Get TestQuestion Success", testService.getTestQuestion(testId, pageable)));
     }
 
+    /**
+     *	자녀 성향 진단 결과 조회
+     * 	childId는 헤더에 포함
+     */
+    @GetMapping("/result")
+    public ResponseEntity<?> getTestResult(@RequestHeader(name = "Child-Id") Long childId) {
+        TestResultDto testResultDto = testService.getTestResult(childId);
+        return ResponseEntity.ok(CommonResponse.ok("Get TestResult Success", testResultDto));
+    }
 }
