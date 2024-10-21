@@ -20,7 +20,7 @@ public class TestController {
     @GetMapping("/{testId}")
     public ResponseEntity<?> getTestQuestion(@PathVariable(name = "testId") Long testId,
                                              @PageableDefault(page = 0, size = 10) Pageable pageable) {
-        return ResponseEntity.ok(CommonResponse.ok("Get TestQuestion Success", testService.getTestQuestion(testId, pageable)));
+        return CommonResponse.ok("Get TestQuestion Success", testService.getTestQuestion(testId, pageable));
     }
 
     /**
