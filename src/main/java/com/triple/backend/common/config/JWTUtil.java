@@ -1,5 +1,6 @@
 package com.triple.backend.common.config;
 
+import com.triple.backend.auth.service.LoginService;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -9,6 +10,7 @@ import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import javax.management.relation.RoleNotFoundException;
 import java.security.Key;
 import java.util.Date;
 
@@ -16,6 +18,7 @@ import java.util.Date;
 public class JWTUtil {
 
     private final Key key;
+    private LoginService loginService;
 
     // secret 값을 Base64 디코딩하여 Key로 변환하는 생성자
     public JWTUtil(@Value("${spring.jwt.secret}") String secret) {
@@ -49,21 +52,21 @@ public class JWTUtil {
         return Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token).getBody().getExpiration().before(new Date());
     }
 
-    // 이메일 및 만료 기간을 포함한 JWT 토큰을 생성하는 메소드
-    public String createJwt(String email, Long expiredMs) {
-        Claims claims = Jwts.claims();
-        claims.put("email", email);  // email 클레임 추가
+    // 이메일 및 역할, 만료 기간을 포함한 JWT 토큰을 생성하는 메소드
+    public String createJwt(String username, String roleCodeId, Long expiredMs) throws RoleNotFoundException {
+        // 공통코드에서 역할을 가져오기
+        String role = loginService.getRoleByCodeId(roleCodeId); // 공통코드로부터 역할 가져오기
 
-        // JWT 토큰을 생성하고 서명한 후 반환
-        String jwt = Jwts.builder()
+        Claims claims = Jwts.claims();
+        claims.put("username", username);
+        claims.put("role", role);
+
+        return Jwts.builder()
                 .setClaims(claims)
                 .setIssuedAt(new Date(System.currentTimeMillis()))
                 .setExpiration(new Date(System.currentTimeMillis() + expiredMs))
                 .signWith(key, SignatureAlgorithm.HS256)
-                .compact();  // 토큰 생성
-
-        System.out.println("Generated JWT: " + jwt); // JWT를 출력하여 확인
-        return jwt;
+                .compact();
     }
 
 }
