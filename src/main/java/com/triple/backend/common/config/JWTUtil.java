@@ -1,19 +1,19 @@
 package com.triple.backend.common.config;
 
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
-
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.security.Key;
 import java.util.Date;
 
-import static io.jsonwebtoken.Jwts.*;
-
+@Slf4j
 @Component
 public class JWTUtil {
 
@@ -21,43 +21,88 @@ public class JWTUtil {
 
     // secret 값을 Base64 디코딩하여 Key로 변환하는 생성자
     public JWTUtil(@Value("${spring.jwt.secret}") String secret) {
-        // Base64로 인코딩된 secret 키를 디코딩하여 byte 배열로 변환
         byte[] byteSecretKey = Decoders.BASE64.decode(secret);
-        // HMAC-SHA 기반의 Key를 생성
-        this.key = Keys.hmacShaKeyFor(byteSecretKey);
+        this.key = Keys.hmacShaKeyFor(byteSecretKey);   // 서명키를 한번만 생성
     }
 
-    // JWT 토큰에서 이메일을 추출하는 메소드
-    public String getEmail(String token) {
-        // 주어진 JWT 토큰에서 "email" 클레임을 추출
-        return Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token).getBody().get("email", String.class);
+    // Access Token 생성 메서드
+    public String createAccessToken(Long memberId, Long expirationMillis) {
+        Claims claims = Jwts.claims();
+        claims.put("memberId", memberId);  // memberId만 저장
+
+        return Jwts.builder()
+                .setClaims(claims)
+                .setIssuedAt(new Date(System.currentTimeMillis()))  // 발급 시간
+                .setExpiration(new Date(System.currentTimeMillis() + expirationMillis))  // 만료 시간
+                .signWith(key, SignatureAlgorithm.HS256)  // 서명 알고리즘과 키
+                .compact();  // 토큰 생성
     }
 
-    // JWT 토큰에서 role을 추출하는 메소드, 하지만 role은 우리 프로젝트에 사용하지 않음
-    public String getRole(String token) {
-        // 주어진 JWT 토큰에서 "role" 클레임을 추출
-        return Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token).getBody().get("role", String.class);
+    // Refresh Token 생성 메서드
+    public String createRefreshToken(Long memberId, Long refreshTokenExpirationMillis) {
+        Claims claims = Jwts.claims();
+        claims.put("memberId", memberId);  // Refresh Token에 사용할 memberId
+
+        return Jwts.builder()
+                .setClaims(claims)
+                .setIssuedAt(new Date(System.currentTimeMillis()))  // 발급 시간
+                .setExpiration(new Date(System.currentTimeMillis() + refreshTokenExpirationMillis))  // 만료 시간
+                .signWith(key, SignatureAlgorithm.HS256)  // 서명 알고리즘과 키
+                .compact();
     }
 
-    // JWT 토큰의 만료 여부를 확인하는 메소드
-    public Boolean isExpired(String token) {
-        // 주어진 JWT 토큰의 만료 시간을 확인하여 현재 시간과 비교
-        return Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token).getBody().getExpiration().before(new Date());
+    // JWT 토큰에서 memberId를 추출하는 메서드
+    public Long getMemberIdFromToken(String token) {
+        try {
+            Claims claims = Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token).getBody();
+            return claims.get("memberId", Long.class);  // memberId를 추출
+        } catch (JwtException | IllegalArgumentException e) {
+            log.warn("유효하지 않은 토큰입니다.");
+            throw new RuntimeException("Invalid token");
+        }
     }
 
     // 이메일, role 및 만료 기간을 포함한 JWT 토큰을 생성하는 메소드
     public String createJwt(String email, Long expiredMs) {   // String role 제거
         // 클레임에 email과 role을 추가
-        Claims claims = claims();
+        Claims claims = Jwts.claims();
         claims.put("email", email);  // email로 클레임 수
 //      claims.put("role", role);
 
         // JWT 토큰을 생성하고 서명한 후 반환
-        return builder()
+        return Jwts.builder()
                 .setClaims(claims)  // 클레임 설정
                 .setIssuedAt(new Date(System.currentTimeMillis()))  // 발급 시간 설정
                 .setExpiration(new Date(System.currentTimeMillis() + expiredMs))  // 만료 시간 설정
                 .signWith(key, SignatureAlgorithm.HS256)  // 서명 알고리즘과 키를 사용하여 서명
                 .compact();  // 토큰 생성
     }
+
+    // JWT 토큰 검증 메서드
+    public boolean validateToken(String token) {
+        try {
+            Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token);
+            return true;
+        } catch (JwtException | IllegalArgumentException e) {
+            log.warn("토큰 검증에 실패했습니다.");
+            return false;
+        }
+    }
+
+    // JWT 토큰의 만료 여부를 확인하는 메서드
+    public boolean isTokenExpired(String token) {
+        try {
+            Date expirationDate = Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token).getBody().getExpiration();
+            return expirationDate.before(new Date());  // 현재 날짜와 만료 날짜 비교
+        } catch (JwtException | IllegalArgumentException e) {
+            log.warn("유효하지 않은 토큰입니다.");
+            throw new RuntimeException("Invalid token");
+        }
+    }
+
+    // 응답 헤더에서 토큰 추출
+    public String getTokenFromHeader(String authorizationHeader) {
+        return authorizationHeader.substring(7);  // "Bearer " 제거 후 토큰 반환
+    }
+
 }
