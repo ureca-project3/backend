@@ -1,17 +1,21 @@
 package com.triple.backend.common.code;
 
+import java.io.Serializable;
+import java.util.Objects;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.util.Objects;
-
 @Getter
 @Embeddable
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class CommonCodeId {
+public class CommonCodeId implements Serializable {
+
+    private static final long serialVersionUID = 1L;
+
     @Column(columnDefinition = "char(3)")
     private String codeId;
     private String groupId;
