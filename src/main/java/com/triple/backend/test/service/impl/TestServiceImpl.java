@@ -7,12 +7,7 @@ import com.triple.backend.child.repository.ChildRepository;
 import com.triple.backend.child.repository.ChildTraitsRepository;
 import com.triple.backend.child.repository.MbtiHistoryRepository;
 import com.triple.backend.common.exception.NotFoundException;
-import com.triple.backend.test.dto.TestQuestionResponseDto;
-import com.triple.backend.test.dto.TestResultDto;
-import com.triple.backend.test.dto.TraitDataDto;
-import com.triple.backend.test.dto.TestAnswerRequestDto;
-import com.triple.backend.test.dto.TestParticipationRequestDto;
-import com.triple.backend.test.dto.TestQuestionTraitResponseDto;
+import com.triple.backend.test.dto.*;
 import com.triple.backend.test.entity.Test;
 import com.triple.backend.test.entity.TestParticipation;
 import com.triple.backend.test.entity.TestQuestion;
@@ -39,16 +34,8 @@ public class TestServiceImpl implements TestService {
     private final ChildTraitsRepository childTraitsRepository;
     private final MbtiHistoryRepository mbtiHistoryRepository;
     private final TestParticipationRepository testParticipationRepository;
-
     private final TestAnswerRepository testAnswerRepository;
-
-    private  final TestParticipationRepository testParticipationRepository;
-
-    private final MbtiHistoryRepository mbtiHistoryRepository;
-
     private final ChildRepository childRepository;
-
-    private final ChildTraitsRepository childTraitsRepository;
 
     private final TraitRepository traitRepository;
 
@@ -74,7 +61,7 @@ public class TestServiceImpl implements TestService {
 
     // 자녀 성향 진단 결과 조희
     @Override
-    public TestResultDto getTestResult(Long childId) {
+    public TestResultRequestDto getTestResult(Long childId) {
 
         MbtiHistory history = mbtiHistoryRepository.findTopByChild_ChildIdOrderByCreatedAtDesc(childId);
         Long historyId = history.getHistoryId();
@@ -82,9 +69,9 @@ public class TestServiceImpl implements TestService {
         TestParticipation testParticipation = testParticipationRepository.findTopByChild_ChildIdOrderByCreatedAtDesc(childId);
         Long testId = testParticipation.getTest().getTestId();
 
-        List<TraitDataDto> traitDataDtoList = childTraitsRepository.findTraitsByChildAndTest(childId, historyId, testId);
+        List<TraitDataResponseDto> traitDataDtoList = childTraitsRepository.findTraitsByChildAndTest(childId, historyId, testId);
 
-        return new TestResultDto(traitDataDtoList);
+        return new TestResultRequestDto(traitDataDtoList);
     }
 
     // 자녀 성향 진단 결과 등록
