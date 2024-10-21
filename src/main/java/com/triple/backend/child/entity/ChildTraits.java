@@ -9,9 +9,11 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
+import java.time.LocalDateTime;
+
 @Entity
 @Getter
-@NoArgsConstructor
+@NoArgsConstructor(access = lombok.AccessLevel.PROTECTED)
 public class ChildTraits {
 
     @Id

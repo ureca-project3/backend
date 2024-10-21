@@ -3,6 +3,8 @@ package com.triple.backend.test.controller;
 import com.triple.backend.common.dto.CommonResponse;
 import com.triple.backend.test.dto.TestAnswerRequestDto;
 import com.triple.backend.test.dto.TestParticipationRequestDto;
+
+import com.triple.backend.test.dto.TestResultRequestDto;
 import com.triple.backend.test.service.TestService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
@@ -22,6 +24,16 @@ public class TestController {
     public ResponseEntity<?> getTestQuestion(@PathVariable(name = "testId") Long testId,
                                              @PageableDefault(page = 0, size = 10) Pageable pageable) {
         return CommonResponse.ok("Get TestQuestion Success", testService.getTestQuestion(testId, pageable));
+    }
+
+    /**
+     *	자녀 성향 진단 결과 조회
+     * 	childId는 헤더에 포함
+     */
+    @GetMapping("/result")
+    public ResponseEntity<?> getTestResult(@RequestHeader(name = "Child-Id") Long childId) {
+        TestResultRequestDto testResultDto = testService.getTestResult(childId);
+        return CommonResponse.ok("Get TestResult Success", testResultDto);
     }
 
     // 자녀 성향 진단 결과 등록
@@ -44,6 +56,5 @@ public class TestController {
         testService.insertTestParticipation(dto);
         return CommonResponse.created("Insert TestParticipation Success");
     }
-
 
 }
