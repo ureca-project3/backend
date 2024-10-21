@@ -20,7 +20,6 @@ public class TestAnswerId implements Serializable {
     @JoinColumn(name = "question_id")
     private TestQuestion testQuestion;
 
-    @Builder
     public TestAnswerId(TestParticipation testParticipation, TestQuestion testQuestion) {
         this.testParticipation = testParticipation;
         this.testQuestion = testQuestion;

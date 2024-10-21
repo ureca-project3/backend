@@ -92,8 +92,11 @@ public class TestServiceImpl implements TestService {
 
                 // 자녀 성향 테스트 응답 등록
                 TestQuestionTraitResponseDto testQuestionTraitResponseDto = testQuestionRepository.findQuestionWithTraitById(entry.getKey());
-                TestQuestion testQuestion = new TestQuestion(testQuestionTraitResponseDto.getQuestionId(), testQuestionTraitResponseDto.getTest(),
-                        testQuestionTraitResponseDto.getTrait(), testQuestionTraitResponseDto.getQuestionText());
+                TestQuestion testQuestion = TestQuestion.builder()
+                        .questionId(testQuestionTraitResponseDto.getQuestionId())
+                        .test(testQuestionTraitResponseDto.getTest())
+                        .trait(testQuestionTraitResponseDto.getTrait())
+                        .questionText(testQuestionTraitResponseDto.getQuestionText()).build();
                 TestAnswerId testAnswerId = new TestAnswerId(testParticipation, testQuestion);
                 testAnswerRepository.save(new TestAnswer(testAnswerId, entry.getValue()));
 
@@ -125,7 +128,13 @@ public class TestServiceImpl implements TestService {
         }
 
         // MBTI 히스토리 등록
-        MbtiHistory mbtiHistory = mbtiHistoryRepository.save(new MbtiHistory(child, currentMbti, LocalDateTime.now(), "자녀 성향 진단", false));
+        MbtiHistory mbtiHistory = mbtiHistoryRepository.save(MbtiHistory.builder()
+                .child(child)
+                .currentMbti(currentMbti)
+                .createdAt(LocalDateTime.now())
+                .reason("자녀 성향 진단")
+                .isDeleted(false)
+                .build());
 
         // 자녀 성향 등록
         for (Map<String, Integer> traitCount : totalTraitCount) {
@@ -134,6 +143,12 @@ public class TestServiceImpl implements TestService {
                 for( Trait trait : traitList) {
                     if(key.equals(trait.getTraitName())) {
                         childTraitsRepository.save(new ChildTraits(mbtiHistory, trait, value, LocalDateTime.now()));
+                        childTraitsRepository.save(ChildTraits.builder()
+                                .mbtiHistory(mbtiHistory)
+                                .trait(trait)
+                                .traitScore(value)
+                                .createdAt(LocalDateTime.now())
+                                .build());
                     }
                 }
             }

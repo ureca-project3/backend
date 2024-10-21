@@ -15,7 +15,6 @@ public class TestAnswer {
 
     private Integer answerText;
 
-    @Builder
     public TestAnswer(TestAnswerId testAnswerId, Integer answerText) {
         this.testAnswerId = testAnswerId;
         this.answerText = answerText;

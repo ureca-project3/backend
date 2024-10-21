@@ -1,6 +1,7 @@
 package com.triple.backend.child.entity;
 
 import jakarta.persistence.*;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -26,6 +27,7 @@ public class MbtiHistory {
 
     private boolean isDeleted = false;
 
+    @Builder
     public MbtiHistory(Child child, String currentMbti, LocalDateTime createdAt, String reason, boolean isDeleted) {
         this.child = child;
         this.currentMbti = currentMbti;
