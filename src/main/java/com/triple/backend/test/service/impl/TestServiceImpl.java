@@ -6,6 +6,7 @@ import com.triple.backend.child.entity.MbtiHistory;
 import com.triple.backend.child.repository.ChildRepository;
 import com.triple.backend.child.repository.ChildTraitsRepository;
 import com.triple.backend.child.repository.MbtiHistoryRepository;
+import com.triple.backend.common.exception.NotFoundException;
 import com.triple.backend.test.dto.TestAnswerRequestDto;
 import com.triple.backend.test.dto.TestParticipationRequestDto;
 import com.triple.backend.test.dto.TestQuestionResponseDto;
@@ -46,7 +47,7 @@ public class TestServiceImpl implements TestService {
     @Override
     public TestQuestionResponseDto getTestQuestion(Long testId, Pageable pageable) {
 
-        Test test = testRepository.findById(testId).orElseThrow( () -> new IllegalArgumentException("테스트 정보를 찾을 수 없습니다."));
+        Test test = testRepository.findById(testId).orElseThrow( () -> NotFoundException.entityNotFound("테스트"));
 
         List<TestQuestion> testQuestionList = testQuestionRepository.findByTest(test, pageable);
 
@@ -67,10 +68,10 @@ public class TestServiceImpl implements TestService {
     public void insertTestResult(Long testId, TestAnswerRequestDto testAnswerRequestDto, Long childId) {
 
         // Token 자녀ID
-        Child child = childRepository.findById(childId).orElseThrow( () -> new IllegalArgumentException("로그인이 되어 있는지 확인 부탁드립니다."));
+        Child child = childRepository.findById(childId).orElseThrow( () -> NotFoundException.entityNotFound("자녀"));
 
         // 테스트 참여ID 조회
-        Test test = testRepository.findById(testId).orElseThrow( () -> new IllegalArgumentException("테스트 정보를 찾을 수 없습니다."));
+        Test test = testRepository.findById(testId).orElseThrow( () -> NotFoundException.entityNotFound("테스트"));
         TestParticipation testParticipation = testParticipationRepository.findTopByChildAndTestOrderByCreatedAtDesc(child, test);
 
         // MBTI 성향 조회
@@ -146,10 +147,10 @@ public class TestServiceImpl implements TestService {
     public void insertTestParticipation(TestParticipationRequestDto dto) {
 
         Test test = testRepository.findById(dto.getTestId())
-                .orElseThrow(() -> new IllegalArgumentException("테스트 정보를 찾을 수 없습니다."));
+                .orElseThrow(() -> NotFoundException.entityNotFound("테스트"));
 
         Child child = childRepository.findById(dto.getChildId())
-                .orElseThrow(() -> new IllegalArgumentException("아이 정보를 찾을 수 없습니다."));
+                .orElseThrow(() -> NotFoundException.entityNotFound("자녀"));
 
         TestParticipation testParticipation = dto.toEntity(test, child);
 
