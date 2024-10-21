@@ -9,7 +9,6 @@ import java.time.LocalDateTime;
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
-@Builder
 @Getter
 @Table(name = "refresh_tokens")
 public class RefreshToken {
@@ -29,4 +28,10 @@ public class RefreshToken {
 
     @Column(name = "expiry_date", nullable = false)
     private LocalDateTime expiryDate;  // RefreshToken 만료일
+
+    @Builder
+    public RefreshToken(String token, Member member) {
+        this.token = token;
+        this.member = member;
+    }
 }
