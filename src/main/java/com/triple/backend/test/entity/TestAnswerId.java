@@ -10,7 +10,7 @@ import java.io.Serializable;
 @Embeddable
 @Getter
 @NoArgsConstructor(access = lombok.AccessLevel.PROTECTED)
-public class TestAnswerPK implements Serializable {
+public class TestAnswerId implements Serializable {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "test_participation_id")
@@ -21,7 +21,7 @@ public class TestAnswerPK implements Serializable {
     private TestQuestion testQuestion;
 
     @Builder
-    public TestAnswerPK(TestParticipation testParticipation, TestQuestion testQuestion) {
+    public TestAnswerId(TestParticipation testParticipation, TestQuestion testQuestion) {
         this.testParticipation = testParticipation;
         this.testQuestion = testQuestion;
     }

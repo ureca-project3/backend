@@ -11,13 +11,13 @@ import lombok.NoArgsConstructor;
 public class TestAnswer {
 
     @EmbeddedId
-    TestAnswerPK testAnswerPK;
+    TestAnswerId testAnswerId;
 
     private Integer answerText;
 
     @Builder
-    public TestAnswer(TestAnswerPK testAnswerPK, Integer answerText) {
-        this.testAnswerPK = testAnswerPK;
+    public TestAnswer(TestAnswerId testAnswerId, Integer answerText) {
+        this.testAnswerId = testAnswerId;
         this.answerText = answerText;
     }
 }

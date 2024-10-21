@@ -93,8 +93,8 @@ public class TestServiceImpl implements TestService {
                 TestQuestionTraitResponseDto testQuestionTraitResponseDto = testQuestionRepository.findQuestionWithTraitById(entry.getKey());
                 TestQuestion testQuestion = new TestQuestion(testQuestionTraitResponseDto.getQuestionId(), testQuestionTraitResponseDto.getTest(),
                         testQuestionTraitResponseDto.getTrait(), testQuestionTraitResponseDto.getQuestionText());
-                TestAnswerPK testAnswerPK = new TestAnswerPK(testParticipation, testQuestion);
-                testAnswerRepository.save(new TestAnswer(testAnswerPK, entry.getValue()));
+                TestAnswerId testAnswerId = new TestAnswerId(testParticipation, testQuestion);
+                testAnswerRepository.save(new TestAnswer(testAnswerId, entry.getValue()));
 
                 // 성향 점수 증감
                 for (Map<String, Integer> traitCount : totalTraitCount) {
