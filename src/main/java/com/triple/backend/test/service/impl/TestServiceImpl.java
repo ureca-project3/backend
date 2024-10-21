@@ -118,25 +118,8 @@ public class TestServiceImpl implements TestService {
                 Integer value = traitCount.get(key);
 
                 // 현재 성향 MBTI 문자열 구하기
-                /*
-                    2024.10.20
-                    erd에 MBTI 알파벳이 저장되어 있지 않아 DB에서 가져와서 등록 불가능
-                 */
-                if( value > 50) {
-                    switch (key) {
-                        case "에너지방향" : currentMbti += 'E'; break;
-                        case "인식기능" : currentMbti += 'S'; break;
-                        case "판단기능" : currentMbti += 'T'; break;
-                        case "생활양식" : currentMbti += 'J'; break;
-                    }
-                } else {
-                    switch (key) {
-                        case "에너지방향" : currentMbti += 'I'; break;
-                        case "인식기능" : currentMbti += 'N'; break;
-                        case "판단기능" : currentMbti += 'F'; break;
-                        case "생활양식" : currentMbti += 'P'; break;
-                    }
-                }
+                TraitType traitType = TraitType.valueOf(key);
+                currentMbti += traitType.getTraitByScore(value);
             }
         }
 
