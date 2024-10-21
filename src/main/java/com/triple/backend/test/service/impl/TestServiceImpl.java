@@ -2,6 +2,7 @@ package com.triple.backend.test.service.impl;
 
 import com.triple.backend.child.entity.MbtiHistory;
 import com.triple.backend.child.repository.MbtiHistoryRepository;
+import com.triple.backend.common.exception.NotFoundException;
 import com.triple.backend.test.dto.TestQuestionResponseDto;
 import com.triple.backend.test.dto.TestResultDto;
 import com.triple.backend.test.dto.TraitDataDto;
@@ -38,7 +39,7 @@ public class TestServiceImpl implements TestService {
     @Override
     public TestQuestionResponseDto getTestQuestion(Long testId, Pageable pageable) {
 
-        Test test = testRepository.findById(testId).orElseThrow( () -> new IllegalArgumentException("테스트 정보를 찾을 수 없습니다."));
+        Test test = testRepository.findById(testId).orElseThrow( () -> NotFoundException.entityNotFound("테스트"));
 
         List<TestQuestion> testQuestionList = testQuestionRepository.findByTest(test, pageable);
 
