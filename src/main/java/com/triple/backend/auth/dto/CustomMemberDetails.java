@@ -16,7 +16,7 @@ public class CustomMemberDetails implements UserDetails {
 
     }
 
-    // 사용자의 role 값을 반환
+    // 사용자의 role 값을 반환 (우리는 공통코드 작업이라 사용 X)
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
 
@@ -27,7 +27,7 @@ public class CustomMemberDetails implements UserDetails {
             @Override
             public String getAuthority() {
 
-                return member.getRole().getCommonName(); // 공통코드의 이름을 반환
+                return "success"; //  return userEntity.getRole(); 이 정상
             }
         });
 

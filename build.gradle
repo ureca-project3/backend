@@ -33,14 +33,11 @@ dependencies {
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
     // JWT 의존성 추가
-    implementation 'io.jsonwebtoken:jjwt:0.9.1'
+    // implementation 'io.jsonwebtoken:jjwt:0.9.1'
 
     // OAuth 2.0
     implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
     // Jwt
-    implementation 'io.jsonwebtoken:jjwt-api:0.12.2'
-    implementation 'io.jsonwebtoken:jjwt-impl:0.12.2'
-    implementation 'io.jsonwebtoken:jjwt-jackson:0.12.2'
     // 시큐리티
     implementation 'org.springframework.boot:spring-boot-starter-security'
     implementation 'io.jsonwebtoken:jjwt-api:0.11.5'

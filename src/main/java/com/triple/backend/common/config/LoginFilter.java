@@ -44,25 +44,27 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         return authenticationManager.authenticate(authToken);
     }
 
-    // 로그인 성공시 실행하는 메소드 (여기서 JWT를 발급하면 됨)
+    //로그인 성공시 실행하는 메소드 (여기서 JWT를 발급하면 됨)
     @Override
     protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication authentication) {
         System.out.println("로그인 성공");
+        //UserDetailsS
         CustomMemberDetails customMemberDetails = (CustomMemberDetails) authentication.getPrincipal();
 
         String email = customMemberDetails.getUsername(); // email을 뽑아냄
 
         // role 값을 뽑아냄
-        Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
-        String role = authorities.iterator().next().getAuthority(); // 공통코드에서 가져온 역할
+//        Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
+//        Iterator<? extends GrantedAuthority> iterator = authorities.iterator();
+//        GrantedAuthority auth = iterator.next();
 
-        String token = jwtUtil.createJwt(email, role, 60 * 60 * 10L);  // (email, role, 60*60*10L)
-        System.out.println("Generated JWT: " + token); // JWT를 출력하여 확인
+//        String role = auth.getAuthority();
+
+        String token = jwtUtil.createJwt(email, 60 * 60 * 10L);  // (email, role, 60*60*10L)
         // 헤더에 Authorization JWT 데이터에 "Bearer " + token
+
         response.addHeader("Authorization", "Bearer " + token);
     }
-
-
 
     // 로그인 실패시 실행하는 메소드
     @Override
