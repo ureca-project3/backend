@@ -1,22 +1,22 @@
 package com.triple.backend.test.entity;
 
 import jakarta.persistence.*;
+import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Entity
 @Getter
+@NoArgsConstructor(access = lombok.AccessLevel.PROTECTED)
 public class TestAnswer {
 
-    @Id
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "test_participation_id")
-    private TestParticipation testParticipation;
-
-    @Id
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "question_id")
-    private TestQuestion testQuestion;
+    @EmbeddedId
+    TestAnswerId testAnswerId;
 
     private Integer answerText;
 
+    public TestAnswer(TestAnswerId testAnswerId, Integer answerText) {
+        this.testAnswerId = testAnswerId;
+        this.answerText = answerText;
+    }
 }
