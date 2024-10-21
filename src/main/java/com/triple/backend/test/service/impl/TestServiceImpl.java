@@ -154,7 +154,6 @@ public class TestServiceImpl implements TestService {
                 Integer value = traitCount.get(key);
                 for( Trait trait : traitList) {
                     if(key.equals(trait.getTraitName())) {
-                        childTraitsRepository.save(new ChildTraits(mbtiHistory, trait, value, LocalDateTime.now()));
                         childTraitsRepository.save(ChildTraits.builder()
                                 .mbtiHistory(mbtiHistory)
                                 .trait(trait)
