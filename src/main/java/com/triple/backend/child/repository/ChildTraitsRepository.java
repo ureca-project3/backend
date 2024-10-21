@@ -13,4 +13,6 @@ public interface ChildTraitsRepository extends JpaRepository<ChildTraits, Long> 
             "FROM ChildTraits ct JOIN ct.trait t " +
             "WHERE ct.mbtiHistory.child.childId = :childId AND ct.mbtiHistory.historyId = :historyId AND ct.trait.test.testId = :testId")
     List<TraitDataDto> findTraitsByChildAndTest(Long childId, Long historyId, Long testId);
+
+    List<ChildTraits> findByMbtiHistory_HistoryId(Long childId);
 }
