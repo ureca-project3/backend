@@ -13,6 +13,7 @@ import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Autowired;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 
 import java.security.Key;
@@ -31,7 +32,8 @@ public class JWTUtil {
     public JWTUtil(@Value("${spring.jwt.secret}") String secret) {
         // Base64로 인코딩된 secret 키를 디코딩하여 byte 배열로 변환
         byte[] byteSecretKey = Decoders.BASE64.decode(secret);
-        this.key = Keys.hmacShaKeyFor(byteSecretKey);   // 서명키를 한번만 생성
+        // HMAC-SHA 기반의 Key를 생성
+        this.key = Keys.hmacShaKeyFor(byteSecretKey);
     }
 
     // JWT 토큰에서 이메일을 추출하는 메소드
@@ -118,5 +120,3 @@ public class JWTUtil {
     public String getTokenFromHeader(String authorizationHeader) {
         return authorizationHeader.substring(7);  // "Bearer " 제거 후 토큰 반환
     }
-
-}

@@ -32,19 +32,4 @@ public class JoinController {
         return "회원가입 완료";
     }
 
-    // 세션에 정보가 왔는지 확인 (추후에 삭제 예정)
-    @GetMapping("/")
-    public String mainP() {
-
-        String name = SecurityContextHolder.getContext().getAuthentication().getName();
-
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-
-        Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
-        Iterator<? extends GrantedAuthority> iter = authorities.iterator();
-        GrantedAuthority auth = iter.next();
-        String role = auth.getAuthority();
-
-        return "Main Controller : "+name;
-    }
 }
