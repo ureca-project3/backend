@@ -11,6 +11,7 @@ import lombok.Setter;
 @Table
 @Getter
 @Setter
+
 public class Member extends BaseEntity {
 
     @Id
@@ -37,18 +38,18 @@ public class Member extends BaseEntity {
     private String provider;  // 소셜 로그인 제공자 (KAKAO) 일단 string으로 구현
     private String providerId;  // 소셜 로그인에서 제공하는 고유 사용자 ID (카카오 ID)
 
+    // 생성자에 @Builder 어노테이션을 적용하여 소셜 로그인과 일반 로그인을 구분하는 방식
     @Builder
-
-    public Member(String providerId, String provider, String name, String email, String phone) {
-        this.providerId = providerId;
-        this.provider = provider;
+    public Member(String name, String email, String phone, String password, String provider, String providerId) {
         this.name = name;
         this.email = email;
         this.phone = phone;
+        this.password = password;
+        this.provider = provider;
+        this.providerId = providerId;
     }
 
     public Member() {
-
     }
     // 역할을 부여하기 위해 CommonCode 참조 추가
 //        @ManyToOne

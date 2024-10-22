@@ -33,12 +33,6 @@ public class SecurityConfig {
     private final JWTFilter jwtFilter;
 //    private final JwtAuthenticationFilter jwtAuthenticationFilter;
 
-//    // 생성자
-//    public SecurityConfig(AuthenticationConfiguration authenticationConfiguration,  JWTUtil jwtUtil) { // JwtAuthenticationFilter jwtAuthenticationFilter 삭제
-//        this.authenticationConfiguration = authenticationConfiguration;
-////        this.jwtAuthenticationFilter = jwtAuthenticationFilter;
-//        this.jwtUtil = jwtUtil;
-//    }
 
     // CORS 설정
     CorsConfigurationSource corsConfigurationSource() {
@@ -71,9 +65,9 @@ public class SecurityConfig {
                         .requestMatchers("/auth/**", "/public/**", "/join","/login").permitAll()  // 인증 없이 접근 가능
                         .anyRequest().authenticated()  // 그 외 요청은 인증 필요
                 )
-//                .sessionManagement(session -> session
-//                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS)  // 세션을 사용하지 않음 (JWT 기반)
-//                );
+              // 세션 관리 설정: Stateless로 변경 (세션을 사용하지 않음, JWT 기반 인증)
+                .sessionManagement(session -> session
+                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS))  // 세션을 사용하지 않음 (JWT 기반)
                 .oauth2Login(oauth -> // OAuth2 로그인 기능에 대한 여러 설정의 진입점
                         oauth
                                 .successHandler(oAuthLoginSuccessHandler) // 로그인 성공 시 핸들러
