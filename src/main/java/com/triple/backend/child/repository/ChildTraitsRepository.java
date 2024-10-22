@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface ChildTraitsRepository extends JpaRepository<ChildTraits, Long> {
 
@@ -13,4 +14,7 @@ public interface ChildTraitsRepository extends JpaRepository<ChildTraits, Long> 
             "FROM ChildTraits ct JOIN ct.trait t " +
             "WHERE ct.mbtiHistory.child.childId = :childId AND ct.mbtiHistory.historyId = :historyId AND ct.trait.test.testId = :testId")
     List<TraitDataResponseDto> findTraitsByChildAndTest(Long childId, Long historyId, Long testId);
+
+    @Query("select ct from ChildTraits ct where ct.mbtiHistory.child.childId = :childId")
+    Optional<ChildTraits> findByChildId(Long childId);
 }
