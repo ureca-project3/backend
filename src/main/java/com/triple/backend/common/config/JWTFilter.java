@@ -1,6 +1,9 @@
 package com.triple.backend.common.config;
 
 import com.triple.backend.auth.dto.CustomMemberDetails;
+import com.triple.backend.common.code.CommonCode;
+import com.triple.backend.common.code.CommonCodeId;
+import com.triple.backend.common.repository.CommonCodeRepository;
 import com.triple.backend.member.entity.Member;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -13,14 +16,16 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 import java.util.Enumeration;
+import java.util.Optional;
 
 // JWT 필터 검증
 public class JWTFilter extends OncePerRequestFilter {
 
     private final JWTUtil jwtUtil;
-
-    public JWTFilter(JWTUtil jwtUtil) {
+    private final CommonCodeRepository commonCodeRepository;
+    public JWTFilter(JWTUtil jwtUtil, CommonCodeRepository commonCodeRepository) {
         this.jwtUtil = jwtUtil;
+        this.commonCodeRepository = commonCodeRepository;
     }
 
     @Override
@@ -57,15 +62,18 @@ public class JWTFilter extends OncePerRequestFilter {
             //조건이 해당되면 메소드 종료 (필수)
             return;
         }
-        // 토큰에서 email과 role 획득, role 사용안함
+        // 토큰에서 email과 role 획득
         String email = jwtUtil.getEmail(token);
-//        String role = jwtUtil.getRole(token);
+        String roleCodeId = jwtUtil.getRole(token); // 역할 코드를 가져옴
+
+        // CommonCode에서 역할 정보를 조회
+        Optional<CommonCode> roleOptional = commonCodeRepository.findById(new CommonCodeId(roleCodeId, "100"));
 
         //userEntity를 생성하여 값 set
         Member member = new Member();
         member.setName(email);
-        member.setPassword("temppassword"); // 임시적으로 비밀번호 입력
-//        member.setRole(role);
+        member.setRole(roleOptional.get()); // CommonCode 객체를 설정
+
 
         //UserDetails에 회원 정보 객체 담기
         CustomMemberDetails customMemberDetails = new CustomMemberDetails(member);

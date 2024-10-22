@@ -1,5 +1,6 @@
 package com.triple.backend.common.config;
 
+import com.triple.backend.common.repository.CommonCodeRepository;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -19,12 +20,13 @@ public class SecurityConfig {
     private final AuthenticationConfiguration authenticationConfiguration; // AuthenticationConfiguration 의존성 주입
     private final JWTUtil jwtUtil; // jwtUtil 주입
 //    private final JwtAuthenticationFilter jwtAuthenticationFilter;
-
+    private final CommonCodeRepository commonCodeRepository;
     // 생성자
-    public SecurityConfig(AuthenticationConfiguration authenticationConfiguration,  JWTUtil jwtUtil) { // JwtAuthenticationFilter jwtAuthenticationFilter 삭제
+    public SecurityConfig(AuthenticationConfiguration authenticationConfiguration, JWTUtil jwtUtil, CommonCodeRepository commonCodeRepository) { // JwtAuthenticationFilter jwtAuthenticationFilter 삭제
         this.authenticationConfiguration = authenticationConfiguration;
 //        this.jwtAuthenticationFilter = jwtAuthenticationFilter;
         this.jwtUtil = jwtUtil;
+        this.commonCodeRepository = commonCodeRepository;
     }
 
     //AuthenticationManager Bean 등록
@@ -52,7 +54,7 @@ public class SecurityConfig {
         // JWT 필터 추가
 //        http.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
         //JWTFilter 등록
-        http.addFilterBefore(new JWTFilter(jwtUtil), UsernamePasswordAuthenticationFilter.class);
+        http.addFilterBefore(new JWTFilter(jwtUtil, commonCodeRepository), UsernamePasswordAuthenticationFilter.class);
 //        http.addFilterBefore(new JWTFilter(jwtUtil), LoginFilter.class);
         // 로그인 필터 추가 LoginFilter()는 인자를 받음 (AuthenticationManager() 메소드에 authenticationConfiguration 객체를 넣어야 함) 따라서 등록 필요
         http.addFilterAt(new LoginFilter(authenticationManager(authenticationConfiguration), jwtUtil), UsernamePasswordAuthenticationFilter.class);
