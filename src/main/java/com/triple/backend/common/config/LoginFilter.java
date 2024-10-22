@@ -1,7 +1,10 @@
 package com.triple.backend.common.config;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.triple.backend.auth.dto.CustomMemberDetails;
 import com.triple.backend.common.code.CommonCodeId;
+import com.triple.backend.member.entity.Member;
+import com.triple.backend.member.service.MemberService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
@@ -12,88 +15,103 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
-import java.util.Collection;
-import java.util.Iterator;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 public class LoginFilter extends UsernamePasswordAuthenticationFilter {
     // 인증 처리 메소드
     private final AuthenticationManager authenticationManager;
+    private final MemberService memberService;
     // JWTUtil 주입
     private final JWTUtil jwtUtil;
 
-    public LoginFilter(AuthenticationManager authenticationManager, JWTUtil jwtUtil) {
+    public LoginFilter(AuthenticationManager authenticationManager, MemberService memberService, JWTUtil jwtUtil) {
 
         this.authenticationManager = authenticationManager;
+        this.memberService = memberService;
         this.jwtUtil = jwtUtil;
     }
 
     // 인증 정보를 나타내는 인터페이스. 로그인 기능
     @Override
-    public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response)
-            throws AuthenticationException {
-
-        // "email" 값을 가져옴
-        String email = request.getParameter("email");
+    public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException {
+        String email = request.getParameter("email");  // 사용자의 이메일을 가지고옴
         String password = obtainPassword(request);
-        System.out.println("Username: " + email);
-        System.out.println("Password: " + password);
-        UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(email, password,
-                null);
+
+        // 사용자 정보를 데이터베이스에서 조회하여 역할 가져오기
+        Member member = memberService.findByEmail(email); // 이메일 찾는 서비스
+        List<GrantedAuthority> authorities = new ArrayList<>();
+
+        if (member != null && member.getRole() != null) {
+            // 역할이 있는 경우 권한 추가
+            String roleName = member.getRole().getId().getCodeId(); // 코드 ID를 사용하여 역할 이름 가져오기
+            authorities.add(new SimpleGrantedAuthority(roleName));
+        } else {
+            // 역할이 없을 경우, 기본 역할 설정 가능 (예: 익명 사용자)
+            authorities.add(new SimpleGrantedAuthority("역할 없음"));
+        }
+
+        // UsernamePasswordAuthenticationToken 생성 시 권한 목록 전달
+        UsernamePasswordAuthenticationToken authToken =
+                new UsernamePasswordAuthenticationToken(email, password, authorities);
 
         return authenticationManager.authenticate(authToken);
     }
 
 
 
-    // 로그인 성공시 실행하는 메소드 (여기서 JWT를 발급하면 됨)
+    // 로그인 성공시 실행하는 메소드 (여기서 를 accessToken,refreshToken 발급하면 됨)
     @Override
     protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain,
-                                            Authentication authentication) {
-        // 로그인 인증 정보를 가져옴 (CustomMemberDetails는 사용자 정의 UserDetails 구현체)
+                                            Authentication authentication) throws IOException {
+        System.out.println("로그인 성공!!");
         CustomMemberDetails customMemberDetails = (CustomMemberDetails) authentication.getPrincipal();
-
-        // 사용자 이름 (이메일 등)을 가져옴
         String username = customMemberDetails.getUsername();
-
-        // 사용자의 권한 정보를 가져옴
         Collection<? extends GrantedAuthority> authorities = customMemberDetails.getAuthorities();
-
-        // 권한 정보에서 첫 번째 권한을 가져옴 (하나 이상의 권한이 있을 수 있음)
         GrantedAuthority auth = authorities.iterator().next();
-
-        // 첫 번째 권한의 이름을 가져옴
         String role = auth.getAuthority();
+        Long id = customMemberDetails.getMemberId();
 
-        // 사용자 ID를 가져옴 (CustomMemberDetails 클래스에서 정의된 메소드 추가)
-        Long id = customMemberDetails.getMemberId(); // getMemberId 메소드 추가 필요
-
-        // CommonCodeId 객체 생성 (role을 적절한 groupId와 함께 사용)
         String groupId = "100"; // 실제 그룹 ID로 바꿔야 함
         CommonCodeId roleCodeId = new CommonCodeId(role, groupId);
 
         // JWT Access Token 생성 (10시간 유효)
-        String accessToken = jwtUtil.createJwt(username, roleCodeId, 60 * 60 * 10 * 1000L); // 10 hours in milliseconds
+        String accessToken = jwtUtil.createJwt(username, roleCodeId, 60 * 60 * 10 * 1000L);
 
         // JWT Refresh Token 생성 (24시간 유효)
-        String refreshToken = jwtUtil.createJwt(username, roleCodeId, 24 * 60 * 60 * 1000L); // 24 hours in milliseconds
+        String refreshToken = jwtUtil.createJwt(username, roleCodeId, 24 * 60 * 60 * 1000L);
 
         // 리프레시 토큰을 HttpOnly 쿠키에 저장
         Cookie cookie = new Cookie("Refresh-Token", refreshToken);
         cookie.setMaxAge(24 * 60 * 60); // 쿠키의 최대 수명 (1일)
-        cookie.setHttpOnly(true); // 쿠키를 JavaScript에서 접근할 수 없도록 설정
-        cookie.setSecure(true); // HTTPS에서만 쿠키를 전송하도록 설정 (SSL 사용 시)
-        cookie.setPath("/"); // 쿠키의 유효 경로를 설정, /로 설정하면 모든 경로에서 접근 가능
+        cookie.setHttpOnly(true); // JavaScript에서 접근할 수 없도록 설정
+        cookie.setSecure(true); // HTTPS에서만 쿠키를 전송하도록 설정
+        cookie.setPath("/"); // 쿠키의 유효 경로를 설정
+        response.addCookie(cookie); // 생성된 쿠키를 HTTP 응답에 추가
 
-        // 생성된 쿠키를 HTTP 응답에 추가
-        response.addCookie(cookie); // 클라이언트는 이후의 요청에서 이 쿠키를 자동으로 포함하여 전송
+        // JSON 응답 생성
+        Map<String, Object> responseData = new HashMap<>();
+        responseData.put("message", "Login Success");
+        Map<String, String> tokenData = new HashMap<>();
+        tokenData.put("accessToken", accessToken); // Access Token
+        tokenData.put("refreshToken", refreshToken); // Refresh Token
+        responseData.put("data", tokenData);
+        responseData.put("timestamp", new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
 
-        // Authorization 헤더에 Bearer 토큰을 추가
-        response.addHeader("Authorization", "Bearer " + accessToken);
-
-        // HTTP 응답 상태 코드를 200 OK로 설정
+        // JSON 응답 설정
+        response.setContentType("application/json");
         response.setStatus(HttpServletResponse.SC_OK);
+
+        // JSON 변환 및 출력
+        ObjectMapper objectMapper = new ObjectMapper();
+        PrintWriter out = response.getWriter();
+        out.print(objectMapper.writeValueAsString(responseData));
+        out.flush();
     }
 
 

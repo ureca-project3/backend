@@ -7,6 +7,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 
 // 사용자 인증 및 권한 부여
 public class CustomMemberDetails implements UserDetails {
@@ -17,21 +18,18 @@ public class CustomMemberDetails implements UserDetails {
 
     }
 
+
     // 사용자의 role 값을 반환
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        Collection<GrantedAuthority> authorities = new ArrayList<>();
+        Collection<GrantedAuthority> collection = new ArrayList<>();
 
-        // role이 null인 경우 방어 코드 추가
+        // CommonCode에서 권한 이름을 가져와서 SimpleGrantedAuthority 생성
         if (member.getRole() != null) {
-            String roleCodeId = member.getRole().getId().getCodeId();
-            authorities.add(new SimpleGrantedAuthority("ROLE_" + roleCodeId));
-
-            // 역할 이름 추가
-            authorities.add(new SimpleGrantedAuthority(member.getRole().getCommonName()));
+            String roleName = member.getRole().getId().getCodeId(); // CommonCode의 코드 ID를 사용
+            collection.add(new SimpleGrantedAuthority(roleName)); // SimpleGrantedAuthority에 문자열 전달
         }
-
-        return authorities;
+        return collection;
     }
 
 

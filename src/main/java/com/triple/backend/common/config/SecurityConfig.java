@@ -1,6 +1,7 @@
 package com.triple.backend.common.config;
 
 import com.triple.backend.common.repository.CommonCodeRepository;
+import com.triple.backend.member.service.MemberService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -20,11 +21,13 @@ public class SecurityConfig {
     private final AuthenticationConfiguration authenticationConfiguration;
     private final JWTUtil jwtUtil;
     private final CommonCodeRepository commonCodeRepository;
+    private final MemberService memberService;
 
-    public SecurityConfig(AuthenticationConfiguration authenticationConfiguration, JWTUtil jwtUtil, CommonCodeRepository commonCodeRepository) {
+    public SecurityConfig(AuthenticationConfiguration authenticationConfiguration, JWTUtil jwtUtil, CommonCodeRepository commonCodeRepository, MemberService memberService) {
         this.authenticationConfiguration = authenticationConfiguration;
         this.jwtUtil = jwtUtil;
         this.commonCodeRepository = commonCodeRepository;
+        this.memberService = memberService;
     }
 
     @Bean
@@ -50,7 +53,7 @@ public class SecurityConfig {
         http.addFilterBefore(new JWTFilter(jwtUtil, commonCodeRepository), UsernamePasswordAuthenticationFilter.class);
 
         // 로그인 필터 등록
-        http.addFilterAt(new LoginFilter(authenticationManager(authenticationConfiguration), jwtUtil), UsernamePasswordAuthenticationFilter.class);
+        http.addFilterAt(new LoginFilter(authenticationManager(authenticationConfiguration), memberService, jwtUtil), UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
