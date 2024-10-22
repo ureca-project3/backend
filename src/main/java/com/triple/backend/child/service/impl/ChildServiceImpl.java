@@ -49,6 +49,7 @@ public class ChildServiceImpl implements ChildService {
         //  날짜 집어넣기 ( 날짜 출력 형식 고민 )
         List<MbtiHistory> historyList = mbtiHistoryRepository.findByChild_ChildIdOrderByCreatedAtDesc(childId);
         List<String> historyDateList = historyList.stream()
+                .filter(history -> !history.isDeleted()) // 논리적 삭제인 경우 제외
                 .map(history -> history.getCreatedAt().toString())
                 .collect(Collectors.toList());
 
