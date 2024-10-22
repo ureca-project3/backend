@@ -6,12 +6,15 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-import java.util.Optional;
-
 public interface FeedbackRepository extends JpaRepository<Feedback, FeedbackId> {
-    @Query(value = "select f from Feedback f where f.feedbackId = :feedbackId and f.hateStatus = true")
-    Optional<Feedback> findByIdAndHateStatusIsTrue(@Param("feedbackId") FeedbackId feedbackId);
 
-    @Query(value = "select f from Feedback f where f.feedbackId = :feedbackId and f.likeStatus = true")
-    Optional<Object> findByIdAndLikeStatusIsTrue(FeedbackId feedbackId);
+    // 좋아요 상태 확인
+    @Query(value = "select case when count(f) > 0 then true else false end " +
+            "from Feedback f where f.feedbackId = :feedbackId and f.likeStatus = true")
+    boolean findLikeStatusByFeedbackId(@Param(value = "feedbackId") FeedbackId feedbackId);
+
+    // 싫어요 상태 확인
+    @Query(value = "select case when count(f) > 0 then true else false end " +
+            "from Feedback f where f.feedbackId = :feedbackId and f.hateStatus = true")
+    boolean findHateStatusByFeedbackId(@Param(value = "feedbackId") FeedbackId feedbackId);
 }

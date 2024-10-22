@@ -30,8 +30,7 @@ public class FeedbackServiceImpl implements FeedbackService {
     @Override
     public void insertHate(Long childId, Long bookId) {
         FeedbackId feedbackId = new FeedbackId(childId, bookId);
-        boolean hateExists = feedbackRepository.findByIdAndHateStatusIsTrue(feedbackId)
-                .isPresent();
+        boolean hateExists = feedbackRepository.findHateStatusByFeedbackId(feedbackId);
 
         if (hateExists) {
             log.warn("insertHate: DB 정합성 불일치. 이미 존재하는 싫어요입니다.");
@@ -46,8 +45,7 @@ public class FeedbackServiceImpl implements FeedbackService {
             }
             hashOperations.put(LIKE_HASH_KEY, String.valueOf(childId), likedBooks);
         } else {
-            boolean likeExists = feedbackRepository.findByIdAndLikeStatusIsTrue(feedbackId)
-                    .isPresent();
+            boolean likeExists = feedbackRepository.findLikeStatusByFeedbackId(feedbackId);
             if (likeExists) {
                 Feedback feedback = feedbackRepository.findById(feedbackId)
                         .orElseThrow(() -> NotFoundException.entityNotFound("피드백"));
@@ -80,8 +78,7 @@ public class FeedbackServiceImpl implements FeedbackService {
             return;
         }
 
-        boolean hateExists = feedbackRepository.findByIdAndHateStatusIsTrue(feedbackId)
-                .isPresent();
+        boolean hateExists = feedbackRepository.findHateStatusByFeedbackId(feedbackId);
         if (hateExists) {
             Feedback feedback = feedbackRepository.findById(feedbackId)
                     .orElseThrow(() -> NotFoundException.entityNotFound("피드백"));
