@@ -38,7 +38,7 @@ public class BookController {
 	 * 	도서 검색
 	 */
 	@GetMapping("/search")
-	public ResponseEntity<?> getBookDetail(
+	public ResponseEntity<?> getBookSearch(
 		@RequestParam(value = "keyword") String keyword,
 		@PageableDefault(page = 0, size = 10) Pageable pageable
 	) {
