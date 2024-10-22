@@ -17,7 +17,7 @@ public class CustomMemberDetails implements UserDetails {
 
     }
 
-    // 사용자의 role 값을 반환 (우리는 공통코드 작업이라 사용 X)
+    // 사용자의 role 값을 반환
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         Collection<GrantedAuthority> collection = new ArrayList<>();

@@ -15,7 +15,8 @@ public class MemberService implements UserDetailsService {
         this.memberRepository = memberRepository;
     }
 
-    // 데이터베이스에서 특정 이름 조회
+
+    // 데이터베이스에서 특정 이름 조회 , DB 로그인 기능 구현을 위함
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         Member member = memberRepository.findByEmail(username);
