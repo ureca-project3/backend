@@ -1,5 +1,6 @@
 package com.triple.backend.common.config;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.triple.backend.auth.dto.CustomMemberDetails;
 import com.triple.backend.common.code.CommonCodeId;
 import jakarta.servlet.FilterChain;
@@ -12,10 +13,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-
-import java.util.Collection;
-import java.util.Iterator;
-
 
 public class LoginFilter extends UsernamePasswordAuthenticationFilter {
     // 인증 처리 메소드
@@ -37,13 +34,17 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         String email = obtainUsername(request);
         String password = obtainPassword(request);
 
-        System.out.println(email);
+        // 이메일과 비밀번호 출력
+        System.out.println("이메일: " + email);
+        System.out.println("비밀번호: " + password);
+
         //스프링 시큐리티에서 username과 password를 검증하기 위해서는 token에 담아야 함
-        UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(email, password, null); // null이 아니라 role 값이 들어와야함
+        UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(email, password, null);
 
         //token에 담은 검증을 위한 AuthenticationManager로 전달
         return authenticationManager.authenticate(authToken);
     }
+
 
     //로그인 성공시 실행하는 메소드 (여기서 JWT를 발급하면 됨)
     @Override
