@@ -1,6 +1,7 @@
 package com.triple.backend.common.config;
 
 import com.triple.backend.auth.dto.CustomMemberDetails;
+import com.triple.backend.common.code.CommonCodeId;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -28,7 +29,7 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         this.jwtUtil = jwtUtil;
     }
 
-    // 인증 정보를 나타내는 인터페이스
+    // 인증 정보를 나타내는 인터페이스. 로그인 기능
     @Override
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException {
 
@@ -48,21 +49,25 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
     @Override
     protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication authentication) {
         System.out.println("로그인 성공");
-        //UserDetailsS
+
+        // UserDetails
         CustomMemberDetails customMemberDetails = (CustomMemberDetails) authentication.getPrincipal();
 
-        String email = customMemberDetails.getUsername(); // email을 뽑아냄
+        String email = customMemberDetails.getUsername(); // 이메일을 뽑아냄
 
-        // role 값을 뽑아냄
-//        Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
-//        Iterator<? extends GrantedAuthority> iterator = authorities.iterator();
-//        GrantedAuthority auth = iterator.next();
+        // 역할 코드 가져오기
+        String roleCode = customMemberDetails.getAuthorities().stream()
+                .map(GrantedAuthority::getAuthority) // GrantedAuthority에서 역할을 가져옴
+                .findFirst() // 첫 번째 권한(역할)을 가져옴
+                .orElseThrow(() -> new IllegalArgumentException("역할이 없습니다."));
 
-//        String role = auth.getAuthority();
+        // CommonCodeId 생성
+        CommonCodeId roleCodeId = new CommonCodeId(roleCode, "ROLE"); // roleCode가 그룹 ID로 사용될 수 있음
 
-        String token = jwtUtil.createJwt(email, 60 * 60 * 10L);  // (email, role, 60*60*10L)
+        // JWT 생성 (이메일과 역할 코드 사용)
+        String token = jwtUtil.createJwt(email, roleCodeId, 60 * 60 * 10L);  // (email, roleCodeId, 60*60*10L)
+
         // 헤더에 Authorization JWT 데이터에 "Bearer " + token
-
         response.addHeader("Authorization", "Bearer " + token);
     }
 

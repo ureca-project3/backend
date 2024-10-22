@@ -2,7 +2,6 @@ package com.triple.backend.common.config;
 
 import com.triple.backend.auth.dto.CustomMemberDetails;
 import com.triple.backend.member.entity.Member;
-import com.triple.backend.member.repository.MemberRepository;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -16,6 +15,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 import java.util.Enumeration;
+import java.util.Optional;
 
 // JWT 필터 검증
 @AllArgsConstructor
@@ -23,11 +23,11 @@ import java.util.Enumeration;
 public class JWTFilter extends OncePerRequestFilter {
 
     private final JWTUtil jwtUtil;
-    private final MemberRepository memberRepository; // MemberRepository 주입
-
-//    public JWTFilter(JWTUtil jwtUtil) {
-//        this.jwtUtil = jwtUtil;
-//    }
+    private final CommonCodeRepository commonCodeRepository;
+    public JWTFilter(JWTUtil jwtUtil, CommonCodeRepository commonCodeRepository) {
+        this.jwtUtil = jwtUtil;
+        this.commonCodeRepository = commonCodeRepository;
+    }
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
@@ -53,35 +53,25 @@ public class JWTFilter extends OncePerRequestFilter {
         String token = authorization.split(" ")[1];
 
         //토큰 소멸 시간 검증
-        if (jwtUtil.isTokenExpired(token)) {
+        if (jwtUtil.isExpired(token)) {
+
             System.out.println("token expired");
             filterChain.doFilter(request, response);
+
             //조건이 해당되면 메소드 종료 (필수)
             return;
         }
-//        // 토큰에서 email과 role 획득, role 사용안함
-//        String email = jwtUtil.getEmail(token);
-//        // JWT에서 memberId 추출
-//        Long memberId = jwtUtil.getMemberIdFromToken(token);
-//        // 이메일 조회
-//        String email = jwtUtil.getEmail(memberId);
-//        String role = jwtUtil.getRole(token);
-//        //userEntity를 생성하여 값 set
-//        Member member = new Member();
-////        member.setName(email);
-//        member.setPassword("temppassword"); // 임시적으로 비밀번호 입력
-////        member.setRole(role);
+        // 토큰에서 email과 role 획득
+        String email = jwtUtil.getEmail(token);
+        String roleCodeId = jwtUtil.getRole(token); // 역할 코드를 가져옴
 
-        // 토큰에서 memberId 추출
-        Long memberId = jwtUtil.getMemberIdFromToken(token);
+        // CommonCode에서 역할 정보를 조회
+        Optional<CommonCode> roleOptional = commonCodeRepository.findById(new CommonCodeId(roleCodeId, "100"));
 
-        // memberId로 DB에서 사용자 조회
-        Member member = memberRepository.findById(memberId).orElse(null);
-        if (member == null) {
-            System.out.println("Member not found");
-            filterChain.doFilter(request, response);
-            return; // 사용자 정보가 없으면 메소드 종료
-        }
+        //userEntity를 생성하여 값 set
+        Member member = new Member();
+        member.setName(email);
+        member.setRole(roleOptional.get()); // CommonCode 객체를 설정
 
 
         //UserDetails에 회원 정보 객체 담기
@@ -90,7 +80,7 @@ public class JWTFilter extends OncePerRequestFilter {
         Authentication authToken = new UsernamePasswordAuthenticationToken(customMemberDetails, null, customMemberDetails.getAuthorities());
         //세션에 사용자 등록
         SecurityContextHolder.getContext().setAuthentication(authToken);
-        // 다음 필터로 요청 전달
+
         filterChain.doFilter(request, response);
 
     }
