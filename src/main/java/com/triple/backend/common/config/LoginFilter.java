@@ -81,10 +81,10 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         CommonCodeId roleCodeId = new CommonCodeId(role, groupId);
 
         // JWT Access Token 생성 (10시간 유효)
-        String accessToken = jwtUtil.createJwt(username, roleCodeId, 60 * 60 * 10 * 1000L);
+        String accessToken = jwtUtil.createAccessToken(username, roleCodeId, 60 * 60 * 10 * 1000L);
 
         // JWT Refresh Token 생성 (24시간 유효)
-        String refreshToken = jwtUtil.createJwt(username, roleCodeId, 24 * 60 * 60 * 1000L);
+        String refreshToken = jwtUtil.createRefreshToken(username, 24 * 60 * 60 * 1000L);
 
         // 리프레시 토큰을 HttpOnly 쿠키에 저장
         Cookie cookie = new Cookie("Refresh-Token", refreshToken);
@@ -113,6 +113,7 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         out.print(objectMapper.writeValueAsString(responseData));
         out.flush();
     }
+
 
 
     // 로그인 실패시 실행하는 메소드
