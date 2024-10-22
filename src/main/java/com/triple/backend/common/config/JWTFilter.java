@@ -5,13 +5,16 @@ import com.triple.backend.common.code.CommonCode;
 import com.triple.backend.common.code.CommonCodeId;
 import com.triple.backend.common.repository.CommonCodeRepository;
 import com.triple.backend.member.entity.Member;
+import com.triple.backend.member.repository.MemberRepository;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.AllArgsConstructor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
@@ -19,6 +22,8 @@ import java.util.Enumeration;
 import java.util.Optional;
 
 // JWT 필터 검증
+@AllArgsConstructor
+@Component
 public class JWTFilter extends OncePerRequestFilter {
 
     private final JWTUtil jwtUtil;
@@ -27,6 +32,11 @@ public class JWTFilter extends OncePerRequestFilter {
         this.jwtUtil = jwtUtil;
         this.commonCodeRepository = commonCodeRepository;
     }
+    private final MemberRepository memberRepository; // MemberRepository 주입
+
+//    public JWTFilter(JWTUtil jwtUtil) {
+//        this.jwtUtil = jwtUtil;
+//    }
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
@@ -75,6 +85,14 @@ public class JWTFilter extends OncePerRequestFilter {
         // userEntity를 생성하여 값 set
         Member member = new Member();
         member.setName(email);
+        // memberId로 DB에서 사용자 조회
+        Member member = memberRepository.findById(memberId).orElse(null);
+        if (member == null) {
+            System.out.println("Member not found");
+            filterChain.doFilter(request, response);
+            return; // 사용자 정보가 없으면 메소드 종료
+        }
+
 
         // UserDetails에 회원 정보 객체 담기
         CustomMemberDetails customMemberDetails = new CustomMemberDetails(member);
