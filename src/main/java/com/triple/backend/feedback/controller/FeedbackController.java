@@ -28,9 +28,25 @@ public class FeedbackController {
     ) {
         feedbackService.insertLike(bookId, childId);
 
-        return CommonResponse.ok("Insert Like Success");
+        return CommonResponse.created("Insert Like Success");
     }
 
+    /**
+     * 도서 좋아요 취소
+     */
+    @DeleteMapping("/likes/{bookId}")
+    public ResponseEntity<?> deleteLike(
+        @PathVariable(name = "bookId") Long bookId,
+        @RequestHeader(name = "Child-Id") Long childId
+    ) {
+        feedbackService.deleteLike(bookId, childId);
+
+        return CommonResponse.ok("Delete Like Success");
+    }
+
+    /**
+     * 도서 싫어요
+     */
     @PostMapping("/hates/{bookId}")
     public ResponseEntity<?> insertHate (@PathVariable(name = "bookId") Long bookId,
                                          @RequestHeader(name = "Child-Id") Long childId) {
@@ -38,11 +54,14 @@ public class FeedbackController {
         return CommonResponse.created("Insert Hate Success");
     }
 
+    /**
+     * 도서 싫어요 취소
+     */
     @DeleteMapping("/hates/{bookId}")
     public ResponseEntity<?> deleteHate (@PathVariable(name = "bookId") Long bookId,
                                          @RequestHeader(name = "Child-Id") Long childId) {
         feedbackService.deleteHate(childId, bookId);
-        return CommonResponse.created("Delete Hate Success");
+        return CommonResponse.ok("Delete Hate Success");
     }
 
 }

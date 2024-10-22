@@ -31,7 +31,6 @@ public class FeedbackServiceImpl implements FeedbackService {
     /**
      * 도서 좋아요
      */
-    @Transactional
     @Override
     public void insertLike(Long bookId, Long childId) {
         FeedbackId feedbackId = new FeedbackId(childId, bookId);
@@ -71,6 +70,43 @@ public class FeedbackServiceImpl implements FeedbackService {
         hashOperations.put(LIKE_HASH_KEY, String.valueOf(childId), likeStatus);
     }
 
+    /**
+     * 도서 좋아요 취소
+     */
+    @Override
+    public void deleteLike(Long childId, Long bookId) {
+        FeedbackId feedbackId = new FeedbackId(childId, bookId);
+        Set<Long> likeBooks = hashOperations.get(LIKE_HASH_KEY, String.valueOf(childId));
+
+        if (likeBooks == null) {
+            log.warn("deleteLike: DB 정합성 불일치. 존재하지 않는 좋아요 입니다.");
+            return;
+        }
+
+        if (likeBooks.contains(bookId)) {
+            likeBooks.remove(bookId);
+
+            if (likeBooks.isEmpty()) {
+                hashOperations.delete(LIKE_HASH_KEY, String.valueOf(childId));
+            } else {
+                hashOperations.put(LIKE_HASH_KEY, String.valueOf(childId), likeBooks);
+            }
+
+            return;
+        }
+
+        boolean likeExists = feedbackRepository.findLikeStatusByFeedbackId(feedbackId);
+
+        if (likeExists) {
+            Feedback feedback = feedbackRepository.findById(feedbackId)
+                .orElseThrow(() -> NotFoundException.entityNotFound("피드백"));
+            feedback.updateLikeStatus(false);
+        }
+    }
+
+    /**
+     * 도서 싫어요
+     */
     @Override
     public void insertHate(Long childId, Long bookId) {
         FeedbackId feedbackId = new FeedbackId(childId, bookId);
@@ -106,6 +142,9 @@ public class FeedbackServiceImpl implements FeedbackService {
         }
     }
 
+    /**
+     * 도서 싫어요 취소
+     */
     @Override
     public void deleteHate(Long childId, Long bookId) {
         FeedbackId feedbackId = new FeedbackId(childId, bookId);
