@@ -32,7 +32,7 @@ public class FeedbackServiceImpl implements FeedbackService {
      * 도서 좋아요
      */
     @Override
-    public void insertLike(Long bookId, Long childId) {
+    public void insertLike(Long childId, Long bookId) {
         FeedbackId feedbackId = new FeedbackId(childId, bookId);
         boolean likeExists = feedbackRepository.findLikeStatusByFeedbackId(feedbackId);
 
