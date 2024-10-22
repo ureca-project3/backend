@@ -16,7 +16,7 @@ public class RefreshToken {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "refresh_tokens_id")
-    private Long id;
+    private Long refreshtoken_id;
 
     // 어느 유저의 리프레시 토큰인지 알아야 하기 때문에 Member 엔티티와 연관 설정
     @OneToOne(fetch = FetchType.LAZY)
@@ -30,8 +30,9 @@ public class RefreshToken {
     private LocalDateTime expiryDate;  // RefreshToken 만료일
 
     @Builder
-    public RefreshToken(String token, Member member) {
+    public RefreshToken(String token, Member member, LocalDateTime expiryDate) {
         this.token = token;
         this.member = member;
+        this.expiryDate = expiryDate;
     }
 }

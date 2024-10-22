@@ -17,6 +17,9 @@ import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.net.URLEncoder;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.Map;
 
 @Slf4j
@@ -43,12 +46,15 @@ public class OAuthLoginSuccessHandler extends SimpleUrlAuthenticationSuccessHand
         final String provider = token.getAuthorizedClientRegistrationId(); // Provider 추출 (kakao)
 
         Map<String, Object> attributes = token.getPrincipal().getAttributes();
-        // 소셜 제공자에서 제공한 고유 ID
+        // 소셜 제공자에서 제공한 provider ID
         Long providerIdLong = (Long) attributes.get("id");
         String providerId = String.valueOf(providerIdLong); // providerId를 String으로 변환
 
-        // 사용자 정보 추출
-        String name = (String) attributes.get("name");
+        // 사용자 정보 추출 (이메일, 성함, 전화번호)
+        Map<String, Object> kakaoAccount = (Map<String, Object>) attributes.get("kakao_account");
+        String email = (String) kakaoAccount.get("email");
+        String phone = (String) kakaoAccount.get("phone_number");
+        String name = (String) kakaoAccount.get("name");
 
         // ProviderId로 사용자 찾기
         Member existMember = memberRepository.findByProviderId(providerId);
@@ -60,6 +66,8 @@ public class OAuthLoginSuccessHandler extends SimpleUrlAuthenticationSuccessHand
 
             member = Member.builder()
                     .name(name)
+                    .email(email)
+                    .phone(phone)
                     .provider(provider)
                     .providerId(providerId)
                     .build();
@@ -80,6 +88,7 @@ public class OAuthLoginSuccessHandler extends SimpleUrlAuthenticationSuccessHand
         RefreshToken newRefreshToken = RefreshToken.builder()
                 .member(member)
                 .token(refreshToken)
+                .expiryDate(LocalDateTime.ofInstant(Instant.ofEpochMilli(System.currentTimeMillis() + REFRESH_TOKEN_EXPIRATION_TIME), ZoneId.systemDefault()))  // 만료 시간 설정
                 .build();
         refreshTokenRepository.save(newRefreshToken);
 
