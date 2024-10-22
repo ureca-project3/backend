@@ -37,7 +37,7 @@ public class ChildServiceImpl implements ChildService {
         MbtiHistory latestHistory = mbtiHistoryRepository.findTopByChild_ChildIdOrderByCreatedAtDesc(childId);
 
         // 최신 히스토리로 성향 리스트 조회
-        List<ChildTraits> traitList = childTraitsRepository.findByMbtiHistory_HistoryId(latestHistory.getHistoryId());
+        List<ChildTraits> traitList = childTraitsRepository.findByMbtiHistory_HistoryIdWithTraits(latestHistory.getHistoryId());
 
         Map<String, Integer> historyMbti = new LinkedHashMap<>();
         for (ChildTraits trait : traitList) {

@@ -4,6 +4,7 @@ import com.triple.backend.child.entity.ChildTraits;
 import com.triple.backend.test.dto.TraitDataResponseDto;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 
@@ -14,7 +15,9 @@ public interface ChildTraitsRepository extends JpaRepository<ChildTraits, Long> 
             "WHERE ct.mbtiHistory.child.childId = :childId AND ct.mbtiHistory.historyId = :historyId AND ct.trait.test.testId = :testId")
     List<TraitDataResponseDto> findTraitsByChildAndTest(Long childId, Long historyId, Long testId);
 
-    List<ChildTraits> findByMbtiHistory_HistoryId(Long childId);
+    // N+1 문제 해결 JOIN FETCH로 해결
+    @Query("SELECT ct FROM ChildTraits ct JOIN FETCH ct.trait WHERE ct.mbtiHistory.historyId = :historyId")
+    List<ChildTraits> findByMbtiHistory_HistoryIdWithTraits(@Param("historyId") Long historyId);
 
 }
 
