@@ -9,6 +9,7 @@ import com.triple.backend.child.repository.ChildRepository;
 import com.triple.backend.child.repository.ChildTraitsRepository;
 import com.triple.backend.child.repository.MbtiHistoryRepository;
 import com.triple.backend.child.service.ChildService;
+import com.triple.backend.common.exception.NotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -34,13 +35,13 @@ public class ChildServiceImpl implements ChildService {
 
         // 자녀 정보 조회
         Child child = childRepository.findById(childId)
-                .orElseThrow(() -> new IllegalArgumentException("자녀 정보를 찾을 수 없습니다."));
+                .orElseThrow(() -> NotFoundException.entityNotFound("자녀"));
 
         // 최근 MBTI 히스토리 조회
         MbtiHistory latestHistory = mbtiHistoryRepository.findTopByChild_ChildIdOrderByCreatedAtDesc(childId);
 
-        // 최신 히스토리로 성향 리스트 조회
-        List<ChildTraits> traitList = childTraitsRepository.findByMbtiHistory_HistoryIdWithTraits(latestHistory.getHistoryId());
+        // 최신 히스토리의 성향 리스트에서 최신 성향만 조회
+        List<ChildTraits> traitList = childTraitsRepository.findLatestByMbtiHistory_HistoryIdWithTraits(latestHistory.getHistoryId());
 
         Map<String, Integer> historyMbti = new LinkedHashMap<>();
         for (ChildTraits trait : traitList) {
@@ -65,7 +66,7 @@ public class ChildServiceImpl implements ChildService {
 
         // 자녀 정보 조회
         Child child = childRepository.findById(childId)
-                .orElseThrow(() -> new IllegalArgumentException("자녀 정보를 찾을 수 없습니다."));
+                .orElseThrow(() -> NotFoundException.entityNotFound("자녀"));
 
         // date type을 String -> LocalDateTime 으로 변환
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSSSS");
@@ -75,7 +76,7 @@ public class ChildServiceImpl implements ChildService {
         MbtiHistory history = mbtiHistoryRepository.findByChildAndCreatedAt(child, dateTime);
 
         // 최신 히스토리로 성향 리스트 조회
-        List<ChildTraits> traitList = childTraitsRepository.findByMbtiHistory_HistoryIdWithTraits(history.getHistoryId());
+        List<ChildTraits> traitList = childTraitsRepository.findLatestByMbtiHistory_HistoryIdWithTraits(history.getHistoryId());
 
         Map<String, Integer> historyMbti = new LinkedHashMap<>();
         for (ChildTraits trait : traitList) {
