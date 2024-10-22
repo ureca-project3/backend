@@ -28,23 +28,23 @@ public class BookController {
 	@GetMapping("/{bookId}")
 	public ResponseEntity<?> getBookDetail(@PathVariable(name = "bookId") Long bookId) {
 
-		return ResponseEntity.ok(CommonResponse.ok(
+		return CommonResponse.ok(
 			"Get BookDetail Success",
 			bookService.getBookDetail(bookId)
-		));
+		);
 	}
 
 	/**
 	 * 	도서 검색
 	 */
 	@GetMapping("/search")
-	public ResponseEntity<?> getBookDetail(
+	public ResponseEntity<?> getBookSearch(
 		@RequestParam(value = "keyword") String keyword,
 		@PageableDefault(page = 0, size = 10) Pageable pageable
 	) {
-		return ResponseEntity.ok(CommonResponse.ok(
+		return CommonResponse.ok(
 			"Get BookSearch Success",
 			bookService.getBookSearch(keyword, pageable)
-		));
+		);
 	}
 }
