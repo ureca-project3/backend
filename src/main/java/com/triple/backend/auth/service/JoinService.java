@@ -60,6 +60,7 @@ public class JoinService {
         memberRepository.save(newMember);
 
         // JWT 생성 (예시: 만료 시간 1시간)
-        String token = jwtUtil.createJwt(email, roleCodeId, 3600000L); // 이메일과 역할 코드 ID 사용
+        String token = jwtUtil.createJWTToken(email, roleCodeId, 3600000L); // 이메일과 역할 코드 ID 사용
+
     }
 }
