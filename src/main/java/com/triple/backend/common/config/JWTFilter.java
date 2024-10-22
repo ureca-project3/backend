@@ -43,11 +43,8 @@ public class JWTFilter extends OncePerRequestFilter {
             return;
         }
 
-        System.out.println("Authorization 헤더 확인 완료");
-
         // Bearer 부분 제거 후 순수 토큰만 획득
         String token = authorization.split(" ")[1];
-        System.out.println("토큰 추출 완료: " + token);
 
         // 토큰 소멸 시간 검증
         if (jwtUtil.isExpired(token)) {
@@ -58,11 +55,9 @@ public class JWTFilter extends OncePerRequestFilter {
             return;
         }
 
-        System.out.println("토큰 만료되지 않음");
 
         // 토큰에서 email 획득
         String email = jwtUtil.getEmail(token);
-        System.out.println("토큰에서 이메일 추출 완료: " + email);
 
         // userEntity를 생성하여 값 set
         Member member = new Member();
@@ -70,7 +65,6 @@ public class JWTFilter extends OncePerRequestFilter {
 
         // UserDetails에 회원 정보 객체 담기
         CustomMemberDetails customMemberDetails = new CustomMemberDetails(member);
-        System.out.println("CustomMemberDetails 객체 생성 완료");
 
         // 스프링 시큐리티 인증 토큰 생성
         Authentication authToken = new UsernamePasswordAuthenticationToken(customMemberDetails, null, customMemberDetails.getAuthorities());
@@ -82,9 +76,7 @@ public class JWTFilter extends OncePerRequestFilter {
 
         // 다음 필터로 넘김
         filterChain.doFilter(request, response);
-        System.out.println("필터 체인 완료");
-
-        System.out.println(SecurityContextHolder.getContext().getAuthentication());
+        System.out.println("JWTFilter완료");
     }
 
 }

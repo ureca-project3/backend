@@ -11,7 +11,6 @@ import io.jsonwebtoken.security.Keys;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 
 import java.security.Key;
@@ -86,7 +85,8 @@ public class JWTUtil {
                 .setExpiration(new Date(System.currentTimeMillis() + expiredMs))
                 .signWith(key, SignatureAlgorithm.HS256)
                 .compact();
+
+        System.out.println("생성된 JWT: " + jwt); // 생성된 JWT 출력
         return jwt;
     }
-
 }
