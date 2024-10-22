@@ -1,18 +1,25 @@
 package com.triple.backend.member.service;
 
 import com.triple.backend.auth.dto.CustomMemberDetails;
+import com.triple.backend.child.repository.ChildRepository;
 import com.triple.backend.member.entity.Member;
+import com.triple.backend.child.entity.Child;
 import com.triple.backend.member.repository.MemberRepository;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 public class MemberService implements UserDetailsService {
 
     private final MemberRepository memberRepository;
+    private final ChildRepository childRepository;
 
-    public MemberService(MemberRepository memberRepository){
+    public MemberService(MemberRepository memberRepository, ChildRepository childRepository){
         this.memberRepository = memberRepository;
+        this.childRepository = childRepository;
     }
 
     // 데이터베이스에서 특정 이름 조회
@@ -25,5 +32,25 @@ public class MemberService implements UserDetailsService {
         }
 
         return null;
+    }
+
+    // memberId로 이메일 조회
+    public String getEmailByMemberId(Long memberId) {
+        return memberRepository.findById(memberId)
+                .map(Member::getEmail)
+                .orElseThrow(() -> new RuntimeException("Member not found"));
+    }
+
+    // memberId로 자녀 ID 목록 조회
+    public List<Long> getChildIdsByMemberId(Long memberId) {
+        // memberId로 Member 객체 조회
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new IllegalArgumentException("해당 memberId를 가진 회원을 찾을 수 없습니다."));
+
+        // Member 객체로 자녀 목록 조회
+        return childRepository.findAllByMember(member)
+                .stream()
+                .map(Child::getChildId)  // Child 엔티티에서 자녀의 ID를 가져옴
+                .collect(Collectors.toList());
     }
 }

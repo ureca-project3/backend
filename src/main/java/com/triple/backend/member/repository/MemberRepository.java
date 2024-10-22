@@ -10,10 +10,10 @@ import java.util.Optional;
 public interface MemberRepository extends JpaRepository<Member, Long> {
 
     // memberId로 멤버를 찾는 메서드
-    Optional<Member> findByMemberId(Long memberId);
+    Optional<Member> findById(Long memberId);
 
     // 소셜 로그인에서 제공한 providerId로 멤버를 찾는 메서드
-    Optional<Member> findByProviderId(String providerId);
+    Member findByProviderId(String providerId);
 
     // 해당 유저 조회
     Member findByEmail(String email);
