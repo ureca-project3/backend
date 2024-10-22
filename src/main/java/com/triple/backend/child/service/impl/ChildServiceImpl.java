@@ -1,5 +1,6 @@
 package com.triple.backend.child.service.impl;
 
+import com.triple.backend.child.dto.ChildHistoryResponseDto;
 import com.triple.backend.child.dto.ChildInfoResponseDto;
 import com.triple.backend.child.entity.Child;
 import com.triple.backend.child.entity.ChildTraits;
@@ -12,6 +13,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -53,5 +56,33 @@ public class ChildServiceImpl implements ChildService {
                 .collect(Collectors.toList());
 
         return ChildInfoResponseDto.toDto(child, historyMbti, latestHistory.getReason(), latestHistory.getCurrentMbti(), historyDateList);
+    }
+
+    // 자녀 히스토리 조회
+    @Override
+    public ChildHistoryResponseDto getChildHistory(Long childId, String date) {
+
+        // 자녀 정보 조회
+        Child child = childRepository.findById(childId)
+                .orElseThrow(() -> new IllegalArgumentException("자녀 정보를 찾을 수 없습니다."));
+
+        // date type을 String -> LocalDateTime 으로 변환
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSSSS");
+        LocalDateTime dateTime = LocalDateTime.parse(date, formatter);
+
+        // 최근 MBTI 히스토리 조회
+        MbtiHistory history = mbtiHistoryRepository.findByChildAndCreatedAt(child, dateTime);
+
+        // 최신 히스토리로 성향 리스트 조회
+        List<ChildTraits> traitList = childTraitsRepository.findByMbtiHistory_HistoryIdWithTraits(history.getHistoryId());
+
+        Map<String, Integer> historyMbti = new LinkedHashMap<>();
+        for (ChildTraits trait : traitList) {
+            String traitName = trait.getTrait().getTraitName();
+            int traitScore = trait.getTraitScore();
+            historyMbti.put(traitName, traitScore);
+        }
+
+        return new ChildHistoryResponseDto(historyMbti, history.getReason(), history.getCurrentMbti());
     }
 }
