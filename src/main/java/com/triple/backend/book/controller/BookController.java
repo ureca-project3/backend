@@ -32,10 +32,10 @@ public class BookController {
 	@GetMapping("/{bookId}")
 	public ResponseEntity<?> getBookDetail(@PathVariable(name = "bookId") Long bookId) {
 
-		return ResponseEntity.ok(CommonResponse.ok(
+		return CommonResponse.ok(
 			"Get BookDetail Success",
 			bookService.getBookDetail(bookId)
-		));
+		);
 	}
 
 	/**
@@ -46,10 +46,10 @@ public class BookController {
 		@RequestParam(value = "keyword") String keyword,
 		@PageableDefault(page = 0, size = 10) Pageable pageable
 	) {
-		return ResponseEntity.ok(CommonResponse.ok(
+		return CommonResponse.ok(
 			"Get BookSearch Success",
 			bookService.getBookSearch(keyword, pageable)
-		));
+		);
 	}
 
 	@GetMapping("/ranking")
