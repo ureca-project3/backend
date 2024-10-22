@@ -19,6 +19,14 @@ public class JWTUtil {
 
     private final Key key;
 
+    // Access Token과 Refresh Token의 만료 시간을 properties에서 가져옴
+    @Value("${spring.jwt.access-token.expiration-time}")
+    private Long accessTokenExpirationMillis;
+
+    @Value("${spring.jwt.refresh-token.expiration-time}")
+    private Long refreshTokenExpirationMillis;
+
+
     // secret 값을 Base64 디코딩하여 Key로 변환하는 생성자
     public JWTUtil(@Value("${spring.jwt.secret}") String secret) {
         byte[] byteSecretKey = Decoders.BASE64.decode(secret);
@@ -26,20 +34,20 @@ public class JWTUtil {
     }
 
     // Access Token 생성 메서드
-    public String createAccessToken(Long memberId, Long expirationMillis) {
+    public String createAccessToken(Long memberId) {
         Claims claims = Jwts.claims();
         claims.put("memberId", memberId);  // memberId만 저장
 
         return Jwts.builder()
                 .setClaims(claims)
                 .setIssuedAt(new Date(System.currentTimeMillis()))  // 발급 시간
-                .setExpiration(new Date(System.currentTimeMillis() + expirationMillis))  // 만료 시간
+                .setExpiration(new Date(System.currentTimeMillis() + accessTokenExpirationMillis))  // 만료 시간
                 .signWith(key, SignatureAlgorithm.HS256)  // 서명 알고리즘과 키
                 .compact();  // 토큰 생성
     }
 
     // Refresh Token 생성 메서드
-    public String createRefreshToken(Long memberId, Long refreshTokenExpirationMillis) {
+    public String createRefreshToken(Long memberId) {
         Claims claims = Jwts.claims();
         claims.put("memberId", memberId);  // Refresh Token에 사용할 memberId
 
@@ -78,7 +86,7 @@ public class JWTUtil {
                 .compact();  // 토큰 생성
     }
 
-    // JWT 토큰 검증 메서드
+    // 토큰 검증 메서드
     public boolean validateToken(String token) {
         try {
             Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token);
@@ -89,7 +97,7 @@ public class JWTUtil {
         }
     }
 
-    // JWT 토큰의 만료 여부를 확인하는 메서드
+    // 토큰의 만료 여부를 확인하는 메서드
     public boolean isTokenExpired(String token) {
         try {
             Date expirationDate = Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token).getBody().getExpiration();

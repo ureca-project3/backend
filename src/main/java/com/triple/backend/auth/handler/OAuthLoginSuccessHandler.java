@@ -84,7 +84,7 @@ public class OAuthLoginSuccessHandler extends SimpleUrlAuthenticationSuccessHand
         log.info("PROVIDER_ID : {}", providerId);
 
         // 리프레시 토큰 생성 및 저장
-        String refreshToken = jwtUtil.createRefreshToken(member.getMemberId(), REFRESH_TOKEN_EXPIRATION_TIME);
+        String refreshToken = jwtUtil.createRefreshToken(member.getMemberId());
         RefreshToken newRefreshToken = RefreshToken.builder()
                 .member(member)
                 .token(refreshToken)
@@ -93,7 +93,7 @@ public class OAuthLoginSuccessHandler extends SimpleUrlAuthenticationSuccessHand
         refreshTokenRepository.save(newRefreshToken);
 
         // 액세스 토큰 생성
-        String accessToken = jwtUtil.createAccessToken(member.getMemberId(), ACCESS_TOKEN_EXPIRATION_TIME);
+        String accessToken = jwtUtil.createAccessToken(member.getMemberId());
 
         // 이름, 액세스 토큰, 리프레쉬 토큰을 담아 리다이렉트
         String encodedName = URLEncoder.encode(name, "UTF-8");
