@@ -75,18 +75,21 @@ public class JWTUtil {
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 역할 코드입니다."));
 
         // Claims 객체 생성
-        Claims claims = Jwts.claims(); //  Claims 생성
+        Claims claims = Jwts.claims(); // Claims 생성
 
         claims.setSubject(email); // subject에 이메일을 저장
         claims.put("email", email); // 이메일 클레임 추가
         claims.put("role", role.getCommonName()); // 역할 클레임 추가 (commonName 사용)
 
-        return Jwts.builder()
+        String jwt = Jwts.builder()
                 .setClaims(claims)
                 .setIssuedAt(new Date(System.currentTimeMillis()))
                 .setExpiration(new Date(System.currentTimeMillis() + expiredMs))
                 .signWith(key, SignatureAlgorithm.HS256)
                 .compact();
+
+        System.out.println("생성된 JWT: " + jwt); // 생성된 JWT 출력
+        return jwt;
     }
 
     // 토큰 검증 메서드

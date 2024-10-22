@@ -42,20 +42,20 @@ public class JWTFilter extends OncePerRequestFilter {
 
         //Authorization 헤더 검증
         if (authorization == null || !authorization.startsWith("Bearer ")) {
-            System.out.println("token null");
+            System.out.println("Authorization 헤더가 존재하지 않거나 Bearer 토큰이 아닙니다.");
             filterChain.doFilter(request, response);
             //조건이 해당되면 메소드 종료 (필수)
             return;
         }
 
-        System.out.println("authorization now");
-        //Bearer 부분 제거 후 순수 토큰만 획득
+        System.out.println("Authorization 헤더 확인 완료");
+
+        // Bearer 부분 제거 후 순수 토큰만 획득
         String token = authorization.split(" ")[1];
 
         //토큰 소멸 시간 검증
         if (jwtUtil.isExpired(token)) {
-
-            System.out.println("token expired");
+            System.out.println("토큰이 만료되었습니다.");
             filterChain.doFilter(request, response);
 
             //조건이 해당되면 메소드 종료 (필수)
@@ -63,16 +63,11 @@ public class JWTFilter extends OncePerRequestFilter {
         }
         // 토큰에서 email과 role 획득
         String email = jwtUtil.getEmail(token);
-        String roleCodeId = jwtUtil.getRole(token); // 역할 코드를 가져옴
-
-        // CommonCode에서 역할 정보를 조회
-        Optional<CommonCode> roleOptional = commonCodeRepository.findById(new CommonCodeId(roleCodeId, "100"));
+        System.out.println("토큰에서 이메일 추출 완료: " + email);
 
         //userEntity를 생성하여 값 set
         Member member = new Member();
         member.setName(email);
-        member.setRole(roleOptional.get()); // CommonCode 객체를 설정
-
 
         //UserDetails에 회원 정보 객체 담기
         CustomMemberDetails customMemberDetails = new CustomMemberDetails(member);
