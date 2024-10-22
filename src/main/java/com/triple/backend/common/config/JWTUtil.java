@@ -93,30 +93,4 @@ public class JWTUtil {
         System.out.println("생성된 JWT: " + jwt); // 생성된 JWT 출력
         return jwt;
     }
-
-    // 토큰 검증 메서드
-    public boolean validateToken(String token) {
-        try {
-            Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token);
-            return true;
-        } catch (JwtException | IllegalArgumentException e) {
-            log.warn("토큰 검증에 실패했습니다.");
-            return false;
-        }
-    }
-
-    // 토큰의 만료 여부를 확인하는 메서드
-    public boolean isTokenExpired(String token) {
-        try {
-            Date expirationDate = Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token).getBody().getExpiration();
-            return expirationDate.before(new Date());  // 현재 날짜와 만료 날짜 비교
-        } catch (JwtException | IllegalArgumentException e) {
-            log.warn("유효하지 않은 토큰입니다.");
-            throw new RuntimeException("Invalid token");
-        }
-    }
-
-    // 응답 헤더에서 토큰 추출
-    public String getTokenFromHeader(String authorizationHeader) {
-        return authorizationHeader.substring(7);  // "Bearer " 제거 후 토큰 반환
-    }
+}

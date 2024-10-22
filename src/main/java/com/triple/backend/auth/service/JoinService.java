@@ -61,7 +61,5 @@ public class JoinService {
 
         // JWT 생성 (예시: 만료 시간 1시간)
         String token = jwtUtil.createJwt(email, roleCodeId, 3600000L); // 이메일과 역할 코드 ID 사용
-        // 생성된 JWT를 클라이언트에 반환하거나 로그 등을 통해 확인할 수 있음
-        System.out.println("생성된 JWT: " + token);
     }
 }
