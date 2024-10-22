@@ -20,16 +20,20 @@ public class CustomMemberDetails implements UserDetails {
     // 사용자의 role 값을 반환
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        Collection<GrantedAuthority> collection = new ArrayList<>();
+        Collection<GrantedAuthority> authorities = new ArrayList<>();
 
-        // CommonCode에서 권한 이름을 가져와서 SimpleGrantedAuthority 생성
+        // role이 null인 경우 방어 코드 추가
         if (member.getRole() != null) {
-            String roleName = member.getRole().getId().getCodeId(); // CommonCode의 코드 ID를 사용
-            collection.add(new SimpleGrantedAuthority(roleName)); // SimpleGrantedAuthority에 문자열 전달
+            String roleCodeId = member.getRole().getId().getCodeId();
+            authorities.add(new SimpleGrantedAuthority("ROLE_" + roleCodeId));
+
+            // 역할 이름 추가
+            authorities.add(new SimpleGrantedAuthority(member.getRole().getCommonName()));
         }
 
-        return collection;
+        return authorities;
     }
+
 
     // password 값을 반환
     @Override
@@ -41,6 +45,11 @@ public class CustomMemberDetails implements UserDetails {
     @Override
     public String getUsername() {
         return member.getEmail();
+    }
+
+    // Member 엔티티에서 getMemberId를 반환
+    public Long getMemberId() {
+        return member.getMemberId();
     }
 
     // 계정 만료 여부
