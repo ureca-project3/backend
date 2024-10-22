@@ -8,6 +8,9 @@ import org.springframework.data.repository.query.Param;
 
 import com.triple.backend.book.entity.Book;
 
+import java.time.LocalDateTime;
+import java.util.List;
+
 public interface BookRepository extends JpaRepository<Book, Long> {
 
 	// 도서 검색
@@ -22,4 +25,12 @@ public interface BookRepository extends JpaRepository<Book, Long> {
 			ORDER BY b.title, b.summary, b.author, b.publisher
 		""", countQuery = "SELECT count(b) FROM Book b")
 	Page<Book> searchBookByKeyword(@Param(value = "keyword") String keyword, Pageable pageable);
+
+	@Query("SELECT b FROM Book b JOIN Feedback f ON b.bookId = f.book.bookId " +
+			"WHERE f.likeStatus = true AND f.createdAt >= :startDate " +
+			"GROUP BY b.bookId ORDER BY COUNT(f) DESC")
+	List<Book> findTop10BooksByLikesInLastThreeMonths(@Param("startDate") LocalDateTime startDate);
+
+	@Query("select b from Book b order by b.createdAt desc")
+	Page<Book> findAllOrderByCreatedAtDesc(Pageable pageable);
 }
