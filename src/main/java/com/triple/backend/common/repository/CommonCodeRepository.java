@@ -9,8 +9,6 @@ import java.util.Optional;
 
 @Repository
 public interface CommonCodeRepository extends JpaRepository<CommonCode, CommonCodeId> {
-    Optional<CommonCode> findByCodeIdAndGroupId(String codeId, String groupId);
-
     // 기존의 findById 메서드 (필요에 따라 유지)
     Optional<CommonCode> findById(CommonCodeId id);
 }
