@@ -26,15 +26,12 @@ public class JWTUtil {
 
     // secret 값을 Base64 디코딩하여 Key로 변환하는 생성자
     public JWTUtil(@Value("${spring.jwt.secret}") String secret) {
-        // Base64로 인코딩된 secret 키를 디코딩하여 byte 배열로 변환
         byte[] byteSecretKey = Decoders.BASE64.decode(secret);
-        // HMAC-SHA 기반의 Key를 생성
         this.key = Keys.hmacShaKeyFor(byteSecretKey);
     }
 
     // JWT 토큰에서 이메일을 추출하는 메소드
     public String getEmail(String token) {
-        // 주어진 JWT 토큰에서 "email" 클레임을 추출
         return Jwts.parserBuilder()
                 .setSigningKey(key)
                 .build()
@@ -43,20 +40,8 @@ public class JWTUtil {
                 .get("email", String.class);
     }
 
-    // JWT 토큰에서 role을 추출하는 메소드
-    public String getRole(String token) {
-        // 주어진 JWT 토큰에서 "role" 클레임을 추출
-        return Jwts.parserBuilder()
-                .setSigningKey(key)
-                .build()
-                .parseClaimsJws(token)
-                .getBody()
-                .get("role", String.class);
-    }
-
     // JWT 토큰의 만료 여부를 확인하는 메소드
     public Boolean isExpired(String token) {
-        // 주어진 JWT 토큰의 만료 시간을 확인하여 현재 시간과 비교
         return Jwts.parserBuilder()
                 .setSigningKey(key)
                 .build()
@@ -66,18 +51,36 @@ public class JWTUtil {
                 .before(new Date());
     }
 
+    public String createJWTToken(String email, CommonCodeId roleCodeId, Long expiredMs) {
+        return createJwt(email, roleCodeId, expiredMs, "JWT");
+    }
+    // 이메일 및 역할, 만료 기간을 포함한 Access JWT 토큰을 생성하는 메소드
+    public String createAccessToken(String email, CommonCodeId roleCodeId, Long expiredMs) {
+        return createJwt(email, roleCodeId, expiredMs, "access");
+    }
+
+    // 이메일 및 역할, 만료 기간을 포함한 Refresh JWT 토큰을 생성하는 메소드
+    public String createRefreshToken(String email, Long expiredMs) {
+        return createJwt(email, null, expiredMs, "refresh"); // 사용자의 역할 정보가 필요하지 않으므로 null
+    }
+
     // 이메일 및 역할, 만료 기간을 포함한 JWT 토큰을 생성하는 메소드
-    public String createJwt(String email, CommonCodeId roleCodeId, Long expiredMs) {
+    private String createJwt(String email, CommonCodeId roleCodeId, Long expiredMs, String tokenType) {
         // 역할 정보 가져오기
-        CommonCode role = commonCodeRepository.findById(roleCodeId)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 역할 코드입니다."));
+        CommonCode role = null;
+        if (roleCodeId != null) {
+            role = commonCodeRepository.findById(roleCodeId)
+                    .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 역할 코드입니다."));
+        }
 
         // Claims 객체 생성
-        Claims claims = Jwts.claims(); // Claims 생성
-
-        claims.setSubject(email); // subject에 이메일을 저장
-        claims.put("email", email); // 이메일 클레임 추가
-        claims.put("role", role.getCommonName()); // 역할 클레임 추가 (commonName 사용)
+        Claims claims = Jwts.claims();
+        claims.setSubject(email);
+        claims.put("email", email);
+        if (role != null) {
+            claims.put("role", role.getCommonName());
+        }
+        claims.put("tokenType", tokenType); // 토큰 유형 추가
 
         String jwt = Jwts.builder()
                 .setClaims(claims)
@@ -86,7 +89,7 @@ public class JWTUtil {
                 .signWith(key, SignatureAlgorithm.HS256)
                 .compact();
 
-        System.out.println("생성된 JWT: " + jwt); // 생성된 JWT 출력
+        System.out.println("생성된 "+ tokenType + "Token : " + jwt );
         return jwt;
     }
 }
