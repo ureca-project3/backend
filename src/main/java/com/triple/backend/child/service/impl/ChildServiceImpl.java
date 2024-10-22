@@ -53,6 +53,7 @@ public class ChildServiceImpl implements ChildService {
         List<MbtiHistory> historyList = mbtiHistoryRepository.findByChild_ChildIdOrderByCreatedAtDesc(childId);
         List<String> historyDateList = historyList.stream()
                 .filter(history -> !history.isDeleted()) // 논리적 삭제인 경우 제외
+                .filter(history -> !history.getReason().equals("기본"))
                 .map(history -> history.getCreatedAt().toString())
                 .collect(Collectors.toList());
 
@@ -71,7 +72,7 @@ public class ChildServiceImpl implements ChildService {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSSSS");
         LocalDateTime dateTime = LocalDateTime.parse(date, formatter);
 
-        // 최근 MBTI 히스토리 조회
+        // date MBTI 히스토리 조회
         MbtiHistory history = mbtiHistoryRepository.findByChildAndCreatedAt(child, dateTime);
 
         // 최신 히스토리로 성향 리스트 조회
