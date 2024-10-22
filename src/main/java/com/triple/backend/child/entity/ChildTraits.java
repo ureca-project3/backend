@@ -1,13 +1,10 @@
 package com.triple.backend.child.entity;
 
-import com.triple.backend.common.entity.BaseEntity;
 import com.triple.backend.test.entity.Trait;
 import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-
-import java.time.LocalDateTime;
 
 import java.time.LocalDateTime;
 
