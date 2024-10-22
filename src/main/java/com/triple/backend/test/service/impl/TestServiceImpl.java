@@ -47,12 +47,10 @@ public class TestServiceImpl implements TestService {
 
         List<TestQuestion> testQuestionList = testQuestionRepository.findByTest(test, pageable);
 
-        List<Map<Long, String>> questionList = new ArrayList<>();
+        Map<Long, String> questionList = new LinkedHashMap<>();
 
         for (TestQuestion testQuestion : testQuestionList) {
-            Map<Long, String> questionMap = new HashMap<>();
-            questionMap.put(testQuestion.getQuestionId(), testQuestion.getQuestionText());
-            questionList.add(questionMap);
+            questionList.put(testQuestion.getQuestionId(), testQuestion.getQuestionText());
         }
 
         return new TestQuestionResponseDto(test.getName(), test.getDescription(), questionList);
@@ -89,12 +87,10 @@ public class TestServiceImpl implements TestService {
         // MBTI 성향 조회
         List<Trait> traitList = traitRepository.findByTest(test);
 
-        // 성향 점수 변수
-        List<Map<String, Integer>> totalTraitCount = new ArrayList<>();
+
+        Map<String, Integer> totalTraitCount = new LinkedHashMap<>();
         for (Trait trait : traitList) {
-            Map<String, Integer> traitCountMap = new HashMap<>();
-            traitCountMap.put(trait.getTraitName(), (trait.getMaxScore() + trait.getMinScore())/2);
-            totalTraitCount.add(traitCountMap);
+            totalTraitCount.put(trait.getTraitName(), (trait.getMaxScore() + trait.getMinScore()) / 2);
         }
 
         // 테스트 답변 등록
@@ -109,58 +105,51 @@ public class TestServiceImpl implements TestService {
                         .test(testQuestionTraitResponseDto.getTest())
                         .trait(testQuestionTraitResponseDto.getTrait())
                         .questionText(testQuestionTraitResponseDto.getQuestionText()).build();
+
                 TestAnswerId testAnswerId = new TestAnswerId(testParticipation, testQuestion);
                 testAnswerRepository.save(new TestAnswer(testAnswerId, entry.getValue()));
 
-                // 성향 점수 증감
-                for (Map<String, Integer> traitCount : totalTraitCount) {
-                    for (Map.Entry<String, Integer> traitCountEntry : traitCount.entrySet()) {
-                        if(traitCountEntry.getKey().equals(testQuestionTraitResponseDto.getTraitName())) {
-                            traitCountEntry.setValue(traitCountEntry.getValue() + entry.getValue());
-                        }
-                    }
-                }
+
+                // 성향 점수 업데이트
+                String traitName = testQuestionTraitResponseDto.getTraitName();
+                totalTraitCount.put(traitName, totalTraitCount.get(traitName) + entry.getValue());
 
             }
         }
 
-        // 현재 성향 MBTI
-        String currentMbti = "";
 
-        for (Map<String, Integer> traitCount : totalTraitCount) {
-            // 최종 성향 점수
-            for (String key : traitCount.keySet()) {
-                // 현재 성향 점수 확인 TEST
-                Integer value = traitCount.get(key);
-
-                // 현재 성향 MBTI 문자열 구하기
-                TraitType traitType = TraitType.valueOf(key);
-                currentMbti += traitType.getTraitByScore(value);
-            }
+        // 현재 성향 MBTI 계산
+        StringBuilder currentMbti = new StringBuilder();
+        for (Map.Entry<String, Integer> traitCountEntry : totalTraitCount.entrySet()) {
+            String traitName = traitCountEntry.getKey();
+            Integer score = traitCountEntry.getValue();
+            TraitType traitType = TraitType.valueOf(traitName);
+            currentMbti.append(traitType.getTraitByScore(score));
         }
 
         // MBTI 히스토리 등록
         MbtiHistory mbtiHistory = mbtiHistoryRepository.save(MbtiHistory.builder()
                 .child(child)
-                .currentMbti(currentMbti)
+                .currentMbti(currentMbti.toString())
                 .createdAt(LocalDateTime.now())
                 .reason("자녀 성향 진단")
                 .isDeleted(false)
                 .build());
 
+
         // 자녀 성향 등록
-        for (Map<String, Integer> traitCount : totalTraitCount) {
-            for (String key : traitCount.keySet()) {
-                Integer value = traitCount.get(key);
-                for( Trait trait : traitList) {
-                    if(key.equals(trait.getTraitName())) {
-                        childTraitsRepository.save(ChildTraits.builder()
-                                .mbtiHistory(mbtiHistory)
-                                .trait(trait)
-                                .traitScore(value)
-                                .createdAt(LocalDateTime.now())
-                                .build());
-                    }
+        for (Map.Entry<String, Integer> traitCountEntry : totalTraitCount.entrySet()) {
+            String traitName = traitCountEntry.getKey();
+            Integer score = traitCountEntry.getValue();
+
+            for (Trait trait : traitList) {
+                if (trait.getTraitName().equals(traitName)) {
+                    childTraitsRepository.save(ChildTraits.builder()
+                            .mbtiHistory(mbtiHistory)
+                            .trait(trait)
+                            .traitScore(score)
+                            .createdAt(LocalDateTime.now())
+                            .build());
                 }
             }
         }

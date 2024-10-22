@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface ChildTraitsRepository extends JpaRepository<ChildTraits, Long> {
 
@@ -19,5 +20,7 @@ public interface ChildTraitsRepository extends JpaRepository<ChildTraits, Long> 
     @Query("SELECT ct FROM ChildTraits ct JOIN FETCH ct.trait WHERE ct.mbtiHistory.historyId = :historyId")
     List<ChildTraits> findByMbtiHistory_HistoryIdWithTraits(@Param("historyId") Long historyId);
 
-}
 
+    @Query("select ct from ChildTraits ct where ct.mbtiHistory.child.childId = :childId")
+    Optional<ChildTraits> findByChildId(@Param(value = "childId") Long childId);
+}
