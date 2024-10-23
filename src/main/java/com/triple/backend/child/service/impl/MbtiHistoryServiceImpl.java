@@ -23,10 +23,11 @@ public class MbtiHistoryServiceImpl implements MbtiHistoryService {
         MbtiHistory mbtiHistory  = mbtiHistoryRepository.findById(historyId)
                 .orElseThrow(() -> NotFoundException.entityNotFound("자녀 성향 진단 결과"));
 
-        MbtiHistory deleteMbtiHistory = new MbtiHistory(mbtiHistory.getHistoryId(), mbtiHistory.getChild(),
-                mbtiHistory.getCurrentMbti(), mbtiHistory.getCreatedAt(), mbtiHistory.getReason(), true);
+        mbtiHistory.updateDeleted(
+                true
+        );
 
-        MbtiHistory deleteMbtiHistoryResult = mbtiHistoryRepository.save(deleteMbtiHistory);
+        MbtiHistory deleteMbtiHistoryResult = mbtiHistoryRepository.save(mbtiHistory);
 
         return new MbtiHistoryDeletedResponseDto(deleteMbtiHistoryResult.isDeleted());
     }

@@ -35,4 +35,9 @@ public class MbtiHistory {
         this.reason = reason;
         this.isDeleted = isDeleted;
     }
+
+    // 업데이트
+    public void updateDeleted(boolean isDeleted) {
+        this.isDeleted = isDeleted;
+    }
 }
