@@ -36,4 +36,8 @@ public class ChildTraits {
         this.traitScore = traitScore;
         this.createdAt = createdAt;
     }
+
+    public void updateScore(Integer score) {
+        this.traitScore = score;
+    }
 }
