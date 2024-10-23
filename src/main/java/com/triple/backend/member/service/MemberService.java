@@ -4,14 +4,17 @@ import com.triple.backend.auth.dto.CustomMemberDetails;
 import com.triple.backend.child.repository.ChildRepository;
 import com.triple.backend.member.entity.Member;
 import com.triple.backend.child.entity.Child;
+import com.triple.backend.member.entity.MemberInfoDto;
 import com.triple.backend.member.repository.MemberRepository;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
+@Service
 public class MemberService implements UserDetailsService {
 
     private final MemberRepository memberRepository;
@@ -52,5 +55,14 @@ public class MemberService implements UserDetailsService {
                 .stream()
                 .map(Child::getChildId)  // Child 엔티티에서 자녀의 ID를 가져옴
                 .collect(Collectors.toList());
+    }
+
+    // memberId를 기반으로 회원 정보 조회
+    public MemberInfoDto getMemberInfoById(Long memberId) {
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new RuntimeException("Member not found"));
+
+        // DTO로 변환하여 반환
+        return new MemberInfoDto(member.getName(), member.getEmail(), member.getPhone());
     }
 }

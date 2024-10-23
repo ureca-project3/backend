@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OAuth2 Login Success</title>
+</head>
+<body>
+<h1>Welcome, <span id="name"></span></h1>
+<script>
+    const urlParams = new URLSearchParams(window.location.search);
+    const name = urlParams.get('name');
+    const accessToken = urlParams.get('accessToken');
+    const refreshToken = urlParams.get('refreshToken');
+
+    // 세션 스토리지에 토큰 저장
+    sessionStorage.setItem('accessToken', accessToken);
+    sessionStorage.setItem('refreshToken', refreshToken);
+
+    // 이후 다른 페이지로 이동하더라도 토큰이 존재하는지 확인
+    if (!sessionStorage.getItem('accessToken')) {
+        // 토큰이 없으면 로그인 페이지로 이동 (다시 인증하지 않도록 방지)
+        window.location.href = '/login';
+    }
+</script>
+</body>
+</html>

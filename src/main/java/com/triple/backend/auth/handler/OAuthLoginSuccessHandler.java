@@ -99,5 +99,6 @@ public class OAuthLoginSuccessHandler extends SimpleUrlAuthenticationSuccessHand
         String encodedName = URLEncoder.encode(name, "UTF-8");
         String redirectUri = String.format(REDIRECT_URI, encodedName, accessToken, refreshToken);
         getRedirectStrategy().sendRedirect(request, response, redirectUri);
+        log.info("Redirecting to: {}", redirectUri);
     }
 }

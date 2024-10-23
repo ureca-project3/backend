@@ -1,5 +1,6 @@
 package com.triple.backend.auth.controller;
 
+import com.triple.backend.auth.dto.CustomMemberDetails;
 import com.triple.backend.auth.dto.LoginRequestDto;
 import com.triple.backend.auth.dto.SignupRequestDto;
 import com.triple.backend.auth.service.AuthService;
@@ -13,6 +14,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
@@ -67,6 +69,19 @@ public class AuthController {
             return CommonResponse.ok("Access Token 재발급 성공", newAccessToken);
         }
         return CommonResponse.ok("Refresh Token이 유효하지 않습니다.");
+    }
+
+    // 이 API는 인증된 사용자만 접근 가능
+    @GetMapping("/user-info")
+    public ResponseEntity<String> getUserInfo(@AuthenticationPrincipal CustomMemberDetails memberDetails) {
+        String username = memberDetails.getUsername();
+        String email = memberDetails.getUserPhone();
+        String phone = memberDetails.getUseremail();
+
+        String responseMessage = "안녕하세요 " + username + "님";
+        String userInfo = "Name: " + username + ", Email: " + email + ", Phone: " + phone;
+
+        return ResponseEntity.ok(userInfo + "\n" + responseMessage);
     }
 
     // 로그아웃 API
