@@ -59,7 +59,6 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         // UsernamePasswordAuthenticationToken 생성 시 권한 목록 전달
         UsernamePasswordAuthenticationToken authToken =
                 new UsernamePasswordAuthenticationToken(email, password, authorities);
-
         return authenticationManager.authenticate(authToken);
     }
 

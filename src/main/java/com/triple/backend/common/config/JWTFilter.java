@@ -1,6 +1,7 @@
 package com.triple.backend.common.config;
 
 import com.triple.backend.auth.dto.CustomMemberDetails;
+import com.triple.backend.common.repository.CommonCodeRepository;
 import com.triple.backend.member.entity.Member;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -24,10 +25,7 @@ public class JWTFilter extends OncePerRequestFilter {
 
     private final JWTUtil jwtUtil;
     private final CommonCodeRepository commonCodeRepository;
-    public JWTFilter(JWTUtil jwtUtil, CommonCodeRepository commonCodeRepository) {
-        this.jwtUtil = jwtUtil;
-        this.commonCodeRepository = commonCodeRepository;
-    }
+
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
@@ -67,7 +65,6 @@ public class JWTFilter extends OncePerRequestFilter {
 
         // 스프링 시큐리티 인증 토큰 생성
         Authentication authToken = new UsernamePasswordAuthenticationToken(customMemberDetails, null, customMemberDetails.getAuthorities());
-        System.out.println("Authentication 토큰 생성 완료");
 
         // 세션에 사용자 등록
         SecurityContextHolder.getContext().setAuthentication(authToken);
@@ -75,9 +72,6 @@ public class JWTFilter extends OncePerRequestFilter {
 
         // 다음 필터로 넘김
         filterChain.doFilter(request, response);
-        System.out.println("필터 체인 완료");
-
-        System.out.println(SecurityContextHolder.getContext().getAuthentication());
     }
 
 }

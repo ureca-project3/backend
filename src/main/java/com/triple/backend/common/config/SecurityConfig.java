@@ -14,10 +14,6 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.web.cors.CorsConfiguration;
-import org.springframework.web.cors.CorsConfigurationSource;
-
-import java.util.Collections;
 
 @RequiredArgsConstructor
 @Configuration
@@ -28,13 +24,6 @@ public class SecurityConfig {
     private final JWTUtil jwtUtil;
     private final CommonCodeRepository commonCodeRepository;
     private final MemberService memberService;
-
-    public SecurityConfig(AuthenticationConfiguration authenticationConfiguration, JWTUtil jwtUtil, CommonCodeRepository commonCodeRepository, MemberService memberService) {
-        this.authenticationConfiguration = authenticationConfiguration;
-        this.jwtUtil = jwtUtil;
-        this.commonCodeRepository = commonCodeRepository;
-        this.memberService = memberService;
-    }
 
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
