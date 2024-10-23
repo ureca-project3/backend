@@ -1,6 +1,7 @@
 package com.triple.backend.common.config;
 
 import com.triple.backend.common.repository.CommonCodeRepository;
+import lombok.RequiredArgsConstructor;
 import com.triple.backend.member.service.MemberService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -14,6 +15,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.SecurityFilterChain;
 
+@RequiredArgsConstructor
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
@@ -22,13 +24,6 @@ public class SecurityConfig {
     private final JWTUtil jwtUtil;
     private final CommonCodeRepository commonCodeRepository;
     private final MemberService memberService;
-
-    public SecurityConfig(AuthenticationConfiguration authenticationConfiguration, JWTUtil jwtUtil, CommonCodeRepository commonCodeRepository, MemberService memberService) {
-        this.authenticationConfiguration = authenticationConfiguration;
-        this.jwtUtil = jwtUtil;
-        this.commonCodeRepository = commonCodeRepository;
-        this.memberService = memberService;
-    }
 
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
