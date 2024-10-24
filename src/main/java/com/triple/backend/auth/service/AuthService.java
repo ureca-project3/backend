@@ -64,8 +64,17 @@ public class AuthService {
         String refreshToken = jwtUtil.createRefreshToken(member.getMemberId());
 
         LocalDateTime localDateTime = LocalDateTime.ofInstant(Instant.ofEpochMilli(System.currentTimeMillis() + REFRESH_TOKEN_EXPIRATION_TIME), ZoneId.systemDefault());
+
         // Refresh Token 저장
         refreshTokenRepository.save(new RefreshToken(refreshToken, member, localDateTime));
+        // 리프레시 토큰 저장
+//        RefreshToken newRefreshToken = RefreshToken.builder()
+//                .member(member)
+//                .token(refreshToken)
+//                .expiryDate(localDateTime)  // 만료 시간 설정
+//                .build();
+//        refreshTokenRepository.save(newRefreshToken);
+
 
         return new TokenResponseDto(accessToken, refreshToken);
     }
@@ -123,4 +132,18 @@ public class AuthService {
         // 카카오 API로 카카오 계정 정보에서 providerId 획득하는 로직
         return "kakao-provider-id"; // 예시로 반환
     }
+    // 리프레시 토큰으로 액세스 토큰 재발급
+    public TokenResponseDto refreshAccessToken(HttpServletRequest request) {
+        String refreshToken = jwtUtil.extractRefreshToken(request);
+
+        if (refreshToken == null || !jwtUtil.validateToken(refreshToken)) {
+            throw new IllegalArgumentException("유효하지 않은 리프레시 토큰입니다.");
+        }
+
+        Long memberId = jwtUtil.getMemberIdFromToken(refreshToken);
+        String newAccessToken = jwtUtil.createAccessToken(memberId);
+
+        return new TokenResponseDto(newAccessToken, refreshToken); // 리프레시 토큰은 유지
+    }
+
 }

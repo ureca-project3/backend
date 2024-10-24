@@ -6,6 +6,8 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -106,6 +108,27 @@ public class JWTUtil {
             log.warn("유효하지 않은 토큰입니다.");
             throw new RuntimeException("Invalid token");
         }
+    }
+
+    // 쿠키에서 액세스 토큰 추출
+    public String extractAccessToken(HttpServletRequest request) {
+        return extractTokenFromCookies(request, "accessToken");
+    }
+
+    // 쿠키에서 리프레시 토큰 추출
+    public String extractRefreshToken(HttpServletRequest request) {
+        return extractTokenFromCookies(request, "refreshToken");
+    }
+
+    private String extractTokenFromCookies(HttpServletRequest request, String tokenName) {
+        if (request.getCookies() != null) {
+            for (Cookie cookie : request.getCookies()) {
+                if (cookie.getName().equals(tokenName)) {
+                    return cookie.getValue();
+                }
+            }
+        }
+        return null;
     }
 
     // 응답 헤더에서 토큰 추출

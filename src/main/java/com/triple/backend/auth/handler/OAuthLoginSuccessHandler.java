@@ -1,5 +1,6 @@
 package com.triple.backend.auth.handler;
 
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import com.triple.backend.member.entity.Member;
@@ -11,11 +12,13 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.oauth2.client.OAuth2AuthorizedClientService;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.net.URLEncoder;
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -39,6 +42,7 @@ public class OAuthLoginSuccessHandler extends SimpleUrlAuthenticationSuccessHand
     private final JWTUtil jwtUtil;
     private final MemberRepository memberRepository;
     private final RefreshTokenRepository refreshTokenRepository;
+    private final OAuth2AuthorizedClientService authorizedClientService;
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException {
@@ -83,7 +87,7 @@ public class OAuthLoginSuccessHandler extends SimpleUrlAuthenticationSuccessHand
         log.info("PROVIDER : {}", provider);
         log.info("PROVIDER_ID : {}", providerId);
 
-        // 리프레시 토큰 생성 및 저장
+        // 리프레시 토큰 생성 및 DB 저장
         String refreshToken = jwtUtil.createRefreshToken(member.getMemberId());
         RefreshToken newRefreshToken = RefreshToken.builder()
                 .member(member)
@@ -95,10 +99,18 @@ public class OAuthLoginSuccessHandler extends SimpleUrlAuthenticationSuccessHand
         // 액세스 토큰 생성
         String accessToken = jwtUtil.createAccessToken(member.getMemberId());
 
-        // 이름, 액세스 토큰, 리프레쉬 토큰을 담아 리다이렉트
-        String encodedName = URLEncoder.encode(name, "UTF-8");
-        String redirectUri = String.format(REDIRECT_URI, encodedName, accessToken, refreshToken);
-        getRedirectStrategy().sendRedirect(request, response, redirectUri);
-        log.info("Redirecting to: {}", redirectUri);
+        // 리프레시 토큰을 쿠키에 저장
+        Cookie refreshTokenCookie = new Cookie("refreshToken", refreshToken);
+        refreshTokenCookie.setHttpOnly(true);  // 자바스크립트로 접근 불가
+        refreshTokenCookie.setSecure(true);  // HTTPS 연결에서만 전송
+        refreshTokenCookie.setMaxAge((int) REFRESH_TOKEN_EXPIRATION_TIME / 1000);  // 만료 시간 설정
+        refreshTokenCookie.setPath("/");
+        response.addCookie(refreshTokenCookie);
+
+        // 액세스 토큰은 헤더에 추가
+        response.setHeader("Authorization", "Bearer " + accessToken);
+
+        // index2.html로 리다이렉트
+        getRedirectStrategy().sendRedirect(request, response, "/index2.html");
     }
 }

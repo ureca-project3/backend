@@ -8,20 +8,35 @@
 <body>
 <h1>Welcome, <span id="name"></span></h1>
 <script>
-    const urlParams = new URLSearchParams(window.location.search);
-    const name = urlParams.get('name');
-    const accessToken = urlParams.get('accessToken');
-    const refreshToken = urlParams.get('refreshToken');
-
-    // 세션 스토리지에 토큰 저장
-    sessionStorage.setItem('accessToken', accessToken);
-    sessionStorage.setItem('refreshToken', refreshToken);
-
-    // 이후 다른 페이지로 이동하더라도 토큰이 존재하는지 확인
-    if (!sessionStorage.getItem('accessToken')) {
-        // 토큰이 없으면 로그인 페이지로 이동 (다시 인증하지 않도록 방지)
-        window.location.href = '/login';
+    // 서버에서 액세스 토큰을 가져오는 함수
+    function fetchAccessToken() {
+        fetch('/auth/token/access', {
+            method: 'GET',
+            credentials: 'omit' // 쿠키 전송을 위해 필요
+        })
+            .then(response => response.json())
+            .then(data => {
+                const accessToken = data.accessToken;
+                if (accessToken) {
+                    // 세션 스토리지에 액세스 토큰 저장
+                    sessionStorage.setItem('accessToken', accessToken);
+                    document.getElementById('name').textContent = "User"; // 이름 표시 (사용자 정보에 맞게 변경 가능)
+                } else {
+                    console.error('No access token found in response');
+                    window.location.href = '/login'; // 액세스 토큰이 없으면 로그인 페이지로 이동
+                }
+            })
+            .catch(error => {
+                console.error('Error fetching access token:', error);
+                alert('Error occurred while fetching access token. Check console for more details.');
+                window.location.href = '/login'; // 에러 시 로그인 페이지로 이동
+            });
     }
+
+    // 페이지 로드 시 액세스 토큰을 서버에서 가져옴
+    window.onload = function() {
+        fetchAccessToken();
+    };
 </script>
 </body>
 </html>

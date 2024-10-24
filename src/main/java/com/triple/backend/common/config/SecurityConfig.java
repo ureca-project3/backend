@@ -17,6 +17,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -108,15 +109,26 @@ public class SecurityConfig {
     private final JWTFilter jwtFilter;
 
     // CORS 설정
-    CorsConfigurationSource corsConfigurationSource() {
-        return request -> {
-            CorsConfiguration config = new CorsConfiguration();
-            config.setAllowedHeaders(Arrays.asList("Authorization", "Cache-Control", "Content-Type"));
-            config.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-            config.setAllowedOriginPatterns(Collections.singletonList("*"));
-            config.setAllowCredentials(true);
-            return config;
-        };
+//    CorsConfigurationSource corsConfigurationSource() {
+//        return request -> {
+//            CorsConfiguration config = new CorsConfiguration();
+//            config.setAllowedHeaders(Arrays.asList("Authorization", "Cache-Control", "Content-Type"));
+//            config.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+//            config.setAllowedOriginPatterns(Collections.singletonList("*"));
+//            config.setAllowCredentials(true);
+//            return config;
+//        };
+//    }
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration configuration = new CorsConfiguration();
+        configuration.setAllowedOrigins(Arrays.asList("*")); // 클라이언트 도메인
+        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        configuration.setAllowedHeaders(Arrays.asList("Authorization", "Cache-Control", "Content-Type"));
+        configuration.setAllowCredentials(true); // 쿠키 허용
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", configuration);
+        return source;
     }
 
     // AuthenticationManager Bean 등록
@@ -134,7 +146,7 @@ public class SecurityConfig {
                 .cors(corsConfigurer -> corsConfigurer.configurationSource(corsConfigurationSource())) // CORS 설정
                 .csrf(csrf -> csrf.disable())                   // CSRF 비활성화
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/index2.html", "/public/**", "/join","/login").permitAll()  // 인증 없이 접근 가능
+                        .requestMatchers("/index2.html", "/public/**", "/join","/login", "/oauth2/**").permitAll()  // 인증 없이 접근 가능
                         .anyRequest().authenticated()  // 그 외 요청은 인증 필요
                 )
                 .sessionManagement(session -> session

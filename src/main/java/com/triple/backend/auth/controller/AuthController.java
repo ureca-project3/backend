@@ -1,10 +1,14 @@
 package com.triple.backend.auth.controller;
 
+import com.nimbusds.oauth2.sdk.AccessTokenResponse;
 import com.triple.backend.auth.dto.CustomMemberDetails;
 import com.triple.backend.auth.dto.LoginRequestDto;
 import com.triple.backend.auth.dto.SignupRequestDto;
+import com.triple.backend.auth.dto.TokenResponseDto;
+import com.triple.backend.auth.repository.RefreshTokenRepository;
 import com.triple.backend.auth.service.AuthService;
 import com.triple.backend.common.dto.CommonResponse;
+import com.triple.backend.common.dto.ErrorResponse;
 import com.triple.backend.member.entity.Member;
 import com.triple.backend.member.repository.MemberRepository;
 import com.triple.backend.common.config.JWTUtil;
@@ -12,12 +16,19 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.stereotype.Controller;
+import jakarta.servlet.http.Cookie;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
 
 @Slf4j
 @RestController
@@ -28,6 +39,7 @@ public class AuthController {
     private final AuthService authService;
     private final JWTUtil jwtUtil;
     private final MemberRepository memberRepository;
+    private final RefreshTokenRepository refreshTokenRepository;
 
     // 일반 로그인 회원가입 API
     @PostMapping("/signup")
@@ -61,14 +73,26 @@ public class AuthController {
 
     // 토큰 갱신 API (Access 토큰 재발급)
     @PostMapping("/token/refresh")
-    public ResponseEntity<CommonResponse<String>> refreshAccessToken(HttpServletRequest request) {
-        String refreshToken = request.getHeader("Authorization").substring(7);
+    public ResponseEntity<?> refreshAccessToken(HttpServletRequest request) {
+        // 쿠키에서 리프레시 토큰 추출
+        String refreshToken = Arrays.stream(request.getCookies())
+                .filter(cookie -> "refreshToken".equals(cookie.getName()))
+                .findFirst()
+                .map(Cookie::getValue)
+                .orElseThrow(() -> new RuntimeException("No refresh token found"));
+
+        // 리프레시 토큰을 검증하고 새로운 액세스 토큰 발급
         if (jwtUtil.validateToken(refreshToken)) {
             Long memberId = jwtUtil.getMemberIdFromToken(refreshToken);
             String newAccessToken = jwtUtil.createAccessToken(memberId);
-            return CommonResponse.ok("Access Token 재발급 성공", newAccessToken);
+
+            // 액세스 토큰을 JSON 형태로 반환
+            Map<String, String> response = new HashMap<>();
+            response.put("accessToken", newAccessToken);
+            return ResponseEntity.ok(response);
+        } else {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
-        return CommonResponse.ok("Refresh Token이 유효하지 않습니다.");
     }
 
     // 이 API는 인증된 사용자만 접근 가능
@@ -86,8 +110,57 @@ public class AuthController {
 
     // 로그아웃 API
     @PostMapping("/logout")
-    public ResponseEntity<CommonResponse<String>> logout() {
-        // 로그아웃 로직 처리 (세션 무효화 또는 Refresh 토큰 삭제 등)
+    public ResponseEntity<?> logout(HttpServletRequest request) {
+        // Authorization 헤더에서 액세스 토큰 추출
+        String authHeader = request.getHeader("Authorization");
+
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            // 에러 응답: 액세스 토큰이 없을 경우
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(new ErrorResponse(HttpStatus.UNAUTHORIZED, "액세스 토큰이 없습니다."));
+        }
+
+        String accessToken = authHeader.substring(7); // "Bearer " 제거하고 토큰만 추출
+
+        // 액세스 토큰 유효성 검사
+        if (!jwtUtil.validateToken(accessToken)) {
+            // 에러 응답: 유효하지 않은 액세스 토큰일 경우
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(new ErrorResponse(HttpStatus.UNAUTHORIZED, "유효하지 않은 액세스 토큰입니다."));
+        }
+
+        // 토큰에서 사용자 ID 추출
+        Long memberId = jwtUtil.getMemberIdFromToken(accessToken);
+
+        // 리프레시 토큰 삭제 (로그아웃 처리)
+        refreshTokenRepository.deleteByMemberId(memberId);
+
+        log.info(accessToken);
+        // 로그아웃 성공 응답
         return CommonResponse.ok("로그아웃 성공");
+    }
+
+    @GetMapping("/token/access")
+    public ResponseEntity<Map<String, String>> getAccessToken(HttpServletRequest request) {
+        System.out.println("/token/access 에 들어옴");
+        // 쿠키에서 리프레시 토큰 추출
+        String refreshToken = Arrays.stream(request.getCookies())
+                .filter(cookie -> "refreshToken".equals(cookie.getName()))
+                .findFirst()
+                .map(Cookie::getValue)
+                .orElseThrow(() -> new RuntimeException("No refresh token found"));
+
+        // 리프레시 토큰을 검증하고 새로운 액세스 토큰 발급
+        if (jwtUtil.validateToken(refreshToken)) {
+            Long memberId = jwtUtil.getMemberIdFromToken(refreshToken);
+            String newAccessToken = jwtUtil.createAccessToken(memberId);
+
+            // 액세스 토큰을 JSON 형태로 반환
+            Map<String, String> response = new HashMap<>();
+            response.put("accessToken", newAccessToken);
+            return ResponseEntity.ok(response);
+        } else {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
     }
 }
