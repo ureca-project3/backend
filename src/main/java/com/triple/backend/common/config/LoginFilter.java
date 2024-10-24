@@ -124,7 +124,7 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         out.flush();
 
         // 로그인 성공 후 index.html로 리다이렉트
-        response.sendRedirect("/index.html"); // 리다이렉트 처리
+        //response.sendRedirect("/index.html"); // 리다이렉트 처리
 
     }
 

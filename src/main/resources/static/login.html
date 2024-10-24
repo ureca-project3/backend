@@ -69,7 +69,7 @@
 
 <div class="login-container">
     <h1>로그인</h1>
-    <form action="/login" method="post">
+    <form>
         <label for="email">email 주소</label>
         <input type="text" id="email" name="email" required>
 
@@ -82,6 +82,44 @@
         <p>아직 계정이 없으신가요? <a href="/signup.html">회원가입하기</a></p>
     </div>
 </div>
+
+<script>
+    document.querySelector("form").addEventListener("submit", function(event) {
+        event.preventDefault(); // 기본 폼 제출 방지
+
+        const email = document.getElementById("email").value;
+        const password = document.getElementById("password").value;
+
+        // 로그인 요청 보내기
+        fetch("/login", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/x-www-form-urlencoded",
+            },
+            body: new URLSearchParams({
+                email: email,
+                password: password,
+            }),
+        })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error("로그인 실패"); // 실패 시 에러 처리
+                }
+                return response.json(); // JSON 응답으로 변환
+            })
+            .then(data => {
+                // 로그인 성공 시
+                alert(data.message); // 성공 메시지 표시
+
+                // 리다이렉션 처리
+                window.location.href = "/index.html"; // index.html로 이동
+            })
+            .catch(error => {
+                console.error("Error:", error);
+                alert("로그인에 실패했습니다."); // 실패 메시지 표시
+            });
+    });
+</script>
 
 </body>
 </html>

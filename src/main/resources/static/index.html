@@ -41,6 +41,18 @@
             font-size: 0.8em;
             color: #777;
         }
+        .logout-button {
+            background-color: #dc3545; /* 빨간색 배경 */
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 10px 15px;
+            cursor: pointer;
+            margin-left: auto; /* 오른쪽 정렬 */
+        }
+        .logout-button:hover {
+            background-color: #c82333; /* 어두운 빨간색 */
+        }
     </style>
 </head>
 <body>
@@ -51,6 +63,7 @@
     </a>
     <h1>트리플민수</h1>
     <div id="user-info"></div> <!-- 사용자 정보 표시를 위한 div -->
+    <button class="logout-button" id="logout-button">로그아웃</button>
 </header>
 
 <nav>
@@ -63,20 +76,52 @@
     <p>&copy; 2024 트리플민수. Even하게 익히다.</p>
 </footer>
 
-</body>
 <script>
     // 로그인 상태 확인 및 사용자 정보 표시
     const accessToken = localStorage.getItem('accessToken'); // 또는 세션에서 가져옴
     const userInfoDiv = document.getElementById('user-info');
+    const logoutButton = document.getElementById('logout-button');
 
     if (accessToken) {
-        // JWT 토큰에서 사용자 정보 추출 (예시, decode 함수 필요)
-        const userPayload = JSON.parse(atob(accessToken.split('.')[1])); // JWT에서 Payload 추출
+        console.log('Access Token:', accessToken); // 디버깅: accessToken 출력
+        try {
+            const userPayload = JSON.parse(atob(accessToken.split('.')[1])); // JWT에서 Payload 추출
+            console.log('User Payload:', userPayload); // 디버깅: Payload 출력
 
-        const email = userPayload.email; // 이메일
-        const role = userPayload.role; // 역할
+            const email = userPayload.email; // 이메일
+            const role = userPayload.role; // 역할
 
-        userInfoDiv.innerText = `이메일: ${email}, 역할: ${role}`;
+            userInfoDiv.innerText = `이메일: ${email}, 역할: ${role}`;
+            logoutButton.style.display = 'inline-block'; // 로그아웃 버튼 표시
+        } catch (error) {
+            console.error('JWT 디코딩 오류:', error); // 오류 발생 시 로그 출력
+        }
     }
+
+
+    // 로그아웃 버튼 클릭 이벤트
+    logoutButton.addEventListener('click', function() {
+        fetch('/logout', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                // 필요한 경우 인증 헤더 추가
+                // 'Authorization': `Bearer ${accessToken}`
+            }
+        })
+            .then(response => {
+                if (response.ok) {
+                    localStorage.removeItem('accessToken'); // accessToken 삭제
+                    alert('로그아웃 성공');
+                    window.location.reload(); // 페이지 새로고침
+                } else {
+                    alert('로그아웃 실패');
+                }
+            })
+            .catch(error => {
+                console.error('로그아웃 중 오류 발생:', error);
+            });
+    });
 </script>
+</body>
 </html>
