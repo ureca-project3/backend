@@ -27,14 +27,14 @@ public class Scheduler {
         LocalDateTime start = LocalDateTime.now();
         log.info("피드백 계산 및 MySQL 동기화 배치 스케줄링 시작 Time: {}", start);
 
-        // Spring Batch를 이용하여 syncFeedbackFromRedisToMySQL이라는 Job을 실행하는 로직
+        // Spring Batch를 이용하여 syncFeedbackAndUpdateTraitsJob이라는 Job을 실행하는 로직
 
         /*
-        jobRegistry에서 이름이 'sync~"인 Job 객체를 가져온다.
+        jobRegistry에서 이름이 'syncFeedbackAndUpdateTraitsJob"인 Job 객체를 가져온다.
         여기서 해당 job은 Spring Batch에서 정의된 배치 작업이다.
         JobRegistry는 여러 배치 작업을 등록하고 관리하는 역할이며, 이름을 통해 작업을 찾는다.
          */
-        Job job = jobRegistry.getJob("syncFeedbackFromRedisToMySQL");
+        Job job = jobRegistry.getJob("syncFeedbackAndUpdateTraitsJob");
 
         /*
         JobParametersBuilder를 사용하여 배치 작업에 전달할 파라미터들을 생성한다.
