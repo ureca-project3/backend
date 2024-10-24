@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 public interface MbtiHistoryRepository extends JpaRepository<MbtiHistory, Long> {
-
+  
     MbtiHistory findTopByChild_ChildIdOrderByCreatedAtDesc(Long childId);
 
     List<MbtiHistory> findByChild_ChildIdOrderByCreatedAtDesc(Long childId);
@@ -21,4 +21,9 @@ public interface MbtiHistoryRepository extends JpaRepository<MbtiHistory, Long> 
     @Query("SELECT mh FROM MbtiHistory mh WHERE mh.child.childId = :childId AND mh.reason = '진단 결과'")
     List<MbtiHistory> findResultsByChildId(@Param("childId") Long childId);
 
+    // 삭제될 히스토리 찾는 코드
+    List<MbtiHistory> findByReasonAndIsDeleted(String reason, boolean isDeleted);
+
+    // MBTI 히스토리 논리적 삭제 시 히스토리 1개인지 조회
+    long count();
 }
