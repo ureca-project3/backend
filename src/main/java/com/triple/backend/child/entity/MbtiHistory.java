@@ -25,6 +25,8 @@ public class MbtiHistory extends BaseEntity {
 
     private String reason;
 
+    private Long reasonId;
+
     private boolean isDeleted = false;
 
     @Builder
