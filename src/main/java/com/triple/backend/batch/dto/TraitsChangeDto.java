@@ -10,6 +10,6 @@ import lombok.NoArgsConstructor;
 public class TraitsChangeDto {
     private Long childId;
     private Long traitId;
-    private Double changeAmount;
+    private double[] changeAmount;
     private boolean isBeyondFive;
 }
