@@ -4,7 +4,7 @@ import com.triple.backend.common.dto.CommonResponse;
 import com.triple.backend.test.dto.TestAnswerRequestDto;
 import com.triple.backend.test.dto.TestParticipationRequestDto;
 
-import com.triple.backend.test.dto.TestResultRequestDto;
+import com.triple.backend.test.dto.TestResultResponseDto;
 import com.triple.backend.test.service.TestService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
@@ -32,7 +32,7 @@ public class TestController {
      */
     @GetMapping("/result")
     public ResponseEntity<?> getTestResult(@RequestHeader(name = "Child-Id") Long childId) {
-        TestResultRequestDto testResultDto = testService.getTestResult(childId);
+        TestResultResponseDto testResultDto = testService.getTestResult(childId);
         return CommonResponse.ok("Get TestResult Success", testResultDto);
     }
 
