@@ -1,7 +1,8 @@
 package com.triple.backend.batch.config;
 
+import com.triple.backend.batch.dto.BookChildTraitDto;
 import com.triple.backend.batch.dto.FeedbackDto;
-import com.triple.backend.batch.dto.TraitsChangeDto;
+import com.triple.backend.batch.dto.UpdateTraitChangeDto;
 import com.triple.backend.batch.exception.CustomSkipListener;
 import com.triple.backend.batch.tasklet.FeedbackProcessor;
 import com.triple.backend.batch.tasklet.FeedbackReader;
@@ -46,11 +47,6 @@ public class FeedbackBatchConfig {
     @Bean
     public Job syncFeedbackAndUpdateTraitsJob(JobRepository jobRepository,
                                               Step processFeedbackStep, Step syncFeedbackToMySQLStep) {
-        /* 문제1 : feedbackReader를 각 스텝마다 실행해야 한다.
-        해결책에 대한 고민 : Step 끼리 연결이 되어 있으면, 서로 데이터를 전달할 수도 있지 않을까? 해당 키워드 찾아보기
-        JobExecutionContext: Job의 여러 Step에서 공유되는 데이터를 저장하는 컨텍스트입니다. 이를 사용하면 여러 Step 간에 데이터를 주고받을 수 있습니다.
-        StepExecutionContext: Step 내에서만 유효한 데이터를 저장합니다. 같은 Step에서 실행 중인 여러 청크 사이에서 데이터를 공유할 때 사용할 수 있습니다.
-        */
         return new JobBuilder("syncFeedbackAndUpdateTraitsJob", jobRepository)
                 .start(processFeedbackStep)
                 .next(syncFeedbackToMySQLStep)
@@ -58,15 +54,10 @@ public class FeedbackBatchConfig {
                 .build();
     }
 
-    /* 문제2 : main datasource 와 batch datasource를 구분해서 적용해야 한다.
-    해결책에 대한 고민 : 각 reader, processor, writer에 파라미터로 적절한 datasource를 넣어 주어야 한다.
-    현재 feedbackProcessor, traitsChangeItemWriter에 mainDataSource가 들어가야 한다.
-    */
     @Bean
-    public Step processFeedbackStep(JobRepository jobRepository, PlatformTransactionManager transactionManager,
-                                    @Qualifier("mainDataSource") DataSource dataSource) {
+    public Step processFeedbackStep(JobRepository jobRepository, PlatformTransactionManager transactionManager) {
         return new StepBuilder("processFeedbackStep", jobRepository)
-                .<List<FeedbackDto>, List<TraitsChangeDto>>chunk(100, transactionManager)
+                .<List<BookChildTraitDto>, UpdateTraitChangeDto>chunk(100, transactionManager)
                 .reader(feedbackReader)
                 .processor(feedbackProcessor)
                 .writer(traitsChangeItemWriter)
@@ -78,10 +69,9 @@ public class FeedbackBatchConfig {
     }
 
     @Bean
-    public Step syncFeedbackToMySQLStep(JobRepository jobRepository, PlatformTransactionManager transactionManager,
-                                    @Qualifier("mainDataSource") DataSource dataSource) {
+    public Step syncFeedbackToMySQLStep(JobRepository jobRepository, PlatformTransactionManager transactionManager) {
         return new StepBuilder("syncFeedbackToMySQLStep", jobRepository)
-                .<List<FeedbackDto>, Feedback>chunk(100, transactionManager)
+                .<List<BookChildTraitDto>, FeedbackDto>chunk(100, transactionManager)
                 .reader(feedbackReader)
                 .writer(feedbackWriter)
                 .faultTolerant()
