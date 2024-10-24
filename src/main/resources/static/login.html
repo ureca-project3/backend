@@ -111,6 +111,10 @@
                 // 로그인 성공 시
                 alert(data.message); // 성공 메시지 표시
 
+                // Access Token과 Refresh Token을 localStorage에 저장
+                localStorage.setItem('accessToken', data.data.accessToken);
+                localStorage.setItem('refreshToken', data.data.refreshToken);
+
                 // 리다이렉션 처리
                 window.location.href = "/index.html"; // index.html로 이동
             })
