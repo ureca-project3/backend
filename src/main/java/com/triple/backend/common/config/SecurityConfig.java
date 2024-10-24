@@ -38,7 +38,7 @@ public class SecurityConfig {
                 .formLogin(formLogin -> formLogin.disable())
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/image/**", "/auth/**", "/public/**", "/join", "/login", "/", "/signup", "/index.html", "/login.html", "/signup.html").permitAll()
+                        .requestMatchers("/favicon.ico","/image/**", "/auth/**", "/public/**", "/join", "/login", "/", "/signup", "/index.html", "/login.html", "/signup.html").permitAll()
 
                         // 인증이 필요한 요청
                         .requestMatchers("/mypage.html", "/chid.html")  // 해당 페이지는

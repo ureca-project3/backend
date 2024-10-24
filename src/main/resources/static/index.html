@@ -53,6 +53,11 @@
         .logout-button:hover {
             background-color: #c82333; /* 어두운 빨간색 */
         }
+        #user-info {
+            margin-left: auto;
+            font-size: 14px;
+            font-weight: bold;
+        }
     </style>
 </head>
 <body>
@@ -62,8 +67,8 @@
         <img src="/image/1.jpg" alt="사이트 배너"> <!-- 수정된 경로 -->
     </a>
     <h1>트리플민수</h1>
-    <div id="user-info"></div> <!-- 사용자 정보 표시를 위한 div -->
-    <button class="logout-button" id="logout-button">로그아웃</button>
+    <div id="user-info">로그인되지 않았습니다</div> <!-- 로그인되지 않았을 때 표시될 기본 메시지 -->
+    <button class="logout-button" id="logout-button" style="display: none;">로그아웃</button>
 </header>
 
 <nav>
@@ -83,19 +88,41 @@
     const logoutButton = document.getElementById('logout-button');
 
     if (accessToken) {
-        console.log('Access Token:', accessToken); // 디버깅: accessToken 출력
-        try {
-            const userPayload = JSON.parse(atob(accessToken.split('.')[1])); // JWT에서 Payload 추출
-            console.log('User Payload:', userPayload); // 디버깅: Payload 출력
+        console.log('Access Token:', accessToken); // Access Token 확인
 
-            const email = userPayload.email; // 이메일
-            const role = userPayload.role; // 역할
+        // 토큰이 JWT 형식인지 검사 (기본적으로 '.'이 2개 있는지 확인)
+        if (accessToken.split('.').length === 3) {
+            try {
+                const base64Url = accessToken.split('.')[1];
+                const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+                const jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
+                    return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+                }).join(''));
 
-            userInfoDiv.innerText = `이메일: ${email}, 역할: ${role}`;
-            logoutButton.style.display = 'inline-block'; // 로그아웃 버튼 표시
-        } catch (error) {
-            console.error('JWT 디코딩 오류:', error); // 오류 발생 시 로그 출력
+                const userPayload = JSON.parse(jsonPayload);
+                console.log('User Payload:', userPayload); // Payload 출력
+
+                const email = userPayload.email;
+                const role = userPayload.role;
+
+                if (email && role) {
+                    userInfoDiv.innerText = `이메일: ${email}, 역할: ${role}`;
+                    logoutButton.style.display = 'inline-block'; // 로그아웃 버튼 표시
+                } else {
+                    console.error('유효한 이메일 또는 역할 정보가 없습니다.');
+                    userInfoDiv.innerText = '정보를 표시할 수 없습니다';
+                }
+            } catch (error) {
+                console.error('JWT 디코딩 오류:', error); // 오류 발생 시 로그 출력
+                userInfoDiv.innerText = '정보를 표시할 수 없습니다'; // 오류 발생 시 표시
+            }
+        } else {
+            console.error('JWT 형식이 유효하지 않습니다.');
+            userInfoDiv.innerText = '로그인되지 않았습니다';
         }
+    } else {
+        console.log('Access Token 없음');
+        userInfoDiv.innerText = '로그인되지 않았습니다'; // 로그인되지 않았을 때 표시
     }
 
 
@@ -123,5 +150,6 @@
             });
     });
 </script>
+
 </body>
 </html>
