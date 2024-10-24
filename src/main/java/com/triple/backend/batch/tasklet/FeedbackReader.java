@@ -11,10 +11,7 @@ import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 @Component
 @RequiredArgsConstructor
@@ -61,14 +58,16 @@ public class FeedbackReader implements ItemReader<List<BookChildTraitDto>> {
         int offset = currentPage * PAGE_SIZE;
         currentPage++;
 
-        String childQuery = "SELECT ct.child_traits_id, ct.trait_score, " +
-                "mh.history_id, mh.child_id, " +
-                "t.trait_id, t.trait_name " +
-                "FROM child_traits ct " +
-                "JOIN mbti_history mh ON ct.history_id = mh.history_id " +
-                "JOIN trait t ON ct.trait_id = t.trait_id " +
-                "WHERE mh.child_id IN (:childIds) " +
-                "LIMIT :limit OFFSET :offset";  // 공백 추가
+        String childQuery = """
+                SELECT ct.child_traits_id, ct.trait_score
+                mh.history_id, mh.child_id
+                t.trait_id, t.trait_name
+                FROM child_traits ct
+                JOIN mbti_history mh ON ct.history_id = mh.history_id
+                JOIN trait t ON ct.trait_id = t.trait_id
+                WHERE mh.child_id IN (:childIds)
+                LIMIT :limit OFFSET :offset
+                """;
 
         MapSqlParameterSource childTraitParams = new MapSqlParameterSource();
         childTraitParams.addValue("childIds", childIds);
@@ -88,14 +87,45 @@ public class FeedbackReader implements ItemReader<List<BookChildTraitDto>> {
                 )
         );
 
-        String bookQuery = "SELECT bt.book_traits_id, bt.trait_score, " +
-                "b.book_id, " +
-                "t.trait_id, t.trait_name " +
-                "FROM book_traits bt " +
-                "JOIN book b ON bt.book_id = b.book_id " +
-                "JOIN trait t ON bt.trait_id = t.trait_id " +
-                "WHERE b.book_id IN (:bookIds) " +
-                "LIMIT :limit OFFSET :offset";
+        String traitChangeQuery = """
+                SELECT tc.child_id, tc.trait_id, tc.change_amount
+                FROM traits_change tc
+                WHERE tc.child_id = :childId
+                LIMIT :limit OFFSET :offset
+                """;
+
+        MapSqlParameterSource traitsChangeParams = new MapSqlParameterSource();
+        traitsChangeParams.addValue("childIds", childIds);
+        traitsChangeParams.addValue("limit", PAGE_SIZE);
+        traitsChangeParams.addValue("offset", offset);
+
+        // traitChangeArray를 가져올 리스트 생성
+        Map<Long, int[]> traitChangeMap = new HashMap<>();
+
+        namedTemplate.query(
+                traitChangeQuery,
+                traitsChangeParams,
+                (rs) -> {
+                    Long childId = rs.getLong("child_id");
+                    int traitId = rs.getInt("trait_id") - 1;
+                    int changeAmount = rs.getInt("change_amount");
+
+                    // traitChangeArray를 생성하고, traitId에 따라 값을 넣음
+                    traitChangeMap.putIfAbsent(childId, new int[4]);
+                    traitChangeMap.get(childId)[traitId] = changeAmount;
+                }
+        );
+
+        String bookQuery = """
+                SELECT bt.book_traits_id, bt.trait_score
+                b.book_id
+                t.trait_id, t.trait_name
+                FROM book_traits bt
+                JOIN book b ON bt.book_id = b.book_id
+                JOIN trait t ON bt.trait_id = t.trait_id
+                WHERE b.book_id IN (:bookIds)
+                LIMIT :limit OFFSET :offset
+                """;
 
         MapSqlParameterSource bookTraitParams = new MapSqlParameterSource();
         bookTraitParams.addValue("bookIds", bookIds);
@@ -118,13 +148,18 @@ public class FeedbackReader implements ItemReader<List<BookChildTraitDto>> {
         for (Long childId : childIds) {
             // Child의 4가지 trait 점수를 담을 배열 생성
             int[] childTraitsArray = new int[4];
+            Long historyId = null;  // historyId를 저장할 변수
+
             for (ChildTraitsDto childTraitDto : childTraitsDtos) {
                 if (childTraitDto.getChildId().equals(childId)) {
                     // traitId가 1, 2, 3, 4일 테니, 0, 1, 2, 3이 되도록 -1
                     int traitIndex = childTraitDto.getTraitId().intValue() - 1;
                     childTraitsArray[traitIndex] = childTraitDto.getTraitScore();
+                    historyId = childTraitDto.getHistoryId();
                 }
             }
+
+            int[] traitChangeArray = traitChangeMap.getOrDefault(childId, new int[4]);
 
             // 좋아요 및 싫어요 책들의 Trait 정보를 담을 리스트 준비
             List<int[]> likedBookTraitsList = new ArrayList<>();
@@ -163,7 +198,9 @@ public class FeedbackReader implements ItemReader<List<BookChildTraitDto>> {
             // BookChildTraitDto 생성 및 리스트에 추가
             BookChildTraitDto dto = new BookChildTraitDto(
                     childId,
+                    historyId,
                     childTraitsArray,
+                    traitChangeArray,
                     likedBookTraitsList,
                     hatedBookTraitsList
             );

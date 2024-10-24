@@ -11,7 +11,9 @@ import java.util.List;
 @Getter
 public class BookChildTraitDto {
     private Long childId;
+    private Long historyId;
     private int[] childTraitsArray;
+    private int[] traitsChangeArray;
     private List<int[]> likedBookTraitsList;
     private List<int[]> hatedBookTraitsList;
 }
