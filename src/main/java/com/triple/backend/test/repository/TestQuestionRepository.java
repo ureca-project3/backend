@@ -20,4 +20,7 @@ public interface TestQuestionRepository extends JpaRepository<TestQuestion, Long
         "FROM TestQuestion q JOIN q.trait t WHERE q.questionId = :questionId ")
     TestQuestionTraitResponseDto findQuestionWithTraitById(@Param("questionId") Long questionId);
 
+    // 자녀 히스토리 물리적 삭제 시 기타 데이터 삭제
+    List<TestQuestion> findByTest(Test test);
+
 }
