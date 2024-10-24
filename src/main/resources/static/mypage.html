@@ -41,6 +41,18 @@
             font-size: 0.8em;
             color: #777;
         }
+        /* 추가 스타일 */
+        main {
+            padding: 20px;
+            text-align: center;
+        }
+        h2 {
+            color: #333;
+        }
+        p {
+            color: #555;
+            line-height: 1.6;
+        }
     </style>
 </head>
 <body>
@@ -48,33 +60,23 @@
 <header>
     <img src="/image/1.jpg" alt="사이트 배너"> <!-- 수정된 경로 -->
     <h1>트리플민수</h1>
-    <div id="user-info"></div> <!-- 사용자 정보 표시를 위한 div -->
 </header>
 
 <nav>
     <a href="/login.html">로그인</a>
     <a href="/signup.html">회원가입</a>
-    <a href="/mypage.html">마이페이지</a>
+    <a href="/mypage/html">마이페이지</a>
 </nav>
+
+<main>
+    <h2>환영합니다!</h2>
+    <p>트리플민수 웹사이트에 방문해 주셔서 감사합니다. 이곳에서 다양한 정보를 찾아보실 수 있습니다.</p>
+    <p>회원가입 후 더 많은 기능을 이용해 보세요!</p>
+</main>
 
 <footer>
     <p>&copy; 2024 트리플민수. Even하게 익히다.</p>
 </footer>
 
 </body>
-<script>
-    // 로그인 상태 확인 및 사용자 정보 표시
-    const accessToken = localStorage.getItem('accessToken'); // 또는 세션에서 가져옴
-    const userInfoDiv = document.getElementById('user-info');
-
-    if (accessToken) {
-        // JWT 토큰에서 사용자 정보 추출 (예시, decode 함수 필요)
-        const userPayload = JSON.parse(atob(accessToken.split('.')[1])); // JWT에서 Payload 추출
-
-        const email = userPayload.email; // 이메일
-        const role = userPayload.role; // 역할
-
-        userInfoDiv.innerText = `이메일: ${email}, 역할: ${role}`;
-    }
-</script>
 </html>

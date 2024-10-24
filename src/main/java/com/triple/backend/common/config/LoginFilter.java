@@ -86,12 +86,23 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         String refreshToken = jwtUtil.createRefreshToken(username, 24 * 60 * 60 * 1000L);
 
         // 리프레시 토큰을 HttpOnly 쿠키에 저장
-        Cookie cookie = new Cookie("Refresh-Token", refreshToken);
-        cookie.setMaxAge(24 * 60 * 60); // 쿠키의 최대 수명 (1일)
-        cookie.setHttpOnly(true); // JavaScript에서 접근할 수 없도록 설정
-        cookie.setSecure(true); // HTTPS에서만 쿠키를 전송하도록 설정
-        cookie.setPath("/"); // 쿠키의 유효 경로를 설정
-        response.addCookie(cookie); // 생성된 쿠키를 HTTP 응답에 추가
+        Cookie cookieR = new Cookie("Refresh-Token", refreshToken);
+        cookieR.setMaxAge(24 * 60 * 60); // 쿠키의 최대 수명 (1일)
+        cookieR.setHttpOnly(true); // JavaScript에서 접근할 수 없도록 설정
+        cookieR.setSecure(true); // HTTPS에서만 쿠키를 전송하도록 설정
+        cookieR.setPath("/"); // 쿠키의 유효 경로를 설정
+        response.addCookie(cookieR); // 생성된 쿠키를 HTTP 응답에 추가
+
+        // Access 토큰을 HttpOnly 쿠키에 저장
+        Cookie cookieA = new Cookie("Access-Token", accessToken);
+        cookieA.setMaxAge(24 * 60 * 60); // 쿠키의 최대 수명 (1일)
+        cookieA.setHttpOnly(true); // JavaScript에서 접근할 수 없도록 설정
+        cookieA.setSecure(true); // HTTPS에서만 쿠키를 전송하도록 설정
+        cookieA.setPath("/"); // 쿠키의 유효 경로를 설정
+        response.addCookie(cookieA); // 생성된 쿠키를 HTTP 응답에 추가
+
+        // Authorization 해더에 accessToken 값 추가
+        response.addHeader("Authorization", "Bearer " + accessToken);
 
         // JSON 응답 생성
         Map<String, Object> responseData = new HashMap<>();
@@ -111,6 +122,7 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         PrintWriter out = response.getWriter();
         out.print(objectMapper.writeValueAsString(responseData));
         out.flush();
+
     }
 
 

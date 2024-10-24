@@ -59,8 +59,8 @@ public class JoinService {
         newMember.setRole(role); // 기본역할 부여
         memberRepository.save(newMember);
 
-        // JWT 생성 (예시: 만료 시간 1시간)
-        String token = jwtUtil.createJWTToken(email, roleCodeId, 3600000L); // 이메일과 역할 코드 ID 사용
+        // JWT 생성 (예시: 만료 시간 10시간)
+        String token = jwtUtil.createJWTToken(email, roleCodeId, 36000000L); // 이메일과 역할 코드 ID 사용
 
     }
 }

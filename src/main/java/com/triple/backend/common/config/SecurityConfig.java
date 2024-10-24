@@ -1,7 +1,6 @@
 package com.triple.backend.common.config;
 
 import com.triple.backend.common.repository.CommonCodeRepository;
-import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import com.triple.backend.member.service.MemberService;
 import org.springframework.context.annotation.Bean;
@@ -38,7 +37,7 @@ public class SecurityConfig {
                 .formLogin(formLogin -> formLogin.disable())
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/auth/**", "/public/**", "/join", "/login").permitAll()
+                        .requestMatchers("/image/**","/auth/**", "/public/**", "/join", "/login","/","/signup","/index.html","/login.html","/signup.html","/mypage.html").permitAll()
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session
@@ -50,20 +49,6 @@ public class SecurityConfig {
 
         // 로그인 필터 등록
         http.addFilterAt(new LoginFilter(authenticationManager(authenticationConfiguration), memberService, jwtUtil), UsernamePasswordAuthenticationFilter.class);
-
-        // 로그아웃 설정
-        http.logout((logout) -> logout
-                .logoutUrl("/logout") // 로그아웃 요청 URL
-                .logoutSuccessHandler((request, response, authentication) -> {
-                    // 로그아웃 성공 시의 동작 설정
-                    response.setStatus(HttpServletResponse.SC_OK);
-                    response.setContentType("application/json");
-                    response.getWriter().write("{\"message\": \"로그아웃 성공\"}");
-
-                    // 추가로 클라이언트에게 액세스 토큰 및 리프레시 토큰 삭제 안내
-                    response.getWriter().write("{\"message\": \"로그아웃 성공\", \"info\": \"클라이언트에서 액세스 토큰 및 리프레시 토큰을 삭제하세요.\"}");
-                })
-                .deleteCookies("Refresh-Token")); // 리프레시 토큰 쿠키 삭제
 
         return http.build();
     }
