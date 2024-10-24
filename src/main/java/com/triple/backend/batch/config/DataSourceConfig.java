@@ -14,7 +14,7 @@ import javax.sql.DataSource;
 @RequiredArgsConstructor
 public class DataSourceConfig {
 
-    @Bean
+    @Bean(name = "batchDataSource")
     @Primary
     @ConfigurationProperties(prefix = "spring.datasource.batch.hikari")
     public DataSource batchDataSource() {
@@ -24,7 +24,7 @@ public class DataSourceConfig {
                 .build();
     }
 
-    @Bean
+    @Bean(name = "mainDataSource")
     @ConfigurationProperties(prefix = "spring.datasource.main.hikari")
     public DataSource mainDataSource() {
         return DataSourceBuilder
