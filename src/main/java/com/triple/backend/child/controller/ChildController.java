@@ -16,8 +16,8 @@ public class ChildController {
 
     // 자녀 성향 히스토리 논리적 삭제
     @PatchMapping("/child-info/{historyId}")
-    public ResponseEntity<?> deleteMyChildTraitHistory(@PathVariable Long historyId) {
-        MbtiHistoryDeletedResponseDto mbtiHistoryDeletedResponseDto = mbtiHistoryService.deleteMyChildTraitHistory(historyId);
+    public ResponseEntity<?> deleteMyChildTraitHistory(@PathVariable Long historyId, @RequestHeader(name = "Child-Id") Long childId) {
+        MbtiHistoryDeletedResponseDto mbtiHistoryDeletedResponseDto = mbtiHistoryService.deleteMyChildTraitHistory(historyId, childId);
         return CommonResponse.ok("Delete MyChildHistory Success", mbtiHistoryDeletedResponseDto);
     }
 

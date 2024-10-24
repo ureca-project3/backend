@@ -1,11 +1,14 @@
 package com.triple.backend.child.service.impl;
 
 import com.triple.backend.child.dto.MbtiHistoryDeletedResponseDto;
+import com.triple.backend.child.entity.Child;
 import com.triple.backend.child.entity.MbtiHistory;
+import com.triple.backend.child.repository.ChildRepository;
 import com.triple.backend.child.repository.ChildTraitsRepository;
 import com.triple.backend.child.repository.MbtiHistoryRepository;
 import com.triple.backend.child.service.MbtiHistoryService;
 import com.triple.backend.common.exception.NotFoundException;
+import com.triple.backend.test.entity.TestAnswer;
 import com.triple.backend.test.entity.TestAnswerId;
 import com.triple.backend.test.entity.TestParticipation;
 import com.triple.backend.test.entity.TestQuestion;
@@ -18,7 +21,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -30,11 +35,26 @@ public class MbtiHistoryServiceImpl implements MbtiHistoryService {
     private final TestAnswerRepository testAnswerRepository;
     private final TestParticipationRepository testParticipationRepository;
     private final TestQuestionRepository testQuestionRepository;
+    private final ChildRepository childRepository;
 
     // 자녀 성향 히스토리 논리적 삭제
     @Override
     @Transactional
-    public MbtiHistoryDeletedResponseDto deleteMyChildTraitHistory(Long historyId) {
+    public MbtiHistoryDeletedResponseDto deleteMyChildTraitHistory(Long historyId, Long childId) {
+
+        Long historyCount = mbtiHistoryRepository.count();
+
+        Child child = childRepository.findById(childId).orElseThrow(() -> NotFoundException.entityNotFound("자녀"));
+
+        if(historyCount == 1){
+            MbtiHistory mbtiHistory = mbtiHistoryRepository.save(MbtiHistory.builder()
+                    .child(child)
+                    .currentMbti("INFP")
+                    .reason("010")
+                    .isDeleted(false)
+                    .build());
+        }
+
         MbtiHistory mbtiHistory  = mbtiHistoryRepository.findById(historyId)
                 .orElseThrow(() -> NotFoundException.entityNotFound("자녀 성향 진단 결과"));
 
