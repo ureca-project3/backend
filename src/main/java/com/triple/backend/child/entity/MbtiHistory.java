@@ -30,10 +30,11 @@ public class MbtiHistory extends BaseEntity {
     private boolean isDeleted = false;
 
     @Builder
-    public MbtiHistory(Child child, String currentMbti, String reason, boolean isDeleted) {
+    public MbtiHistory(Child child, String currentMbti, String reason,Long reasonId, boolean isDeleted) {
         this.child = child;
         this.currentMbti = currentMbti;
         this.reason = reason;
+        this.reasonId = reasonId;
         this.isDeleted = isDeleted;
     }
 
