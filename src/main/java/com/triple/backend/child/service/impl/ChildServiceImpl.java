@@ -2,6 +2,7 @@ package com.triple.backend.child.service.impl;
 
 import com.triple.backend.child.dto.ChildHistoryResponseDto;
 import com.triple.backend.child.dto.ChildInfoResponseDto;
+import com.triple.backend.child.dto.ChildTestHistoryResponseDto;
 import com.triple.backend.child.entity.Child;
 import com.triple.backend.child.entity.ChildTraits;
 import com.triple.backend.child.entity.MbtiHistory;
@@ -16,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -87,5 +89,30 @@ public class ChildServiceImpl implements ChildService {
         }
 
         return new ChildHistoryResponseDto(historyMbti, history.getReason(), history.getCurrentMbti());
+    }
+
+    // 자녀 성향 진단 결과 조회
+    @Override
+    public ChildTestHistoryResponseDto getChildTestHistory(Long childId) {
+
+        List<MbtiHistory> historyList = mbtiHistoryRepository.findResultsByChildId(childId);
+
+        List<String> currentMbti = new ArrayList<>();
+        List<String> createdAt = new ArrayList<>();
+
+        for (MbtiHistory history : historyList) {
+            currentMbti.add(history.getCurrentMbti());
+            createdAt.add(history.getCreatedAt().toString());
+        }
+
+        Map<String, String> traitData = new LinkedHashMap<>();
+        for (MbtiHistory history : historyList) {
+            List<ChildTraits> traits = childTraitsRepository.findLatestByMbtiHistory_HistoryIdWithTraits(history.getHistoryId());
+
+            for (ChildTraits ct : traits) {
+                traitData.put(ct.getTrait().getTraitName(), ct.getTrait().getTraitDescription());
+            }
+        }
+        return new ChildTestHistoryResponseDto(currentMbti, createdAt, traitData);
     }
 }
