@@ -13,7 +13,7 @@ public class BookChildTraitDto {
     private Long childId;
     private Long historyId;
     private int[] childTraitScore;
-    private int[] traitsChangeScore;
+    private int[] traitsAmount;
     private List<int[]> likedBookTraitsList;
     private List<int[]> hatedBookTraitsList;
 }

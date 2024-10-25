@@ -8,8 +8,8 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Getter
 public class FeedbackDto {
-    private Long childId;
-    private Long bookId;
-    private boolean likeStatus;
-    private boolean hateStatus;
+	private Long childId;
+	private Long bookId;
+	private boolean likeStatus;
+	private boolean hateStatus;
 }
