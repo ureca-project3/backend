@@ -102,14 +102,14 @@ public class OAuthLoginSuccessHandler extends SimpleUrlAuthenticationSuccessHand
         // 리프레시 토큰을 쿠키에 저장
         Cookie refreshTokenCookie = new Cookie("refreshToken", refreshToken);
         refreshTokenCookie.setHttpOnly(true);  // 자바스크립트로 접근 불가
-        refreshTokenCookie.setSecure(false);  // HTTPS 연결에서만 전송
+        refreshTokenCookie.setSecure(true);  // HTTPS 연결에서만 전송
         refreshTokenCookie.setMaxAge((int) REFRESH_TOKEN_EXPIRATION_TIME / 1000);  // 만료 시간 설정
         refreshTokenCookie.setPath("/");
         refreshTokenCookie.setDomain("localhost"); // 쿠키 도메인 설정
         response.addCookie(refreshTokenCookie);
 
-        // 액세스 토큰은 헤더에 추가
-        response.setHeader("Authorization", "Bearer " + accessToken);
+        // 액세스 토큰은 헤더에 추가 -> 리다이렉트시 헤더에 있는 액세스토큰은 사라짐
+        // response.setHeader("Authorization", "Bearer " + accessToken);
 
 
         log.info("Creating Access Token for memberId: {}",member.getMemberId());
@@ -118,7 +118,10 @@ public class OAuthLoginSuccessHandler extends SimpleUrlAuthenticationSuccessHand
         log.info("Creating Refresh Token for memberId: {}", member.getMemberId());
         log.info("Created Refresh Token: {}", refreshToken);
 
-        // index2.html로 리다이렉트
-        getRedirectStrategy().sendRedirect(request, response, "/index.html");
+        // index.html로 리다이렉트
+        // getRedirectStrategy().sendRedirect(request, response, "/index2.html");
+        // index.html 로 리다이렉트시, uri에 포함해서 전달
+        // 액세스 토큰을 URL 파라미터로 전달하여 리다이렉트
+        getRedirectStrategy().sendRedirect(request, response, "/index.html?accessToken=" + accessToken);
     }
 }

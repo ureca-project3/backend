@@ -25,6 +25,7 @@ import org.springframework.stereotype.Controller;
 import jakarta.servlet.http.Cookie;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -138,6 +139,21 @@ public class AuthController {
         log.info(accessToken);
         // 로그아웃 성공 응답
         return CommonResponse.ok("로그아웃 성공");
+    }
+
+    @GetMapping("/api/member/kakao-logout")
+    public void kakaoLogoutRedirect(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        // 세션 또는 쿠키에서 AccessToken, RefreshToken 제거 처리
+        Cookie refreshTokenCookie = new Cookie("refreshToken", null);
+        refreshTokenCookie.setMaxAge(0);
+        refreshTokenCookie.setPath("/");
+        response.addCookie(refreshTokenCookie);
+
+        // 세션 무효화
+        request.getSession().invalidate();
+
+        // 클라이언트에 리다이렉트 명령 전달
+        response.sendRedirect("/index.html?logout=true");
     }
 
     @GetMapping("/token/access")
