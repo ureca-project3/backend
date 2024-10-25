@@ -10,10 +10,7 @@ import com.triple.backend.child.dto.ChildHistoryResponseDto;
 import com.triple.backend.child.dto.ChildInfoResponseDto;
 import com.triple.backend.child.dto.ChildTestHistoryResponseDto;
 import com.triple.backend.child.service.ChildService;
-import com.triple.backend.common.dto.CommonResponse;
-import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+
 
 @RestController
 @RequiredArgsConstructor

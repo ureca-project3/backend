@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 public interface MbtiHistoryRepository extends JpaRepository<MbtiHistory, Long> {
-  
+
     MbtiHistory findTopByChild_ChildIdOrderByCreatedAtDesc(Long childId);
 
     List<MbtiHistory> findByChild_ChildIdOrderByCreatedAtDesc(Long childId);
@@ -26,5 +26,11 @@ public interface MbtiHistoryRepository extends JpaRepository<MbtiHistory, Long> 
 
     // MBTI 히스토리 논리적 삭제 시 히스토리 1개인지 조회
     long count();
+
+    // 자녀 성향 히스토리 모음 조회 - 자녀 성향 진단 결과 중 가장 최신 히스토리 조회
+    MbtiHistory findTopByChildAndReasonOrderByCreatedAtDesc(Child child, String reason);
+
+    // 자녀 성향 히스토리 모음 조회 - 자녀 성향 진단 결과 날짜만 조회
+    List<MbtiHistory> findByChildAndReasonOrderByCreatedAtDesc(Child child, String reason);
 
 }
