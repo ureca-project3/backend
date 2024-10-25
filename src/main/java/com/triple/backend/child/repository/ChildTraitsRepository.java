@@ -1,6 +1,7 @@
 package com.triple.backend.child.repository;
 
 import com.triple.backend.child.entity.ChildTraits;
+import com.triple.backend.child.entity.MbtiHistory;
 import com.triple.backend.test.dto.TraitDataResponseDto;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -23,4 +24,6 @@ public interface ChildTraitsRepository extends JpaRepository<ChildTraits, Long> 
 
     @Query("select ct from ChildTraits ct where ct.mbtiHistory.child.childId = :childId")
     Optional<ChildTraits> findByChildId(@Param(value = "childId") Long childId);
+
+    List<ChildTraits> findByMbtiHistoryIn(List<MbtiHistory> mbtiHistories);
 }
