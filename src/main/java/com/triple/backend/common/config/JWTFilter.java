@@ -29,13 +29,17 @@ public class JWTFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-
+//// 요청 헤더 로깅 ( Authorization 헤더가 포함되어 있는지 확인 )
+//        Enumeration<String> headerNames = request.getHeaderNames();
+//        while (headerNames.hasMoreElements()) {
+//            String headerName = headerNames.nextElement();
+//            System.out.println(headerName + ": " + request.getHeader(headerName));
+//        }
         // request에서 Authorization 헤더를 찾음
         String authorization = request.getHeader("Authorization");
 
         // Authorization 헤더 검증
         if (authorization == null || !authorization.startsWith("Bearer ")) {
-            System.out.println("Authorization 헤더가 존재하지 않거나 Bearer 토큰이 아닙니다.");
             filterChain.doFilter(request, response);
             //조건이 해당되면 메소드 종료 (필수)
             return;

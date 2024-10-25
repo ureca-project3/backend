@@ -1,6 +1,7 @@
 package com.triple.backend.common.config;
 
 import com.triple.backend.common.repository.CommonCodeRepository;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import com.triple.backend.member.service.MemberService;
 import org.springframework.context.annotation.Bean;
@@ -37,12 +38,30 @@ public class SecurityConfig {
                 .formLogin(formLogin -> formLogin.disable())
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/auth/**", "/public/**", "/join", "/login").permitAll()
+                        .requestMatchers("/favicon.ico","/image/**", "/auth/**", "/public/**", "/join", "/login", "/", "/signup", "/index.html", "/login.html", "/signup.html").permitAll()
+
+                        // 인증이 필요한 요청
+                        .requestMatchers("/mypage.html", "/chid.html")  // 해당 페이지는
+                        .hasAnyRole("회원", "관리자")                   // 회원(010), 관리자(020) 만접속 가능
+
                         .anyRequest().authenticated()
+
                 )
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 );
+        // 로그아웃 설정
+        http.logout((logout) -> logout
+                .logoutUrl("/logout") // 로그아웃 요청 URL
+                .logoutSuccessHandler((request, response, authentication) -> {
+                    // 로그아웃 성공 시의 동작 설정
+                    response.setStatus(HttpServletResponse.SC_OK);
+                    response.setContentType("application/json");
+                    response.getWriter().write("{\"message\": \"로그아웃 성공\"}");
+
+                })
+                .deleteCookies("Refresh-Token") // 쿠키 삭제
+                .invalidateHttpSession(false)); // 세션 무효화
 
         // JWT 필터 등록
         http.addFilterBefore(new JWTFilter(jwtUtil, commonCodeRepository), UsernamePasswordAuthenticationFilter.class);

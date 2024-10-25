@@ -38,7 +38,6 @@ public class Member extends BaseEntity {
     private String providerId;  // 소셜 로그인에서 제공하는 고유 사용자 ID (카카오 ID)
 
     @Builder
-
     public Member(String providerId, String provider, String name, String email, String phone) {
         this.providerId = providerId;
         this.provider = provider;
