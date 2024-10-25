@@ -8,10 +8,7 @@ import com.triple.backend.child.repository.ChildTraitsRepository;
 import com.triple.backend.child.repository.MbtiHistoryRepository;
 import com.triple.backend.child.service.MbtiHistoryService;
 import com.triple.backend.common.exception.NotFoundException;
-import com.triple.backend.test.entity.TestAnswer;
-import com.triple.backend.test.entity.TestAnswerId;
 import com.triple.backend.test.entity.TestParticipation;
-import com.triple.backend.test.entity.TestQuestion;
 import com.triple.backend.test.repository.TestAnswerRepository;
 import com.triple.backend.test.repository.TestParticipationRepository;
 import com.triple.backend.test.repository.TestQuestionRepository;
@@ -21,7 +18,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
