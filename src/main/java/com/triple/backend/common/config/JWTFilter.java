@@ -70,7 +70,7 @@ public class JWTFilter extends OncePerRequestFilter {
         Long memberId = jwtUtil.getMemberIdFromToken(token);
 
         // memberId로 DB에서 사용자 조회
-        Member member = memberRepository.findById(memberId).orElse(null);
+        member = memberRepository.findById(memberId).orElse(null);
         if (member == null) {
             System.out.println("Member not found");
             filterChain.doFilter(request, response);
@@ -78,16 +78,16 @@ public class JWTFilter extends OncePerRequestFilter {
         }
 
         // 쿠키에서 액세스 토큰 추출
-        String token = jwtUtil.extractAccessToken(request);
-
-        if (token != null && jwtUtil.validateToken(token)) {
-            Long memberId = jwtUtil.getMemberIdFromToken(token);
-
-            // 인증 객체를 설정
-            UsernamePasswordAuthenticationToken authentication =
-                    new UsernamePasswordAuthenticationToken(memberId, null, List.of());
-            SecurityContextHolder.getContext().setAuthentication(authentication);
-        }
+//        String token = jwtUtil.extractAccessToken(request);
+//
+//        if (token != null && jwtUtil.validateToken(token)) {
+//            Long memberId = jwtUtil.getMemberIdFromToken(token);
+//
+//            // 인증 객체를 설정
+//            UsernamePasswordAuthenticationToken authentication =
+//                    new UsernamePasswordAuthenticationToken(memberId, null, List.of());
+//            SecurityContextHolder.getContext().setAuthentication(authentication);
+//        }
 
         //UserDetails에 회원 정보 객체 담기
         CustomMemberDetails customMemberDetails = new CustomMemberDetails(member);

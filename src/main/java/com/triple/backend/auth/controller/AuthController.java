@@ -143,8 +143,15 @@ public class AuthController {
     @GetMapping("/token/access")
     public ResponseEntity<Map<String, String>> getAccessToken(HttpServletRequest request) {
         System.out.println("/token/access 에 들어옴");
+
+        // 쿠키가 null인지 먼저 확인
+        Cookie[] cookies = request.getCookies();
+        if (cookies == null) {
+            throw new RuntimeException("No cookies found in the request");
+        }
+
         // 쿠키에서 리프레시 토큰 추출
-        String refreshToken = Arrays.stream(request.getCookies())
+        String refreshToken = Arrays.stream(cookies)
                 .filter(cookie -> "refreshToken".equals(cookie.getName()))
                 .findFirst()
                 .map(Cookie::getValue)
@@ -163,4 +170,5 @@ public class AuthController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
     }
+
 }

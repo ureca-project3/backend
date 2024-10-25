@@ -12,7 +12,7 @@
     function fetchAccessToken() {
         fetch('/auth/token/access', {
             method: 'GET',
-            credentials: 'omit' // 쿠키 전송을 위해 필요
+            credentials: 'include' // 쿠키 전송을 위해 필요
         })
             .then(response => response.json())
             .then(data => {
@@ -23,7 +23,7 @@
                     document.getElementById('name').textContent = "User"; // 이름 표시 (사용자 정보에 맞게 변경 가능)
                 } else {
                     console.error('No access token found in response');
-                    window.location.href = '/login'; // 액세스 토큰이 없으면 로그인 페이지로 이동
+                    //window.location.href = '/login'; // 액세스 토큰이 없으면 로그인 페이지로 이동
                 }
             })
             .catch(error => {
