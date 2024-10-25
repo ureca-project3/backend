@@ -25,5 +25,5 @@ public interface ChildTraitsRepository extends JpaRepository<ChildTraits, Long> 
     @Query("select ct from ChildTraits ct where ct.mbtiHistory.child.childId = :childId")
     Optional<ChildTraits> findByChildId(@Param(value = "childId") Long childId);
 
-    void deleteByMbtiHistory(MbtiHistory mbtiHistory);
+    List<ChildTraits> findByMbtiHistoryIn(List<MbtiHistory> mbtiHistories);
 }

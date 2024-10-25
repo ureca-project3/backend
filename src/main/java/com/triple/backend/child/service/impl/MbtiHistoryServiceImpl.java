@@ -67,7 +67,6 @@ public class MbtiHistoryServiceImpl implements MbtiHistoryService {
         return new MbtiHistoryDeletedResponseDto(deleteMbtiHistoryResult.isDeleted());
     }
 
-    // 자녀 성향 히스토리 물리적 삭제
     @Scheduled(cron = "0 0 0 * * *")
     @Transactional
     public void cleanUpOldRecords() {
@@ -75,30 +74,32 @@ public class MbtiHistoryServiceImpl implements MbtiHistoryService {
 
         List<MbtiHistory> mbtiHistoryList = mbtiHistoryRepository.findByReasonAndIsDeleted("010", true);
 
-        for (MbtiHistory mbtiHistory : mbtiHistoryList) {
+        // mbtiHistory 목록 중 30일 이상 경과한 것만 필터링하기
+        List<MbtiHistory> deleteMbtiHistoryList = mbtiHistoryList.stream()
+                .filter(mbtiHistory -> mbtiHistory.getModifiedAt().isBefore(thresholdDate))
+                .collect(Collectors.toList());
 
-            // mbtiHistory 수정일자 30일 이상 경과 확인
-            if (mbtiHistory.getModifiedAt().isBefore(thresholdDate)) { // 30일 이상 경과 시 테스트 참여 조회하여 히스토리, 자녀 성향, 테스트 참여, 테스트 답변 삭제
-                TestParticipation testParticipation = testParticipationRepository.findById(mbtiHistory.getReasonId())
-                        .orElseThrow(() -> NotFoundException.entityNotFound("테스트 참여 기록"));
+        // 자녀 성향 먼저 삭제!!
+        childTraitsRepository.deleteAllInBatch(
+                childTraitsRepository.findByMbtiHistoryIn(deleteMbtiHistoryList)
+        );
 
-                childTraitsRepository.deleteByMbtiHistory(mbtiHistory);
-                mbtiHistoryRepository.delete(mbtiHistory);
+        // 테스트 참여 찾고
+        List<TestParticipation> testParticipationList = testParticipationRepository.findAllById(
+                deleteMbtiHistoryList.stream()
+                        .map(MbtiHistory::getReasonId)
+                        .collect(Collectors.toList())
+        );
 
-                // 질문 갯수대로 반복하여 테스트 답변 삭제
-                List<TestQuestion> testQuestionList = testQuestionRepository.findByTest(testParticipation.getTest());
+        // 테스트 답변 삭제 후
+        testAnswerRepository.deleteAllInBatch(
+                testAnswerRepository.findByTestAnswerIdTestParticipationIn(testParticipationList)
+        );
 
-                for (TestQuestion testQuestion : testQuestionList) {
-                    TestAnswerId testAnswerId = new TestAnswerId(testParticipation, testQuestion);
-                    testAnswerRepository.deleteByTestAnswerId(testAnswerId);
-                }
+        // 테스트 참여 삭제
+        testParticipationRepository.deleteAllInBatch(testParticipationList);
 
-                testParticipationRepository.delete(testParticipation);
-            }
-
-        }
-
-        // 30일 이상 미경과 시 넘어가기
-
+        // 마지막으로 MBTI 히스토리 삭제
+        mbtiHistoryRepository.deleteAllInBatch(deleteMbtiHistoryList);
     }
 }

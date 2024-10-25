@@ -26,4 +26,5 @@ public interface MbtiHistoryRepository extends JpaRepository<MbtiHistory, Long> 
 
     // MBTI 히스토리 논리적 삭제 시 히스토리 1개인지 조회
     long count();
+
 }
