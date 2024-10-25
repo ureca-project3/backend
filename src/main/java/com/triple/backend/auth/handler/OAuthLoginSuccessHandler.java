@@ -119,6 +119,6 @@ public class OAuthLoginSuccessHandler extends SimpleUrlAuthenticationSuccessHand
         log.info("Created Refresh Token: {}", refreshToken);
 
         // index2.html로 리다이렉트
-        getRedirectStrategy().sendRedirect(request, response, "/index2.html");
+        getRedirectStrategy().sendRedirect(request, response, "/index.html");
     }
 }

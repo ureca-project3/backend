@@ -80,9 +80,7 @@
     </form>
     <div class="container" style="display: flex; justify-content: center; align-content: center; align-items: center; flex-direction: column; margin: 200px auto; ">
         <h1>카카오 로그인</h1>
-        <a id="kakao-login-btn">
-            <img src="/image/kakao_login_medium_narrow.png" >
-        </a>
+        <a href="/oauth2/authorization/kakao"><img src="/image/kakao_login_medium_narrow.png" ></a>
     </div>
     <div class="register-link">
         <p>아직 계정이 없으신가요? <a href="/signup.html">회원가입하기</a></p>
@@ -118,9 +116,9 @@
                 alert(data.message); // 성공 메시지 표시
 
                 // Access Token과 Refresh Token을 localStorage에 저장
-                localStorage.setItem('accessToken', data.data.accessToken);
-                localStorage.setItem('refreshToken', data.data.refreshToken);
-
+                sessionStorage.setItem('accessToken', data.data.accessToken);
+                //sessionStorage.setItem('refreshToken', data.data.refreshToken);
+                document.cookie = `refreshToken=${data.data.refreshToken}; path=/; secure; HttpOnly;`;
                 // 리다이렉션 처리
                 window.location.href = "/index.html"; // index.html로 이동
             })
@@ -130,24 +128,6 @@
             });
     });
 
-    // 카카오 로그인 버튼 이벤트 처리
-    document.getElementById("kakao-login-btn").addEventListener("click", function() {
-        // 서버에서 client_id와 redirect_uri 가져오기
-        fetch("/kakao-login-info")
-            .then(response => response.json())
-            .then(data => {
-                const clientId = data.clientId;
-                const redirectUri = data.redirectUri;
-
-                // 카카오 로그인 URL로 리다이렉션
-                const kakaoUrl = "https://kauth.kakao.com/oauth/authorize?response_type=code&client_id=" + clientId + "&redirect_uri=" + redirectUri;
-                window.location.href = kakaoUrl;
-            })
-            .catch(error => {
-                console.error("Error fetching Kakao login info:", error);
-                alert("카카오 로그인 정보를 가져오는데 실패했습니다.");
-            });
-    });
 </script>
 
 </body>
