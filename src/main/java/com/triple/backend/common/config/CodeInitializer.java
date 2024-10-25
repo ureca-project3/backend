@@ -29,9 +29,11 @@ public class CodeInitializer implements CommandLineRunner {
 
         GroupCode groupCode1 = new GroupCode("100", "회원 관리");
         GroupCode groupCode2 = new GroupCode("200", "콘텐츠 장르");
+        GroupCode groupCode3 = new GroupCode("300", "히스토리 변경 원인");
 
         em.persist(groupCode1);
         em.persist(groupCode2);
+        em.persist(groupCode3);
 
         CommonCode commonCode1 = new CommonCode(new CommonCodeId("010", "100"), groupCode1, "회원", true);
         CommonCode commonCode2 = new CommonCode(new CommonCodeId("020", "100"), groupCode1, "관리자", true);
@@ -78,6 +80,9 @@ public class CodeInitializer implements CommandLineRunner {
         CommonCode commonCode42 = new CommonCode(new CommonCodeId("057", "200"), groupCode2, "놀이/체험", true);
         CommonCode commonCode43 = new CommonCode(new CommonCodeId("058", "200"), groupCode2, "그림/음악", true);
 
+        CommonCode commonCode44 = new CommonCode(new CommonCodeId("010", "300"), groupCode3, "자녀 성향 진단", true);
+        CommonCode commonCode45 = new CommonCode(new CommonCodeId("020", "300"), groupCode3, "피드백", true);
+
         em.persist(commonCode1);
         em.persist(commonCode2);
 
@@ -122,6 +127,9 @@ public class CodeInitializer implements CommandLineRunner {
         em.persist(commonCode41);
         em.persist(commonCode42);
         em.persist(commonCode43);
+
+        em.persist(commonCode44);
+        em.persist(commonCode45);
 
         em.flush();
     }
