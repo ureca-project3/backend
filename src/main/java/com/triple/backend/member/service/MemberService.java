@@ -14,7 +14,7 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.stream.Collectors;
 
-@Service
+@Service // 이 클래스가 서비스 컴포넌트임을 명시
 public class MemberService implements UserDetailsService {
 
     private final MemberRepository memberRepository;
@@ -25,7 +25,7 @@ public class MemberService implements UserDetailsService {
         this.childRepository = childRepository;
     }
 
-    // 데이터베이스에서 특정 이름 조회
+    // 데이터베이스에서 특정 이름 조회 , DB 로그인 기능 구현을 위함
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         Member member = memberRepository.findByEmail(username);
@@ -34,7 +34,12 @@ public class MemberService implements UserDetailsService {
             return new CustomMemberDetails(member);
         }
 
-        return null;
+        throw new UsernameNotFoundException("사용자를 찾을 수 없습니다: " + username); // 사용자 없을 경우 예외 처리
+    }
+
+    // 특정 이메일로 사용자 조회
+    public Member findByEmail(String email) {
+        return memberRepository.findByEmail(email);
     }
 
     // memberId로 이메일 조회
