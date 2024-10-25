@@ -7,18 +7,18 @@ import org.springframework.batch.core.JobParameters;
 import org.springframework.batch.core.JobParametersBuilder;
 import org.springframework.batch.core.configuration.JobRegistry;
 import org.springframework.batch.core.launch.JobLauncher;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.stereotype.Component;
 
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Slf4j(topic = "Scheduler")
-@Component
+@Configuration
 @RequiredArgsConstructor
-
-public class Scheduler {
+public class BatchScheduler {
     private final JobLauncher jobLauncher;
     private final JobRegistry jobRegistry;
 
@@ -55,6 +55,24 @@ public class Scheduler {
         jobLauncher.run(job, jobParameters);
 
         LocalDateTime end = LocalDateTime.now();
-        log.info("배치 스케줄링 종료 Time: {}, elapsed: {}", end, Duration.between(start, end));
+        log.info("피드백 계산 및 MySQL 동기화 배치 스케줄링 종료 Time: {}, elapsed: {}", end, Duration.between(start, end));
+    }
+
+    @Scheduled(cron = "0 0 3 * * *")
+    public void recommendBook() throws Exception {
+        LocalDateTime start = LocalDateTime.now();
+        log.info("책 추천 배치 스케줄링 시작 Time: {}", start);
+
+        Job job = jobRegistry.getJob("bookRecommendationJob");
+
+        JobParameters jobParameters = new JobParametersBuilder()
+                .addLong("time", System.currentTimeMillis())
+                .addString("date", LocalDate.now().toString())
+                .toJobParameters();
+
+        jobLauncher.run(job, jobParameters);
+
+        LocalDateTime end = LocalDateTime.now();
+        log.info("책 추천 배치 스케줄링 종료 Time: {}, elapsed: {}", end, Duration.between(start, end));
     }
 }
