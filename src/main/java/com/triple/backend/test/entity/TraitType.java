@@ -5,9 +5,9 @@ import lombok.Getter;
 @Getter
 public enum TraitType {
     에너지방향("E", "I"),
-    인식기능("S", "N"),
-    판단기능("T", "F"),
-    생활양식("J", "P");
+    인식기능("N", "S"),
+    판단기능("F", "T"),
+    생활양식("P", "J");
 
     private final String highScoreTrait;
     private final String lowScoreTrait;
