@@ -119,12 +119,6 @@ public class SecurityConfig {
                                     session.invalidate();
                                 }
 
-                                // JSESSIONID 쿠키 삭제
-                                Cookie sessionCookie = new Cookie("JSESSIONID", null);
-                                sessionCookie.setMaxAge(0);
-                                sessionCookie.setPath("/");
-                                response.addCookie(sessionCookie);
-
                                 // Security Context 정리
                                 SecurityContextHolder.clearContext();
 
