@@ -28,7 +28,7 @@ public interface MbtiHistoryRepository extends JpaRepository<MbtiHistory, Long> 
     long count();
 
     // 자녀 성향 히스토리 모음 조회 - 자녀 성향 진단 결과 중 가장 최신 히스토리 조회
-    MbtiHistory findTopByChildAndReasonOrderByCreatedAtDesc(Child child, String reason);
+    MbtiHistory findTopByChildAndReasonAndIsDeletedFalseOrderByCreatedAtDesc(Child child, String reason);
 
     // 자녀 성향 히스토리 모음 조회 - 자녀 성향 진단 결과 날짜만 조회
     List<MbtiHistory> findByChildAndReasonOrderByCreatedAtDesc(Child child, String reason);

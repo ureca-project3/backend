@@ -1,14 +1,11 @@
 package com.triple.backend.child.controller;
 
-import com.triple.backend.child.dto.MbtiHistoryDeletedResponseDto;
+import com.triple.backend.child.dto.*;
 import com.triple.backend.child.service.MbtiHistoryService;
 import com.triple.backend.common.dto.CommonResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import com.triple.backend.child.dto.ChildHistoryResponseDto;
-import com.triple.backend.child.dto.ChildInfoResponseDto;
-import com.triple.backend.child.dto.ChildTestHistoryResponseDto;
 import com.triple.backend.child.service.ChildService;
 
 
@@ -33,10 +30,17 @@ public class ChildController {
         return CommonResponse.ok("Get MyChildHistory Success", childHistory);
     }
 
-    // 자녀 결과 조회
+    // 자녀 결과 모음 조회
     @GetMapping("/child-info/result/{childId}")
     public ResponseEntity<?> getChildTestHistory(@PathVariable(name = "childId") Long childId) {
         ChildTestHistoryResponseDto childTestHistory = childService.getChildTestHistory(childId);
+        return CommonResponse.ok("Get MyChildTestHistory Success", childTestHistory);
+    }
+
+    // 자녀 성향 진단 결과 모음 날짜 조회
+    @GetMapping("/child-info/result/history/{childId}")
+    public ResponseEntity<?> getChildTestHistoryDate(@PathVariable(name = "childId") Long childId, @RequestParam String date) {
+        ChildTestHistoryDateResponseDto childTestHistory = childService.getChildTestHistoryDate(childId, date);
         return CommonResponse.ok("Get MyChildTestHistory Success", childTestHistory);
     }
 

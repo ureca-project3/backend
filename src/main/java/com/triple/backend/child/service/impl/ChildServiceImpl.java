@@ -108,7 +108,7 @@ public class ChildServiceImpl implements ChildService {
                 .orElseThrow(() -> NotFoundException.entityNotFound("자녀"));
 
         // 최근 MBTI 히스토리 조회
-        MbtiHistory latestHistory = mbtiHistoryRepository.findTopByChildAndReasonOrderByCreatedAtDesc(child, "010");
+        MbtiHistory latestHistory = mbtiHistoryRepository.findTopByChildAndReasonAndIsDeletedFalseOrderByCreatedAtDesc(child, "010");
 
         // 최신 히스토리의 성향 리스트에서 최신 성향만 조회
         TestParticipation testParticipation = testParticipationRepository.findTopByChild_ChildIdOrderByCreatedAtDesc(childId);
