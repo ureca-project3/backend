@@ -48,36 +48,36 @@ public class AuthService {
         memberRepository.save(newMember);
     }
 
-    // 일반 로그인
-    public TokenResponseDto login(LoginRequestDto loginRequestDto) {
-        Member member = memberRepository.findByEmail(loginRequestDto.getEmail());
-        if(member == null) {
-            throw new IllegalArgumentException("존재하지 않는 이메일입니다.");
-        }
-
-        if (!passwordEncoder.matches(loginRequestDto.getPassword(), member.getPassword())) {
-            throw new IllegalArgumentException("비밀번호가 일치하지 않습니다.");
-        }
-
-        // Access Token 및 Refresh Token 생성
-        String accessToken = jwtUtil.createAccessToken(member.getMemberId());
-        String refreshToken = jwtUtil.createRefreshToken(member.getMemberId());
-
-        LocalDateTime localDateTime = LocalDateTime.ofInstant(Instant.ofEpochMilli(System.currentTimeMillis() + REFRESH_TOKEN_EXPIRATION_TIME), ZoneId.systemDefault());
-
-        // Refresh Token 저장
-        refreshTokenRepository.save(new RefreshToken(refreshToken, member, localDateTime));
-        // 리프레시 토큰 저장
-//        RefreshToken newRefreshToken = RefreshToken.builder()
-//                .member(member)
-//                .token(refreshToken)
-//                .expiryDate(localDateTime)  // 만료 시간 설정
-//                .build();
-//        refreshTokenRepository.save(newRefreshToken);
-
-
-        return new TokenResponseDto(accessToken, refreshToken);
-    }
+//    // 일반 로그인
+//    public TokenResponseDto login(LoginRequestDto loginRequestDto) {
+//        Member member = memberRepository.findByEmail(loginRequestDto.getEmail());
+//        if(member == null) {
+//            throw new IllegalArgumentException("존재하지 않는 이메일입니다.");
+//        }
+//
+//        if (!passwordEncoder.matches(loginRequestDto.getPassword(), member.getPassword())) {
+//            throw new IllegalArgumentException("비밀번호가 일치하지 않습니다.");
+//        }
+//
+//        // Access Token 및 Refresh Token 생성
+//        String accessToken = jwtUtil.createAccessToken(member.getMemberId());
+//        String refreshToken = jwtUtil.createRefreshToken(member.getMemberId());
+//
+//        LocalDateTime localDateTime = LocalDateTime.ofInstant(Instant.ofEpochMilli(System.currentTimeMillis() + REFRESH_TOKEN_EXPIRATION_TIME), ZoneId.systemDefault());
+//
+//        // Refresh Token 저장
+//        refreshTokenRepository.save(new RefreshToken(refreshToken, member, localDateTime));
+//        // 리프레시 토큰 저장
+////        RefreshToken newRefreshToken = RefreshToken.builder()
+////                .member(member)
+////                .token(refreshToken)
+////                .expiryDate(localDateTime)  // 만료 시간 설정
+////                .build();
+////        refreshTokenRepository.save(newRefreshToken);
+//
+//
+//        return new TokenResponseDto(accessToken, refreshToken);
+//    }
 
 //    // 소셜 로그인 (카카오)
 //    public TokenResponseDto socialLogin(String authorizationHeader) {

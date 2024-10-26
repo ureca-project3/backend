@@ -2,9 +2,13 @@ package com.triple.backend.common.config;
 
 import com.triple.backend.auth.handler.OAuthLoginSuccessHandler;
 import com.triple.backend.auth.handler.OAuthLoginFailureHandler;
+import com.triple.backend.auth.repository.RefreshTokenRepository;
 import com.triple.backend.common.repository.CommonCodeRepository;
+import com.triple.backend.member.entity.Member;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 
+import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import com.triple.backend.member.service.MemberService;
 import org.springframework.context.annotation.Bean;
@@ -14,6 +18,7 @@ import org.springframework.security.config.annotation.authentication.configurati
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
@@ -39,6 +44,7 @@ public class SecurityConfig {
     private final CommonCodeRepository commonCodeRepository;
     private final MemberService memberService;
     private final JWTFilter jwtFilter;
+    private final RefreshTokenRepository refreshTokenRepository;
 
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
@@ -64,43 +70,82 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
         httpSecurity
-                .httpBasic(httpBasic -> httpBasic.disable())    // 노출 방지
-                .formLogin(formLogin -> formLogin.disable())    // 기본 로그인 페이지를 비활성화
-                .cors(corsConfigurer -> corsConfigurer.configurationSource(corsConfigurationSource())) // CORS 설정 추가
-                .csrf(csrf -> csrf.disable())                   // CSRF 방어 비활성화
-                .authorizeHttpRequests(auth -> auth             // 인가 작업
-                        .requestMatchers("/auth/**", "/public/**", "/join","/login").permitAll()  // 인증 없이 접근 가능
-                        .anyRequest().authenticated()  // 그 외 요청은 인증 필요
+                .httpBasic(httpBasic -> httpBasic.disable())
+                .formLogin(formLogin -> formLogin.disable())
+                .cors(corsConfigurer -> corsConfigurer.configurationSource(corsConfigurationSource()))
+                .csrf(csrf -> csrf.disable())
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/auth/**", "/public/**", "/join","/login", "/index.html").permitAll()
+                        .anyRequest().authenticated()
                 )
-//                .sessionManagement(session -> session
-//                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS)  // 세션을 사용하지 않음 (JWT 기반)
-//                );
-                .oauth2Login(oauth -> // OAuth2 로그인 기능에 대한 여러 설정의 진입점
+                .oauth2Login(oauth ->
                         oauth
-                                .successHandler(oAuthLoginSuccessHandler) // 로그인 성공 시 핸들러
-                                .failureHandler(oAuthLoginFailureHandler) // 로그인 실패 시 핸들러
+                                .successHandler(oAuthLoginSuccessHandler)
+                                .failureHandler(oAuthLoginFailureHandler)
+                )
+                .logout(logout -> logout
+                        .logoutUrl("/logout")
+                        .logoutSuccessHandler((request, response, authentication) -> {
+                            try {
+                                // RefreshToken 쿠키 가져오기
+                                Cookie[] cookies = request.getCookies();
+                                String refreshToken = null;
+                                if (cookies != null) {
+                                    for (Cookie cookie : cookies) {
+                                        if ("refreshToken".equals(cookie.getName())) {
+                                            refreshToken = cookie.getValue();
+                                            break;
+                                        }
+                                    }
+                                }
+
+                                // DB에서 RefreshToken 삭제
+                                if (authentication != null && authentication.getPrincipal() instanceof Member) {
+                                    Member member = (Member) authentication.getPrincipal();
+                                    refreshTokenRepository.deleteByMemberId(member.getMemberId());
+                                }
+
+                                // RefreshToken 쿠키 삭제
+                                Cookie refreshTokenCookie = new Cookie("refreshToken", null);
+                                refreshTokenCookie.setMaxAge(0);
+                                refreshTokenCookie.setPath("/");
+                                refreshTokenCookie.setHttpOnly(true);
+                                refreshTokenCookie.setSecure(true);
+                                response.addCookie(refreshTokenCookie);
+
+                                // 세션 무효화
+                                HttpSession session = request.getSession(false);
+                                if (session != null) {
+                                    session.invalidate();
+                                }
+
+                                // JSESSIONID 쿠키 삭제
+                                Cookie sessionCookie = new Cookie("JSESSIONID", null);
+                                sessionCookie.setMaxAge(0);
+                                sessionCookie.setPath("/");
+                                response.addCookie(sessionCookie);
+
+                                // Security Context 정리
+                                SecurityContextHolder.clearContext();
+
+                                // JSON 응답 전송
+                                response.setStatus(HttpServletResponse.SC_OK);
+                                response.setContentType("application/json");
+                                response.getWriter().write("{\"message\": \"로그아웃 성공\"}");
+
+                                // index.html로 리다이렉트
+                                response.sendRedirect("/index.html?logout=success");
+                            } catch (Exception e) {
+                                response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+                                response.getWriter().write("{\"message\": \"로그아웃 처리 중 오류 발생\"}");
+                            }
+                        })
+                        .invalidateHttpSession(true)
                 );
-        // 로그아웃 설정
-        httpSecurity.logout((logout) -> logout
-                .logoutUrl("/logout") // 로그아웃 요청 URL
-                .logoutSuccessHandler((request, response, authentication) -> {
-                    // 로그아웃 성공 시의 동작 설정
-                    response.setStatus(HttpServletResponse.SC_OK);
-                    response.setContentType("application/json");
-                    response.getWriter().write("{\"message\": \"로그아웃 성공\"}");
-
-
-                })
-                .deleteCookies("Refresh-Token") // 쿠키 삭제
-                .invalidateHttpSession(false)); // 세션 무효화
-        // JWT 필터 등록
-        //httpSecurity.addFilterBefore(new JWTFilter(jwtUtil, commonCodeRepository), UsernamePasswordAuthenticationFilter.class);
-        // 로그인 필터 등록
-        httpSecurity.addFilterAt(new LoginFilter(authenticationManager(authenticationConfiguration), memberService, jwtUtil), UsernamePasswordAuthenticationFilter.class);
 
         // JWT 필터 추가
+        httpSecurity.addFilterAt(new LoginFilter(authenticationManager(authenticationConfiguration), memberService, jwtUtil), UsernamePasswordAuthenticationFilter.class);
         httpSecurity.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
-        //httpSecurity.addFilterAt(new LoginFilter(authenticationManager(authenticationConfiguration), jwtUtil), UsernamePasswordAuthenticationFilter.class);
 
         return httpSecurity.build();
     }

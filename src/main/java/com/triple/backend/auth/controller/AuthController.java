@@ -14,6 +14,7 @@ import com.triple.backend.member.repository.MemberRepository;
 import com.triple.backend.common.config.JWTUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -49,13 +50,13 @@ public class AuthController {
         return CommonResponse.ok("회원가입이 완료되었습니다.");
     }
 
-    // 일반 로그인 API
-    @PostMapping("/login")
-    public ResponseEntity<CommonResponse<String>> login(@RequestBody LoginRequestDto loginRequestDto, HttpServletResponse response) {
-        String token = String.valueOf(authService.login(loginRequestDto));
-        response.setHeader("Authorization", "Bearer " + token);  // 로그인 성공 시 토큰 반환
-        return CommonResponse.ok("로그인 성공", token);
-    }
+//    // 일반 로그인 API
+//    @PostMapping("/login")
+//    public ResponseEntity<CommonResponse<String>> login(@RequestBody LoginRequestDto loginRequestDto, HttpServletResponse response) {
+//        String token = String.valueOf(authService.login(loginRequestDto));
+//        response.setHeader("Authorization", "Bearer " + token);  // 로그인 성공 시 토큰 반환
+//        return CommonResponse.ok("로그인 성공", token);
+//    }
 
     // 소셜 로그인 카카오 API
     @GetMapping("/login/oauth2/kakao")
@@ -142,18 +143,48 @@ public class AuthController {
     }
 
     @GetMapping("/api/member/kakao-logout")
-    public void kakaoLogoutRedirect(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        // 세션 또는 쿠키에서 AccessToken, RefreshToken 제거 처리
-        Cookie refreshTokenCookie = new Cookie("refreshToken", null);
-        refreshTokenCookie.setMaxAge(0);
-        refreshTokenCookie.setPath("/");
-        response.addCookie(refreshTokenCookie);
+    public void kakaoLogoutRedirect(
+            HttpServletRequest request,
+            HttpServletResponse response,
+            @CookieValue(value = "refreshToken", required = false) String refreshToken,
+            Authentication authentication
+    ) throws IOException {
+        try {
+            // 1. DB에서 RefreshToken 삭제
+            if (authentication != null && authentication.getPrincipal() instanceof Member) {
+                Member member = (Member) authentication.getPrincipal();
+                refreshTokenRepository.deleteByMemberId(member.getMemberId());
+            }
 
-        // 세션 무효화
-        request.getSession().invalidate();
+            // 2. RefreshToken 쿠키 삭제
+            Cookie refreshTokenCookie = new Cookie("refreshToken", null);
+            refreshTokenCookie.setMaxAge(0);
+            refreshTokenCookie.setPath("/");
+            refreshTokenCookie.setHttpOnly(true);
+            refreshTokenCookie.setSecure(true);
+            response.addCookie(refreshTokenCookie);
 
-        // 클라이언트에 리다이렉트 명령 전달
-        response.sendRedirect("/index.html?logout=true");
+            // 3. 세션 무효화
+            HttpSession session = request.getSession(false);
+            if (session != null) {
+                session.invalidate();
+            }
+
+            // JSESSIONID 쿠키 삭제
+            Cookie sessionCookie = new Cookie("JSESSIONID", null);
+            sessionCookie.setMaxAge(0);
+            sessionCookie.setPath("/");
+            response.addCookie(sessionCookie);
+
+            // 4. Security Context 정리
+//            SecurityContextHolder.clearContext();
+
+            // 5. 리다이렉트
+            response.sendRedirect("/index.html?logout=success");
+        } catch (Exception e) {
+            log.error("Kakao logout error", e);
+            response.sendRedirect("/index.html?error=logout_failed");
+        }
     }
 
     @GetMapping("/token/access")

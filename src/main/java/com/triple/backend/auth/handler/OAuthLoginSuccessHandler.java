@@ -23,6 +23,7 @@ import java.net.URLEncoder;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.util.Arrays;
 import java.util.Map;
 
 @Slf4j
@@ -86,6 +87,18 @@ public class OAuthLoginSuccessHandler extends SimpleUrlAuthenticationSuccessHand
         log.info("유저 이름 : {}", name);
         log.info("PROVIDER : {}", provider);
         log.info("PROVIDER_ID : {}", providerId);
+
+        // 기존 refreshToken 쿠키 삭제
+        Cookie existingRefreshToken = Arrays.stream(request.getCookies())
+                .filter(cookie -> "refreshToken".equals(cookie.getName()))
+                .findFirst()
+                .orElse(null);
+
+        if (existingRefreshToken != null) {
+            existingRefreshToken.setMaxAge(0);  // 기존 쿠키 삭제
+            response.addCookie(existingRefreshToken);
+        }
+
 
         // 리프레시 토큰 생성 및 DB 저장
         String refreshToken = jwtUtil.createRefreshToken(member.getMemberId());

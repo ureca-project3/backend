@@ -133,40 +133,44 @@
     }
 
     window.onload = async function() {
-        const urlParams = new URLSearchParams(window.location.search);
-        const isLoggedOut = urlParams.has('logout');  // 로그아웃 후 재로그인 방지 플래그
-
-        if (isLoggedOut) {
-            sessionStorage.removeItem('accessToken');
-            document.cookie = 'refreshToken=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT;';
-        }
-
         let accessToken = sessionStorage.getItem('accessToken');
-        if (!accessToken && !isLoggedOut) {
+        // RefreshToken이 있는지 확인
+        const refreshToken = document.cookie.split('; ').find(row => row.startsWith('refreshToken='));
+
+        if (accessToken == null) {  // 2가지 경우. 1. 카카오 로그인후 index.html 로 리다이랙트 -> url에 액세스토큰 있음 2. 로그아웃 후 돌아오는 경우 -> url에 액세스토큰 없음
+            console.log("페이지 로드시 액세스토큰 없음");
+            const urlParams = new URLSearchParams(window.location.search);
             accessToken = urlParams.get('accessToken');
             if (accessToken) {
+                console.log("url에서 액세스토큰 뽑음");
                 sessionStorage.setItem('accessToken', accessToken);
 
+                // URL에서 액세스토큰 제거
                 urlParams.delete('accessToken');
                 const newUrl = `${window.location.pathname}?${urlParams.toString()}`;
                 window.history.replaceState({}, document.title, newUrl);
             }
+
         }
 
-        const refreshToken = document.cookie.split('; ').find(row => row.startsWith('refreshToken='));
+        console.log("액세스토큰 : ", accessToken);
 
-        if (accessToken && !isLoggedOut) {
-            console.log("액세스토큰 있음");
+        if (accessToken) {
+            // accessToken이 있는 경우 - 로그인된 상태로 UI 업데이트
+            console.log("액세스토큰있음, 로그인 완료")
             updateHeaderWithUserInfo(accessToken);
-        } else if (refreshToken && !isLoggedOut) {
-            console.log("액세스 토큰은 없지만 리프레시 있음 (카카오 로그인)");
+        } else if (refreshToken && location.pathname !== '/index.html') {
+            // accessToken은 없지만 refreshToken이 있고, index.html이 아닐 때만 fetchAccessToken() 호출
+            console.log("액세스 토큰은 없지만 리프레시있음(카카오 로그인)")
             await fetchAccessToken();
         } else {
+            // 로그아웃 후 돌아왔거나,페이지 첫방문
+            // 로그인을 하지 않은 상태로 페이지 초기화
             resetHeader();
         }
     };
-
     logoutButton.addEventListener('click', async function() {
+        // 사용자 provider 정보 확인
         const response = await fetch('/api/member/provider', {
             method: 'GET',
             headers: { 'Authorization': `Bearer ${sessionStorage.getItem('accessToken')}` }
@@ -174,13 +178,18 @@
         const { provider } = await response.json();
 
         if (provider === 'kakao') {
-            const clientId = 'ecbe8197ad00125d1d59da0fb88f4b3c';
+            sessionStorage.removeItem('accessToken');  // 세션에서 액세스 토큰 제거
+            document.cookie = 'refreshToken=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT;';  // 쿠키에서 리프레시 토큰 삭제
+            resetHeader();  // 헤더를 초기 상태로 재설정
+
+            // 카카오 로그아웃 URL로 리다이렉트
+            const clientId = 'ecbe8197ad00125d1d59da0fb88f4b3c';    // YOUR_REST_API_KEY
             const redirectUri = encodeURIComponent('http://localhost:8080/auth/api/member/kakao-logout');
             const kakaoLogoutUrl = `https://kauth.kakao.com/oauth/logout?client_id=${clientId}&logout_redirect_uri=${redirectUri}`;
 
-            sessionStorage.removeItem('accessToken');
-            document.cookie = 'refreshToken=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT;';
             window.location.href = kakaoLogoutUrl;
+
+            alert('로그아웃 성공');
         } else {
             fetch('/logout', {
                 method: 'POST',
@@ -190,9 +199,9 @@
             })
                 .then(response => {
                     if (response.ok) {
-                        sessionStorage.removeItem('accessToken');
-                        document.cookie = 'refreshToken=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT;';
-                        resetHeader();
+                        sessionStorage.removeItem('accessToken');  // 세션에서 액세스 토큰 제거
+                        document.cookie = 'refreshToken=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT;';  // 쿠키에서 리프레시 토큰 삭제
+                        resetHeader();  // 헤더를 초기 상태로 재설정
                         alert('로그아웃 성공');
                     } else {
                         alert('로그아웃 실패');
