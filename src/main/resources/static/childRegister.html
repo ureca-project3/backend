@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>자녀 프로필 등록</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f8f9fa;
+        }
+        .container {
+            max-width: 600px;
+            text-align: center;
+        }
+        .profile-circle {
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            border: 5px solid #FFD700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            cursor: pointer;
+            position: relative;
+        }
+        .profile-circle img {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            object-fit: cover;
+            display: none;
+        }
+        .profile-circle p {
+            color: #aaa;
+            font-size: 1rem;
+        }
+        .form-group {
+            margin-bottom: 15px;
+            text-align: left;
+        }
+        .gender-selection {
+            display: flex;
+            justify-content: space-between;
+            max-width: 200px;
+            margin: 0 auto;
+        }
+        .gender-selection .btn {
+            width: 80px;
+            font-weight: bold;
+        }
+        .birthdate-input {
+            text-align: center;
+        }
+        .register-button {
+            width: 100%;
+            padding: 10px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            background-color: #FFD700;
+            border: none;
+            border-radius: 30px;
+            color: #333;
+        }
+        .later-button {
+            margin-top: 10px;
+            font-size: 0.9rem;
+            color: #aaa;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <!-- 프로필 이미지 선택 -->
+    <div class="profile-circle" onclick="selectProfileImage()">
+        <img id="profile-img" src="" alt="프로필 이미지">
+        <p id="profile-placeholder">프로필 이미지 선택하기</p>
+    </div>
+
+    <!-- 이름 입력 -->
+    <div class="form-group">
+        <label for="child-name" class="form-label">이름</label>
+        <input type="text" id="child-name" class="form-control">
+    </div>
+
+    <!-- 생년월일 입력 -->
+    <div class="form-group">
+        <label for="birthdate" class="form-label">생년월일</label>
+        <input type="text" id="birthdate" class="form-control birthdate-input" placeholder="yyyy.mm.dd">
+    </div>
+
+    <!-- 성별 선택 -->
+    <div class="form-group">
+        <label class="form-label">성별</label>
+        <div class="gender-selection">
+            <button type="button" class="btn btn-outline-dark" id="gender-male" onclick="selectGender('남')">남</button>
+            <button type="button" class="btn btn-outline-dark" id="gender-female" onclick="selectGender('여')">여</button>
+        </div>
+    </div>
+
+    <!-- 등록하기 버튼 -->
+    <button type="button" class="register-button" onclick="registerChild()">등록하기</button>
+    <div class="later-button">나중에 등록하기</div>
+</div>
+
+<script>
+    // 프로필 이미지 선택 기능
+    function selectProfileImage() {
+        // 예시 이미지 URL 배열
+        const images = [
+            'profile1.jpg', 'profile2.jpg', 'profile3.jpg',
+            'profile4.jpg', 'profile5.jpg', 'profile6.jpg',
+            'profile7.jpg', 'profile8.jpg'
+        ];
+
+        const selectedImage = prompt("이미지를 선택하세요 (1-8)", "1");
+        if (selectedImage >= 1 && selectedImage <= 8) {
+            document.getElementById("profile-img").src = images[selectedImage - 1];
+            document.getElementById("profile-img").style.display = 'block';
+            document.getElementById("profile-placeholder").style.display = 'none';
+        }
+    }
+
+    // 성별 선택 기능
+    let selectedGender = null;
+    function selectGender(gender) {
+        selectedGender = gender;
+        document.getElementById("gender-male").classList.toggle("btn-dark", gender === "남");
+        document.getElementById("gender-male").classList.toggle("btn-outline-dark", gender !== "남");
+        document.getElementById("gender-female").classList.toggle("btn-dark", gender === "여");
+        document.getElementById("gender-female").classList.toggle("btn-outline-dark", gender !== "여");
+    }
+
+    // 생년월일 입력 형식
+    document.getElementById("birthdate").addEventListener("input", function(e) {
+        let input = e.target.value.replace(/[^0-9]/g, "");
+        if (input.length >= 4) input = input.slice(0, 4) + "." + input.slice(4);
+        if (input.length >= 7) input = input.slice(0, 7) + "." + input.slice(7, 9);
+        e.target.value = input;
+    });
+
+    // 자녀 등록 API 호출
+    function registerChild() {
+        const accessToken = sessionStorage.getItem('accessToken');
+        if (!accessToken) {
+            alert("로그인이 필요합니다.");
+            window.location.href = "/login.html";
+            return;
+        }
+
+        // 입력된 자녀 정보 가져오기
+        const childData = {
+            name: document.getElementById('child-name').value,
+            age: calculateAge(document.getElementById('birthdate').value),
+            birthDate: document.getElementById('birthdate').value,
+            gender: selectedGender === "남" ? "M" : "F",
+            profileImage: document.getElementById("profile-img").src
+        };
+
+        // API 호출
+        fetch('/mypage/child-info', {
+            method: 'POST',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${accessToken}`
+            },
+            body: JSON.stringify(childData)
+        })
+            .then(response => {
+                if (response.status === 201) {
+                    return response.json();
+                } else {
+                    throw new Error("자녀 등록에 실패하였습니다.");
+                }
+            })
+            .then(data => {
+                alert(data.message);
+                window.location.href = "/mypage.html";
+            })
+            .catch(error => {
+                console.error("Error:", error);
+                alert("자녀 등록 중 오류가 발생했습니다.");
+            });
+    }
+
+    function calculateAge(birthDate) {
+        const birth = new Date(birthDate);
+        const today = new Date();
+        let age = today.getFullYear() - birth.getFullYear();
+        const m = today.getMonth() - birth.getMonth();
+        if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) {
+            age--;
+        }
+        return age;
+    }
+</script>
+</body>
+</html>

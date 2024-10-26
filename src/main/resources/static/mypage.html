@@ -35,11 +35,42 @@
         }
         .child-profile {
             margin-top: 20px;
+            text-align: center;
         }
         .child-profile h4 {
             margin-bottom: 10px;
             font-weight: bold;
             color: #007bff;
+        }
+        .child-profile .child-photo {
+            display: inline-block;
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            margin: 10px;
+            overflow: hidden;
+            cursor: pointer;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+        .child-profile .child-photo img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .add-child {
+            display: inline-block;
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background-color: #e9ecef;
+            margin: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 2rem;
+            color: #007bff;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
         }
     </style>
 </head>
@@ -71,9 +102,12 @@
     <!-- Child Profile Section -->
     <div class="child-profile">
         <h4>자녀 프로필</h4>
-        <ul class="list-group" id="child-profiles">
-            <!-- 자녀 프로필 정보가 동적으로 추가될 예정 -->
-        </ul>
+        <div id="child-profiles">
+            <!-- 자녀 프로필 사진이 동적으로 추가될 예정 -->
+        </div>
+        <div class="add-child" onclick="window.location.href='/childRegister.html'">
+            +
+        </div>
     </div>
 </div>
 
@@ -108,13 +142,18 @@
                 document.getElementById('user-email').textContent = data.email;
                 document.getElementById('user-phone').textContent = data.phone;
 
-                // 자녀 프로필 추가
+                // 자녀 프로필 사진 추가
                 const childProfiles = document.getElementById('child-profiles');
                 data.children.forEach(child => {
-                    const listItem = document.createElement('li');
-                    listItem.classList.add('list-group-item');
-                    listItem.textContent = `이름: ${child.name}, 나이: ${child.age}, 성별: ${child.gender}`;
-                    childProfiles.appendChild(listItem);
+                    const profileDiv = document.createElement('div');
+                    profileDiv.classList.add('child-photo');
+                    profileDiv.onclick = () => window.location.href = `/childDetails.html?id=${child.id}`;
+
+                    const img = document.createElement('img');
+                    img.src = child.photoUrl; // 자녀 프로필 사진 URL
+
+                    profileDiv.appendChild(img);
+                    childProfiles.appendChild(profileDiv);
                 });
             })
             .catch(error => {
