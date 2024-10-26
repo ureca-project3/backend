@@ -79,27 +79,40 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         String groupId = "100"; // 실제 그룹 ID로 바꿔야 함
         CommonCodeId roleCodeId = new CommonCodeId(role, groupId);
 
-        // JWT Access Token 생성 (10시간 유효)
-        String accessToken = jwtUtil.createAccessToken(username, roleCodeId, 60 * 60 * 10 * 1000L);
+        // JWT Access Token 생성 (10시간 유효) - 시은 액세스토큰에 멤버아이디 추가 (mypage 테스트)
+        // String accessToken = jwtUtil.createAccessToken(username, roleCodeId, 60 * 60 * 10 * 1000L);
+        Long memberId = customMemberDetails.getMemberId();
+        String accessToken = jwtUtil.createAccessToken(memberId);
 
         // JWT Refresh Token 생성 (24시간 유효)
         String refreshToken = jwtUtil.createRefreshToken(username, 24 * 60 * 60 * 1000L);
 
+        // 기존 Refresh-Token 쿠키 삭제
+        Cookie existingRefreshToken = Arrays.stream(request.getCookies())
+                .filter(cookie -> "refreshToken".equals(cookie.getName()))
+                .findFirst()
+                .orElse(null);
+
+        if (existingRefreshToken != null) {
+            existingRefreshToken.setMaxAge(0);  // 기존 쿠키 삭제
+            response.addCookie(existingRefreshToken);
+        }
+
         // 리프레시 토큰을 HttpOnly 쿠키에 저장
-        Cookie cookieR = new Cookie("Refresh-Token", refreshToken);
+        Cookie cookieR = new Cookie("refreshToken", refreshToken);
         cookieR.setMaxAge(24 * 60 * 60); // 쿠키의 최대 수명 (1일)
         cookieR.setHttpOnly(true); // JavaScript에서 접근할 수 없도록 설정
         cookieR.setSecure(true); // HTTPS에서만 쿠키를 전송하도록 설정
         cookieR.setPath("/"); // 쿠키의 유효 경로를 설정
         response.addCookie(cookieR); // 생성된 쿠키를 HTTP 응답에 추가
 
-        // Access 토큰을 HttpOnly 쿠키에 저장
-        Cookie cookieA = new Cookie("Access-Token", accessToken);
-        cookieA.setMaxAge(24 * 60 * 60); // 쿠키의 최대 수명 (1일)
-        cookieA.setHttpOnly(true); // JavaScript에서 접근할 수 없도록 설정
-        cookieA.setSecure(true); // HTTPS에서만 쿠키를 전송하도록 설정
-        cookieA.setPath("/"); // 쿠키의 유효 경로를 설정
-        response.addCookie(cookieA); // 생성된 쿠키를 HTTP 응답에 추가
+//        // Access 토큰을 HttpOnly 쿠키에 저장
+//        Cookie cookieA = new Cookie("Access-Token", accessToken);
+//        cookieA.setMaxAge(24 * 60 * 60); // 쿠키의 최대 수명 (1일)
+//        cookieA.setHttpOnly(true); // JavaScript에서 접근할 수 없도록 설정
+//        cookieA.setSecure(true); // HTTPS에서만 쿠키를 전송하도록 설정
+//        cookieA.setPath("/"); // 쿠키의 유효 경로를 설정
+//        response.addCookie(cookieA); // 생성된 쿠키를 HTTP 응답에 추가
 
         // Authorization 해더에 accessToken 값 추가
         response.addHeader("Authorization", "Bearer " + accessToken);
