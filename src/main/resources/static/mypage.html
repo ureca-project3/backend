@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>마이페이지</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .profile-container {
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        .profile-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .profile-header h2 {
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        .profile-info {
+            font-size: 1.1rem;
+            margin-bottom: 20px;
+            padding: 10px;
+            border-radius: 8px;
+            background-color: #f8f9fa;
+        }
+        .profile-info span {
+            font-weight: bold;
+            margin-right: 10px;
+            color: #495057;
+        }
+        .child-profile {
+            margin-top: 20px;
+        }
+        .child-profile h4 {
+            margin-bottom: 10px;
+            font-weight: bold;
+            color: #007bff;
+        }
+    </style>
+</head>
+<body>
+<!-- Navigation Bar -->
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+    <div class="container">
+        <a class="navbar-brand" href="#">마이페이지</a>
+        <div class="collapse navbar-collapse justify-content-end">
+            <ul class="navbar-nav">
+                <li class="nav-item">
+                    <button class="btn btn-danger" id="logout-button">로그아웃</button>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<!-- Profile Section -->
+<div class="profile-container bg-light p-4">
+    <div class="profile-header">
+        <h2 id="user-name">이름: </h2>
+    </div>
+    <div class="profile-info">
+        <p><span>이메일:</span> <span id="user-email">example@example.com</span></p>
+        <p><span>전화번호:</span> <span id="user-phone">010-0000-0000</span></p>
+    </div>
+
+    <!-- Child Profile Section -->
+    <div class="child-profile">
+        <h4>자녀 프로필</h4>
+        <ul class="list-group" id="child-profiles">
+            <!-- 자녀 프로필 정보가 동적으로 추가될 예정 -->
+        </ul>
+    </div>
+</div>
+
+<script>
+    // 로그아웃 버튼 기능
+    document.getElementById('logout-button').addEventListener('click', function() {
+        sessionStorage.removeItem('accessToken');
+        alert("로그아웃 되었습니다.");
+        window.location.href = "/login.html";
+    });
+
+    // 페이지 로드 시 사용자 정보 로드
+    window.onload = function() {
+        const accessToken = sessionStorage.getItem('accessToken');
+        if (!accessToken) {
+            alert("로그인 상태가 아닙니다.");
+            window.location.href = "/login.html";
+            return;
+        }
+
+        // 사용자 정보 요청
+        fetch('/api/user/profile', {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${accessToken}`
+            }
+        })
+            .then(response => response.json())
+            .then(data => {
+                // 사용자 정보 표시
+                document.getElementById('user-name').textContent += data.name;
+                document.getElementById('user-email').textContent = data.email;
+                document.getElementById('user-phone').textContent = data.phone;
+
+                // 자녀 프로필 추가
+                const childProfiles = document.getElementById('child-profiles');
+                data.children.forEach(child => {
+                    const listItem = document.createElement('li');
+                    listItem.classList.add('list-group-item');
+                    listItem.textContent = `이름: ${child.name}, 나이: ${child.age}, 성별: ${child.gender}`;
+                    childProfiles.appendChild(listItem);
+                });
+            })
+            .catch(error => {
+                console.error("Error fetching profile:", error);
+                alert("사용자 정보를 불러올 수 없습니다.");
+            });
+    }
+</script>
+</body>
+</html>
