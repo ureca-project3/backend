@@ -1,15 +1,14 @@
 package com.triple.backend.batch.dto;
 
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @NoArgsConstructor
-@AllArgsConstructor
+@Setter
 @Getter
 public class BookTraitsDto {
-    private Long bookId;
+    private Long bookTraitsId;
+    private Integer bookTraitScore;
     private Long traitId;
-    private String traitName;
-    private Integer traitScore;
 }
