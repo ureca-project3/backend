@@ -38,6 +38,9 @@ dependencies {
 
     // Batch
     implementation 'org.springframework.boot:spring-boot-starter-batch'
+
+    // JDBC
+    implementation 'org.springframework.boot:spring-boot-starter-jdbc'
 }
 
 tasks.named('test') {
