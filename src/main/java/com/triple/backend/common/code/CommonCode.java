@@ -22,4 +22,5 @@ public class CommonCode {
     private String commonName;
 
     private boolean useYn;
+
 }
