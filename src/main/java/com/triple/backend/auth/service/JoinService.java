@@ -16,7 +16,6 @@ public class JoinService {
     private final MemberRepository memberRepository;
 
     // 비밀번호 가입시 암호화
-
     private final PasswordEncoder passwordEncoder; // 타입 변경
     private final CommonCodeRepository commonCodeRepository; // 공통코드 정보 찾기위한 기능
     private final JWTUtil jwtUtil; // JWTUtil 사용
@@ -27,7 +26,6 @@ public class JoinService {
         this.passwordEncoder = passwordEncoder;
         this.jwtUtil = jwtUtil;
     }
-
 
     public void joinProcess(JoinDto joinDto) {
         String memberName = joinDto.getMemberName();
@@ -47,7 +45,6 @@ public class JoinService {
         CommonCode role = commonCodeRepository.findById(roleCodeId)
                 .orElseThrow(() -> new IllegalStateException("기본 역할을 찾을 수 없습니다.")); // 예외 처리
 
-
         // 회원가입 진행
         Member newMember = Member.builder()
                 .name(memberName)
@@ -61,6 +58,5 @@ public class JoinService {
 
         // JWT 생성 (예시: 만료 시간 10시간)
         String token = jwtUtil.createJWTToken(email, roleCodeId, 36000000L); // 이메일과 역할 코드 ID 사용
-
     }
 }

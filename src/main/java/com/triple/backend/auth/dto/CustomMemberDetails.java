@@ -2,12 +2,10 @@ package com.triple.backend.auth.dto;
 
 import com.triple.backend.member.entity.Member;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 
 // 사용자 인증 및 권한 부여
 public class CustomMemberDetails implements UserDetails {
@@ -17,7 +15,6 @@ public class CustomMemberDetails implements UserDetails {
         this.member = member;
 
     }
-
 
     // 사용자의 role 값을 반환
     @Override
@@ -36,7 +33,6 @@ public class CustomMemberDetails implements UserDetails {
 
         return collection;
     }
-
 
     // password 값을 반환
     @Override

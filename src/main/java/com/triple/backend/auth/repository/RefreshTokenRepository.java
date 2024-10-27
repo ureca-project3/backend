@@ -1,6 +1,5 @@
 package com.triple.backend.auth.repository;
 import com.triple.backend.auth.entity.RefreshToken;
-import com.triple.backend.member.entity.Member;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
