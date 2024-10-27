@@ -36,7 +36,7 @@ public class TestServiceImpl implements TestService {
     private final TestParticipationRepository testParticipationRepository;
     private final TestAnswerRepository testAnswerRepository;
     private final ChildRepository childRepository;
-
+    private final MbtiRepository mbtiRepository;
     private final TraitRepository traitRepository;
 
     // 자녀 성향 질문 조회
@@ -59,7 +59,7 @@ public class TestServiceImpl implements TestService {
 
     // 자녀 성향 진단 결과 조희
     @Override
-    public TestResultRequestDto getTestResult(Long childId) {
+    public TestResultResponseDto getTestResult(Long childId) {
 
         MbtiHistory history = mbtiHistoryRepository.findTopByChild_ChildIdOrderByCreatedAtDesc(childId);
         Long historyId = history.getHistoryId();
@@ -69,7 +69,15 @@ public class TestServiceImpl implements TestService {
 
         List<TraitDataResponseDto> traitDataDtoList = childTraitsRepository.findTraitsByChildAndTest(childId, historyId, testId);
 
-        return new TestResultRequestDto(traitDataDtoList);
+        Mbti mbti = mbtiRepository.findByName(MbtiType.valueOf(history.getCurrentMbti()));
+
+        return new TestResultResponseDto(
+                traitDataDtoList,
+                mbti.getName(),
+                mbti.getDescription(),
+                mbti.getImage(),
+                mbti.getPhrase()
+        );
     }
 
     // 자녀 성향 진단 결과 등록
@@ -131,8 +139,8 @@ public class TestServiceImpl implements TestService {
         MbtiHistory mbtiHistory = mbtiHistoryRepository.save(MbtiHistory.builder()
                 .child(child)
                 .currentMbti(currentMbti.toString())
-                .createdAt(LocalDateTime.now())
-                .reason("자녀 성향 진단")
+                .reason("010")
+                .reasonId(testParticipation.getTestParticipationId())
                 .isDeleted(false)
                 .build());
 
@@ -153,7 +161,6 @@ public class TestServiceImpl implements TestService {
                 }
             }
         }
-
     }
 
     // 자녀 성향 진단 참여 등록
