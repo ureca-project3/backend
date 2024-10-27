@@ -1,12 +1,10 @@
-package com.triple.backend.batch.tasklet;
+package com.triple.backend.batch.tasklet.syncFeedbackStep;
 
 import com.triple.backend.batch.dto.FeedbackDto;
-import com.triple.backend.batch.dto.UpdateTraitChangeDto;
-import com.triple.backend.feedback.entity.Feedback;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.item.Chunk;
 import org.springframework.batch.item.ItemWriter;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
@@ -17,16 +15,15 @@ import java.util.List;
 
 @Component
 @RequiredArgsConstructor
-public class FeedbackWriter implements ItemWriter<FeedbackDto> {
-
-    @Qualifier("mainNamedParameterJdbcTemplate")
+@Slf4j
+public class MySqlFeedbackWriter implements ItemWriter<FeedbackDto> {
     private final NamedParameterJdbcTemplate namedParameterJdbcTemplate;
 
     @Override
     public void write(Chunk<? extends FeedbackDto> chunk) throws Exception {
         String insertQuery = """
-            INSERT INTO feedback (child_id, book_id, like_status, hate_status)
-            VALUES (:childId, :bookId, :likeStatus, :hateStatus)
+            INSERT INTO feedback (child_id, book_id, like_status, hate_status, created_at)
+            VALUES (:childId, :bookId, :likeStatus, :hateStatus, current_timestamp)
             ON DUPLICATE KEY UPDATE
                 like_status = VALUES(like_status),
                 hate_status = VALUES(hate_status)
@@ -41,7 +38,7 @@ public class FeedbackWriter implements ItemWriter<FeedbackDto> {
                         .addValue("bookId", dto.getBookId())
                         .addValue("likeStatus", dto.isLikeStatus())
                         .addValue("hateStatus", dto.isHateStatus()))
-                    .toArray(SqlParameterSource[]::new);
+                .toArray(SqlParameterSource[]::new);
 
         namedParameterJdbcTemplate.batchUpdate(insertQuery, batchParams);
     }
