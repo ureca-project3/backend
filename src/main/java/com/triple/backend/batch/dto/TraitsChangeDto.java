@@ -1,13 +1,14 @@
 package com.triple.backend.batch.dto;
 
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @NoArgsConstructor
-@AllArgsConstructor
 @Getter
-public class UpdateTraitChangeDto {
+@Setter
+public class TraitsChangeDto {
+    private Long traitChangeId;
     private Long childId;
     private Long traitId;
     private Integer changeAmount;
