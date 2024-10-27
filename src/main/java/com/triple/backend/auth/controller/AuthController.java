@@ -1,6 +1,8 @@
 package com.triple.backend.auth.controller;
 
+import com.triple.backend.auth.dto.JoinDto;
 import com.triple.backend.auth.repository.RefreshTokenRepository;
+import com.triple.backend.auth.service.JoinService;
 import com.triple.backend.member.entity.Member;
 import com.triple.backend.member.repository.MemberRepository;
 import com.triple.backend.common.config.JWTUtil;
@@ -15,6 +17,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import jakarta.servlet.http.Cookie;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -29,6 +32,23 @@ public class AuthController {
 
     private final JWTUtil jwtUtil;
     private final RefreshTokenRepository refreshTokenRepository;
+    private final JoinService joinService;
+
+    @GetMapping("/login")
+    public String loginPage() {
+        return "login"; // login.html 파일을 반환합니다. (뷰 리졸버에 따라 경로 조정 필요)
+    }
+
+    @PostMapping("/signup")
+    public String joinProcess(JoinDto joinDto, RedirectAttributes redirectAttributes) {
+        joinService.joinProcess(joinDto);
+
+        // 회원가입 성공 메시지 추가 (필요에 따라 수정 가능)
+        redirectAttributes.addFlashAttribute("message", "회원가입이 완료되었습니다!");
+
+        // index.html로 리다이렉트
+        return "redirect:/index.html";
+    }
 
     @GetMapping("/api/member/kakao-logout")
     public void kakaoLogoutRedirect(
