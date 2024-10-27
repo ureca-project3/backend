@@ -38,18 +38,21 @@ public class SecurityConfig {
                 .formLogin(formLogin -> formLogin.disable())
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/favicon.ico","/image/**", "/auth/**", "/public/**", "/join", "/login", "/", "/signup", "/index.html", "/login.html", "/signup.html").permitAll()
+                        .requestMatchers("/favicon.ico", "/image/**", "/auth/**", "/public/**", "/join", "/login", "/", "/signup", "/index.html", "/login.html", "/signup.html").permitAll()
 
                         // 인증이 필요한 요청
                         .requestMatchers("/mypage.html", "/chid.html")  // 해당 페이지는
-                        .hasAnyRole("회원", "관리자")                   // 회원(010), 관리자(020) 만접속 가능
+                        .hasAnyAuthority("010", "020")                  // 회원과 관리자만 접속 가능
 
                         .anyRequest().authenticated()
-
+                )
+                .exceptionHandling(exception -> exception
+                        .accessDeniedPage("/access-denied.html") // 접근 거부 시 리다이렉션 페이지
                 )
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 );
+
         // 로그아웃 설정
         http.logout((logout) -> logout
                 .logoutUrl("/logout") // 로그아웃 요청 URL
@@ -58,7 +61,6 @@ public class SecurityConfig {
                     response.setStatus(HttpServletResponse.SC_OK);
                     response.setContentType("application/json");
                     response.getWriter().write("{\"message\": \"로그아웃 성공\"}");
-
                 })
                 .deleteCookies("Refresh-Token") // 쿠키 삭제
                 .invalidateHttpSession(false)); // 세션 무효화
