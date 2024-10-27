@@ -29,9 +29,9 @@ function updateHistoryDates(dates) {
     container.innerHTML = '<h3>진단 기록</h3>';
 
     dates.forEach((date, index) => {
-        const button = document.createElement('div'); // div로 변경하여 스타일 적용
+        const button = document.createElement('div');
         button.className = 'history-date';
-        if (index === 0) button.classList.add('active'); // 첫 번째 버튼에 active 클래스 추가
+        if (index === 0) button.classList.add('active');
 
         const formattedDate = new Date(date).toLocaleDateString('ko-KR', {
             year: 'numeric',
@@ -39,24 +39,19 @@ function updateHistoryDates(dates) {
             day: '2-digit'
         });
         button.textContent = formattedDate;
+        button.dataset.date = date; // 날짜 데이터 저장
 
-        // 클릭 이벤트 핸들러
         button.onclick = () => {
-            // 모든 버튼에서 active 클래스 제거
             document.querySelectorAll('.history-date').forEach(btn =>
                 btn.classList.remove('active')
             );
-            // 클릭한 버튼에 active 클래스 추가
             button.classList.add('active');
-            // 날짜 데이터 로드
             loadDateData(date);
         };
 
-        // 컨테이너에 버튼 추가
         container.appendChild(button);
     });
 }
-
 
 async function loadInitialData() {
     try {
@@ -64,7 +59,6 @@ async function loadInitialData() {
         const data = await response.json();
 
         if (data.message === "Get MyChildTestHistory Success") {
-            // 처음 한 번만 description 설정
             data.data.historyMbti.forEach(trait => {
                 let descriptionId;
                 switch (trait.traitName) {
@@ -124,7 +118,10 @@ function updateDisplay(data) {
         updateIndicator(barId, score);
     });
 
-    document.getElementById('delete-button').onclick = () => deleteHistory(data.historyId);
+    // historyId를 delete 버튼에 데이터 속성으로 저장
+    const deleteButton = document.getElementById('delete-button');
+    deleteButton.dataset.historyId = data.historyId;
+    deleteButton.onclick = () => deleteHistory(data.historyId);
 }
 
 async function loadDateData(date) {
@@ -145,6 +142,11 @@ async function loadDateData(date) {
             updateIndicator('perception-bar', historyMbti["인식기능"]);
             updateIndicator('judgment-bar', historyMbti["판단기능"]);
             updateIndicator('lifestyle-bar', historyMbti["생활양식"]);
+
+            // 선택된 날짜의 historyId로 삭제 버튼 업데이트
+            const deleteButton = document.getElementById('delete-button');
+            deleteButton.dataset.historyId = historyData.historyId;
+            deleteButton.onclick = () => deleteHistory(historyData.historyId);
         }
     } catch (error) {
         console.error('Error loading date data:', error);
@@ -155,8 +157,9 @@ async function deleteHistory(historyId) {
     const isConfirmed = confirm("정말 삭제하시겠습니까?");
 
     if (!isConfirmed) {
-        return; // If user cancels, exit the function
+        return;
     }
+
     try {
         const response = await fetch(`/mypage/child-info/${historyId}`, {
             method: 'PATCH',
