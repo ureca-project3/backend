@@ -19,21 +19,6 @@ import java.util.Map;
 public class MemberController {
 
     private final MemberService memberService;
-
-    // 회원 정보 조회 API
-//    @GetMapping("/info")
-//    public ResponseEntity<MemberInfoDto> getMemberInfo(Authentication authentication) {
-//        // 인증된 사용자의 정보를 Authentication 객체로부터 가져옴
-//        CustomMemberDetails memberDetails = (CustomMemberDetails) authentication.getPrincipal();
-//        Long memberId = memberDetails.getMember().getMemberId();
-//
-//        // 회원 정보 조회
-//        MemberInfoDto memberInfo = memberService.getMemberInfoById(memberId);
-//
-//        return ResponseEntity.ok(memberInfo);
-//    }
-    // 마이페이지 조회
-    // 마이페이지 조회 (회원 정보 + 자녀 프로필)
     @GetMapping("/user/profile")
     public ResponseEntity<MemberInfoDto> getUserProfile(Authentication authentication) {
         CustomMemberDetails memberDetails = (CustomMemberDetails) authentication.getPrincipal();

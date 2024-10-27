@@ -16,9 +16,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
-import java.util.Enumeration;
-import java.util.List;
-import java.util.Optional;
 
 // JWT 필터 검증
 @AllArgsConstructor
@@ -31,12 +28,6 @@ public class JWTFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-//// 요청 헤더 로깅 ( Authorization 헤더가 포함되어 있는지 확인 )
-//        Enumeration<String> headerNames = request.getHeaderNames();
-//        while (headerNames.hasMoreElements()) {
-//            String headerName = headerNames.nextElement();
-//            System.out.println(headerName + ": " + request.getHeader(headerName));
-//        }
         // request에서 Authorization 헤더를 찾음
         String authorization = request.getHeader("Authorization");
 
@@ -60,11 +51,12 @@ public class JWTFilter extends OncePerRequestFilter {
             // 조건이 해당되면 메소드 종료 (필수)
             return;
         }
+
         // 토큰에서 email과 role 획득
         String email = jwtUtil.getEmail(token);
         // MemberEntity를 생성하여 값 set
         Member member = new Member();
-        member.setName(email);
+        member.setName(email);// 이름을 이메일로,...?
 
         // 토큰에서 memberId 추출
         Long memberId = jwtUtil.getMemberIdFromToken(token);
@@ -77,18 +69,6 @@ public class JWTFilter extends OncePerRequestFilter {
             return; // 사용자 정보가 없으면 메소드 종료
         }
 
-        // 쿠키에서 액세스 토큰 추출
-//        String token = jwtUtil.extractAccessToken(request);
-//
-//        if (token != null && jwtUtil.validateToken(token)) {
-//            Long memberId = jwtUtil.getMemberIdFromToken(token);
-//
-//            // 인증 객체를 설정
-//            UsernamePasswordAuthenticationToken authentication =
-//                    new UsernamePasswordAuthenticationToken(memberId, null, List.of());
-//            SecurityContextHolder.getContext().setAuthentication(authentication);
-//        }
-
         //UserDetails에 회원 정보 객체 담기
         CustomMemberDetails customMemberDetails = new CustomMemberDetails(member);
         //스프링 시큐리티 인증 토큰 생성
@@ -98,6 +78,5 @@ public class JWTFilter extends OncePerRequestFilter {
         System.out.println("사용자 세션 등록 완료");
         // 다음 필터로 요청 전달
         filterChain.doFilter(request, response);
-
     }
 }

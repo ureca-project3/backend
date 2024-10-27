@@ -188,8 +188,6 @@
             const kakaoLogoutUrl = `https://kauth.kakao.com/oauth/logout?client_id=${clientId}&logout_redirect_uri=${redirectUri}`;
 
             window.location.href = kakaoLogoutUrl;
-
-            alert('로그아웃 성공');
         } else {
             fetch('/logout', {
                 method: 'POST',
