@@ -26,7 +26,6 @@
             align-items: center;
             justify-content: center;
             margin: 0 auto 20px;
-            cursor: pointer;
             position: relative;
         }
         .profile-circle img {
@@ -34,11 +33,6 @@
             height: 100%;
             border-radius: 50%;
             object-fit: cover;
-            display: none;
-        }
-        .profile-circle p {
-            color: #aaa;
-            font-size: 1rem;
         }
         .form-group {
             margin-bottom: 15px;
@@ -73,15 +67,45 @@
             color: #aaa;
             cursor: pointer;
         }
+        /* Modal styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            justify-content: center;
+            align-items: center;
+        }
+        .modal-content {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        .modal-content img {
+            width: 80px;
+            height: 80px;
+            margin: 10px;
+            cursor: pointer;
+            border-radius: 50%;
+            border: 2px solid transparent;
+        }
+        .modal-content img.selected {
+            border-color: #FFD700;
+        }
     </style>
 </head>
 <body>
 <div class="container">
-    <!-- 프로필 이미지 선택 -->
-    <div class="profile-circle" onclick="selectProfileImage()">
-        <img id="profile-img" src="" alt="프로필 이미지">
-        <p id="profile-placeholder">프로필 이미지 선택하기</p>
+    <!-- 프로필 이미지 -->
+    <div class="profile-circle">
+        <img id="profile-img" src="/image/profileDefault.png" alt="프로필 이미지">
     </div>
+    <button type="button" class="btn btn-link" onclick="openModal()">프로필 사진 선택하기</button>
 
     <!-- 이름 입력 -->
     <div class="form-group">
@@ -109,22 +133,47 @@
     <div class="later-button">나중에 등록하기</div>
 </div>
 
-<script>
-    // 프로필 이미지 선택 기능
-    function selectProfileImage() {
-        // 예시 이미지 URL 배열
-        const images = [
-            'profile1.jpg', 'profile2.jpg', 'profile3.jpg',
-            'profile4.jpg', 'profile5.jpg', 'profile6.jpg',
-            'profile7.jpg', 'profile8.jpg'
-        ];
+<!-- Modal -->
+<div id="imageModal" class="modal">
+    <div class="modal-content">
+        <h5>프로필 사진 선택</h5>
+        <div id="image-options">
+            <!-- 이미지 선택 버튼 -->
+        </div>
+        <button type="button" class="btn btn-primary" onclick="confirmImageSelection()">확인</button>
+    </div>
+</div>
 
-        const selectedImage = prompt("이미지를 선택하세요 (1-8)", "1");
-        if (selectedImage >= 1 && selectedImage <= 8) {
-            document.getElementById("profile-img").src = images[selectedImage - 1];
-            document.getElementById("profile-img").style.display = 'block';
-            document.getElementById("profile-placeholder").style.display = 'none';
-        }
+<script>
+    const images = ['profile1.png', 'profile2.png', 'profile3.png', 'profile4.png', 'profile5.png', 'profile6.png', 'profile7.png'];
+    let selectedImage = 'profileDefault.png';
+
+    // 프로필 이미지 선택 모달 열기
+    function openModal() {
+        const imageOptions = document.getElementById("image-options");
+        imageOptions.innerHTML = ''; // 기존 이미지 삭제
+        images.forEach(image => {
+            const img = document.createElement("img");
+            img.src = `/image/${image}`;
+            img.alt = image;
+            img.onclick = () => selectImage(img, image);
+            imageOptions.appendChild(img);
+        });
+        document.getElementById("imageModal").style.display = "flex";
+    }
+
+    // 이미지 선택
+    function selectImage(imgElement, image) {
+        // 이전 선택된 이미지 해제
+        document.querySelectorAll("#image-options img").forEach(img => img.classList.remove("selected"));
+        imgElement.classList.add("selected");
+        selectedImage = image;
+    }
+
+    // 선택된 이미지 확인 및 설정
+    function confirmImageSelection() {
+        document.getElementById("profile-img").src = `/image/${selectedImage}`;
+        document.getElementById("imageModal").style.display = "none";
     }
 
     // 성별 선택 기능
@@ -160,7 +209,7 @@
             age: calculateAge(document.getElementById('birthdate').value),
             birthDate: document.getElementById('birthdate').value,
             gender: selectedGender === "남" ? "M" : "F",
-            profileImage: document.getElementById("profile-img").src
+            profileImage: selectedImage // 파일 이름만 전송
         };
 
         // API 호출

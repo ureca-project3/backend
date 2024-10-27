@@ -142,7 +142,7 @@
                 document.getElementById('user-email').textContent = data.email;
                 document.getElementById('user-phone').textContent = data.phone;
 
-                // 자녀 프로필 사진 추가
+                // 자녀 프로필 추가
                 const childProfiles = document.getElementById('child-profiles');
                 data.children.forEach(child => {
                     const profileDiv = document.createElement('div');
@@ -150,7 +150,7 @@
                     profileDiv.onclick = () => window.location.href = `/childDetails.html?id=${child.id}`;
 
                     const img = document.createElement('img');
-                    img.src = child.photoUrl; // 자녀 프로필 사진 URL
+                    img.src = `/image/${child.imageUrl}`; // 이미지 경로 설정
 
                     profileDiv.appendChild(img);
                     childProfiles.appendChild(profileDiv);
