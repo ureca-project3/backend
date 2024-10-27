@@ -16,6 +16,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import jakarta.servlet.http.Cookie;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
@@ -87,12 +88,27 @@ public class AuthController {
             // 4. Security Context 정리
             SecurityContextHolder.clearContext();
 
-            // 5. 리다이렉트
-            response.sendRedirect("/index.html");
+            // 5. 카카오 서비스 로그아웃
+            String clientId = "ecbe8197ad00125d1d59da0fb88f4b3c";
+            String logoutRedirectUri = "http://localhost:8080/auth/kakao-logout-callback";
+            String kakaoLogoutUrl = String.format(
+                    "https://kauth.kakao.com/oauth/logout?client_id=%s&logout_redirect_uri=%s",
+                    clientId,
+                    logoutRedirectUri
+            );
+
+            // 6. 카카오 로그아웃 페이지로 리다이렉트
+            response.sendRedirect(kakaoLogoutUrl);
         } catch (Exception e) {
             log.error("Kakao logout error", e);
             response.sendRedirect("/index.html?error=logout_failed");
         }
+    }
+
+    @GetMapping("/kakao-logout-callback")
+    public void kakaoLogoutCallback(HttpServletResponse response) throws IOException {
+        // 카카오 로그아웃 후 최종적으로 우리 서비스의 index.html로 리다이렉트
+        response.sendRedirect("/index.html");
     }
 
     @GetMapping("/token/access")
@@ -122,6 +138,14 @@ public class AuthController {
         } else {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
+    }
+
+    @GetMapping("/success")
+    public String authSuccess(@RequestParam String accessToken, Model model) {
+        // 토큰을 모델에 추가
+        model.addAttribute("accessToken", accessToken);
+        // auth-success.html 템플릿을 반환
+        return "auth-success";
     }
 
 }

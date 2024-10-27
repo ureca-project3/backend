@@ -47,28 +47,61 @@ function resetHeader() {
     signupLink.style.display = 'inline-block';
 }
 
+// window.onload = async function() {
+//     let accessToken = sessionStorage.getItem('accessToken');
+//     const refreshToken = document.cookie.split('; ').find(row => row.startsWith('refreshToken='));
+//
+//     if (accessToken == null) {
+//         const urlParams = new URLSearchParams(window.location.search);
+//         accessToken = urlParams.get('accessToken');
+//         if (accessToken) {
+//             sessionStorage.setItem('accessToken', accessToken);
+//
+//             urlParams.delete('accessToken');
+//             const newUrl = `${window.location.pathname}?${urlParams.toString()}`;
+//             window.history.replaceState({}, document.title, newUrl);
+//         }
+//     }
+//
+//     if (accessToken) {
+//         updateHeaderWithUserInfo(accessToken);
+//     } else if (refreshToken && location.pathname !== '/index.html') {
+//         await fetchAccessToken();
+//     } else {
+//         resetHeader();
+//     }
+// };
+
 window.onload = async function() {
-    let accessToken = sessionStorage.getItem('accessToken');
-    const refreshToken = document.cookie.split('; ').find(row => row.startsWith('refreshToken='));
+    // 임시 액세스 토큰 쿠키 확인
+    const tempAccessTokenCookie = document.cookie
+        .split('; ')
+        .find(row => row.startsWith('tempAccessToken='));
 
-    if (accessToken == null) {
-        const urlParams = new URLSearchParams(window.location.search);
-        accessToken = urlParams.get('accessToken');
-        if (accessToken) {
-            sessionStorage.setItem('accessToken', accessToken);
+    if (tempAccessTokenCookie) {
+        // 쿠키에서 액세스 토큰 추출
+        const accessToken = tempAccessTokenCookie.split('=')[1];
 
-            urlParams.delete('accessToken');
-            const newUrl = `${window.location.pathname}?${urlParams.toString()}`;
-            window.history.replaceState({}, document.title, newUrl);
-        }
-    }
+        // 세션 스토리지에 저장
+        sessionStorage.setItem('accessToken', accessToken);
 
-    if (accessToken) {
+        // 임시 쿠키 삭제
+        document.cookie = 'tempAccessToken=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT;';
+
+        // 유저 정보 업데이트
         updateHeaderWithUserInfo(accessToken);
-    } else if (refreshToken && location.pathname !== '/index.html') {
-        await fetchAccessToken();
     } else {
-        resetHeader();
+        // 기존 로직 실행
+        let accessToken = sessionStorage.getItem('accessToken');
+        const refreshToken = document.cookie.split('; ').find(row => row.startsWith('refreshToken='));
+
+        if (accessToken) {
+            updateHeaderWithUserInfo(accessToken);
+        } else if (refreshToken && location.pathname !== '/index.html') {
+            await fetchAccessToken();
+        } else {
+            resetHeader();
+        }
     }
 };
 
@@ -80,15 +113,13 @@ logoutButton.addEventListener('click', async function() {
     const { provider } = await response.json();
 
     if (provider === 'kakao') {
+        // 프론트엔드에서의 정리
         sessionStorage.removeItem('accessToken');
         document.cookie = 'refreshToken=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT;';
         resetHeader();
 
-        const clientId = 'ecbe8197ad00125d1d59da0fb88f4b3c';
-        const redirectUri = encodeURIComponent('http://localhost:8080/auth/api/member/kakao-logout');
-        const kakaoLogoutUrl = `https://kauth.kakao.com/oauth/logout?client_id=${clientId}&logout_redirect_uri=${redirectUri}`;
-
-        window.location.href = kakaoLogoutUrl;
+        // 백엔드의 카카오 로그아웃 처리로 리다이렉트
+        window.location.href = '/auth/api/member/kakao-logout';
     } else {
         fetch('/logout', {
             method: 'POST',
@@ -99,7 +130,7 @@ logoutButton.addEventListener('click', async function() {
                     sessionStorage.removeItem('accessToken');
                     document.cookie = 'refreshToken=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT;';
                     resetHeader();
-                    alert('로그아웃 성공');
+                    window.location.href = '/index.html';
                 } else {
                     alert('로그아웃 실패');
                 }

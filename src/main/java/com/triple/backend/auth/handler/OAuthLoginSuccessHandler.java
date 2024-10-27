@@ -118,8 +118,11 @@ public class OAuthLoginSuccessHandler extends SimpleUrlAuthenticationSuccessHand
         log.info("Creating Refresh Token for memberId: {}", member.getMemberId());
         log.info("Created Refresh Token: {}", refreshToken);
 
-        // index.html 로 리다이렉트시, uri에 포함해서 전달 헤더로 전달시 리다이렉트로 인해 사라짐
-        // 액세스 토큰을 URL 파라미터로 전달하여 리다이렉트
-        getRedirectStrategy().sendRedirect(request, response, "/index.html?accessToken=" + accessToken);
+//        // index.html 로 리다이렉트시, uri에 포함해서 전달 헤더로 전달시 리다이렉트로 인해 사라짐
+//        // 액세스 토큰을 URL 파라미터로 전달하여 리다이렉트
+//        getRedirectStrategy().sendRedirect(request, response, "/index.html?accessToken=" + accessToken);
+
+        // auth-success.html로 리다이렉트
+        getRedirectStrategy().sendRedirect(request, response, "/auth-success.html?accessToken=" + accessToken);
     }
 }
