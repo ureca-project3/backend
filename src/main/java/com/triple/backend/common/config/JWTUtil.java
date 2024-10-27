@@ -62,9 +62,6 @@ public class JWTUtil {
                 .before(new Date());
     }
 
-    public String createJWTToken(String email, CommonCodeId roleCodeId, Long expiredMs) {
-        return createJwt(email, roleCodeId, expiredMs, "JWT");
-    }
     // 이메일 및 역할, 만료 기간을 포함한 Refresh JWT 토큰을 생성하는 메소드
     public String createRefreshToken(String email, Long expiredMs) {
         return createJwt(email, null, expiredMs, "refresh"); // 사용자의 역할 정보가 필요하지 않으므로 null
@@ -77,7 +74,6 @@ public class JWTUtil {
             role = commonCodeRepository.findById(roleCodeId)
                     .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 역할 코드입니다."));
         }
-
         // Claims 객체 생성
         Claims claims = Jwts.claims();
         claims.setSubject(email);

@@ -2,9 +2,8 @@ package com.triple.backend.auth.controller;
 
 import com.triple.backend.auth.dto.JoinDto;
 import com.triple.backend.auth.repository.RefreshTokenRepository;
-import com.triple.backend.auth.service.JoinService;
+import com.triple.backend.auth.service.AuthService;
 import com.triple.backend.member.entity.Member;
-import com.triple.backend.member.repository.MemberRepository;
 import com.triple.backend.common.config.JWTUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -16,6 +15,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import jakarta.servlet.http.Cookie;
+import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
@@ -25,14 +25,14 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Slf4j
-@RestController
+@Controller
 @RequestMapping("/auth")
 @RequiredArgsConstructor
 public class AuthController {
 
     private final JWTUtil jwtUtil;
     private final RefreshTokenRepository refreshTokenRepository;
-    private final JoinService joinService;
+    private final AuthService authService;
 
     @GetMapping("/login")
     public String loginPage() {
@@ -41,7 +41,7 @@ public class AuthController {
 
     @PostMapping("/signup")
     public String joinProcess(JoinDto joinDto, RedirectAttributes redirectAttributes) {
-        joinService.joinProcess(joinDto);
+        authService.joinProcess(joinDto);
 
         // 회원가입 성공 메시지 추가 (필요에 따라 수정 가능)
         redirectAttributes.addFlashAttribute("message", "회원가입이 완료되었습니다!");
