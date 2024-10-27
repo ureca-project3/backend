@@ -1,5 +1,6 @@
 package com.triple.backend.book.service.impl;
 
+import com.triple.backend.book.dto.BookRankingResponseDto;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -12,6 +13,10 @@ import com.triple.backend.book.repository.BookRepository;
 import com.triple.backend.book.service.BookService;
 
 import lombok.RequiredArgsConstructor;
+
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -40,5 +45,18 @@ public class BookServiceImpl implements BookService {
 		Page<Book> books = bookRepository.searchBookByKeyword(keyword, pageable);
 
 		return books.map(BookResponseDto::new);
+	}
+
+	@Override
+	public List<BookRankingResponseDto> getTopLikedBooks() {
+		LocalDateTime threeMonthsAgo = LocalDateTime.now().minusMonths(3);
+		List<Book> books = bookRepository.findTop10BooksByLikesInLastThreeMonths(threeMonthsAgo);
+		return books.stream().map(BookRankingResponseDto::new).collect(Collectors.toList());
+	}
+
+	@Override
+	public List<BookResponseDto> getBookList(Pageable pageable) {
+		Page<Book> books = bookRepository.findAllOrderByCreatedAtDesc(pageable);
+		return books.stream().map(BookResponseDto::new).collect(Collectors.toList());
 	}
 }

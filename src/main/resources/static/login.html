@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="ko" xmlns:th="http://www.w3.org/1999/xhtml">
 <head>
     <link rel="icon" href="data:;base64,iVBORw0KGgo=">
     <meta charset="UTF-8">
@@ -78,6 +78,10 @@
 
         <input type="submit" value="로그인">
     </form>
+    <div class="container" style="display: flex; justify-content: center; align-content: center; align-items: center; flex-direction: column; margin: 200px auto; ">
+        <h1>카카오 로그인</h1>
+        <a href="/oauth2/authorization/kakao"><img src="/image/kakao_login_medium_narrow.png" ></a>
+    </div>
     <div class="register-link">
         <p>아직 계정이 없으신가요? <a href="/signup.html">회원가입하기</a></p>
     </div>
@@ -112,9 +116,9 @@
                 alert(data.message); // 성공 메시지 표시
 
                 // Access Token과 Refresh Token을 localStorage에 저장
-                localStorage.setItem('accessToken', data.data.accessToken);
-                localStorage.setItem('refreshToken', data.data.refreshToken);
-
+                sessionStorage.setItem('accessToken', data.data.accessToken);
+                //sessionStorage.setItem('refreshToken', data.data.refreshToken);
+                document.cookie = `refreshToken=${data.data.refreshToken}; path=/; secure; HttpOnly;`;
                 // 리다이렉션 처리
                 window.location.href = "/index.html"; // index.html로 이동
             })
@@ -123,6 +127,7 @@
                 alert("로그인에 실패했습니다."); // 실패 메시지 표시
             });
     });
+
 </script>
 
 </body>

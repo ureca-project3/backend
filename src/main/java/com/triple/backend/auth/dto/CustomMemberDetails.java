@@ -42,6 +42,16 @@ public class CustomMemberDetails implements UserDetails {
     // 사용자 이름 반환
     @Override
     public String getUsername() {
+        return member.getName();
+    }
+
+
+    public String getUserPhone() {
+        return member.getPhone();
+    }
+
+
+    public String getUseremail() {
         return member.getEmail();
     }
 
@@ -72,5 +82,9 @@ public class CustomMemberDetails implements UserDetails {
     @Override
     public boolean isEnabled() {
         return true;
+    }
+
+    public Member getMember() {
+        return member;
     }
 }

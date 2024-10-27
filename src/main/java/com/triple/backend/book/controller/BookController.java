@@ -1,5 +1,7 @@
 package com.triple.backend.book.controller;
 
+import com.triple.backend.book.dto.BookRankingResponseDto;
+import com.triple.backend.book.dto.BookResponseDto;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
@@ -13,6 +15,8 @@ import com.triple.backend.book.service.BookService;
 import com.triple.backend.common.dto.CommonResponse;
 
 import lombok.RequiredArgsConstructor;
+
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -28,23 +32,35 @@ public class BookController {
 	@GetMapping("/{bookId}")
 	public ResponseEntity<?> getBookDetail(@PathVariable(name = "bookId") Long bookId) {
 
-		return ResponseEntity.ok(CommonResponse.ok(
+		return CommonResponse.ok(
 			"Get BookDetail Success",
 			bookService.getBookDetail(bookId)
-		));
+		);
 	}
 
 	/**
 	 * 	도서 검색
 	 */
 	@GetMapping("/search")
-	public ResponseEntity<?> getBookDetail(
+	public ResponseEntity<?> getBookSearch(
 		@RequestParam(value = "keyword") String keyword,
 		@PageableDefault(page = 0, size = 10) Pageable pageable
 	) {
-		return ResponseEntity.ok(CommonResponse.ok(
+		return CommonResponse.ok(
 			"Get BookSearch Success",
 			bookService.getBookSearch(keyword, pageable)
-		));
+		);
+	}
+
+	@GetMapping("/ranking")
+	public ResponseEntity<?> getTopLikedBooks() {
+		List<BookRankingResponseDto> dtoList = bookService.getTopLikedBooks();
+		return CommonResponse.ok("Get Top Liked Books Success", dtoList);
+	}
+
+	@GetMapping
+	public ResponseEntity<?> getBookList(@PageableDefault(page = 0, size = 10) Pageable pageable) {
+		List<BookResponseDto> dtoList = bookService.getBookList(pageable);
+		return CommonResponse.ok("Get BookList Success", dtoList);
 	}
 }

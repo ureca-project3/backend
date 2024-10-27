@@ -13,9 +13,9 @@ public class TestQuestionResponseDto {
 
     String name;
     String description;
-    List<Map<Long, String>> question;
+    Map<Long, String> question;
 
-    public TestQuestionResponseDto(String name, String description, List<Map<Long, String>> question) {
+    public TestQuestionResponseDto(String name, String description, Map<Long, String> question) {
         this.name = name;
         this.description = description;
         this.question = question;

@@ -32,6 +32,8 @@ dependencies {
     annotationProcessor 'org.projectlombok:lombok'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+    implementation 'com.google.code.gson:gson:2.8.7'
+    // implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
     // JWT 의존성 추가
     // implementation 'io.jsonwebtoken:jjwt:0.9.1'
 

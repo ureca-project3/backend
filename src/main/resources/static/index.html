@@ -11,16 +11,16 @@
             background-color: #f4f4f4;
         }
         header {
-            display: flex; /* 플렉스박스를 사용하여 배너와 제목을 정렬 */
-            align-items: center; /* 수직 중앙 정렬 */
+            display: flex;
+            align-items: center;
             background-color: #007bff;
             color: white;
             padding: 10px 20px;
         }
         header img {
-            width: 100px; /* 배너 이미지의 너비 조절 */
-            height: auto; /* 비율에 맞춰 높이 자동 조절 */
-            margin-right: 20px; /* 이미지와 제목 간의 여백 */
+            width: 100px;
+            height: auto;
+            margin-right: 20px;
         }
         nav {
             margin: 20px;
@@ -42,16 +42,16 @@
             color: #777;
         }
         .logout-button {
-            background-color: #dc3545; /* 빨간색 배경 */
+            background-color: #dc3545;
             color: white;
             border: none;
             border-radius: 4px;
             padding: 10px 15px;
             cursor: pointer;
-            margin-left: auto; /* 오른쪽 정렬 */
+            margin-left: auto;
         }
         .logout-button:hover {
-            background-color: #c82333; /* 어두운 빨간색 */
+            background-color: #c82333;
         }
         #user-info {
             margin-left: auto;
@@ -64,16 +64,16 @@
 
 <header>
     <a href="/index.html">
-        <img src="/image/1.jpg" alt="사이트 배너"> <!-- 수정된 경로 -->
+        <img src="/image/1.jpg" alt="사이트 배너">
     </a>
     <h1>트리플민수</h1>
-    <div id="user-info">로그인되지 않았습니다</div> <!-- 로그인되지 않았을 때 표시될 기본 메시지 -->
+    <div id="user-info">로그인되지 않았습니다</div>
     <button class="logout-button" id="logout-button" style="display: none;">로그아웃</button>
 </header>
 
 <nav>
-    <a href="/login.html">로그인</a>
-    <a href="/signup.html">회원가입</a>
+    <a id="login-link" href="/login.html">로그인</a>
+    <a id="signup-link" href="/signup.html">회원가입</a>
     <a href="/mypage.html">마이페이지</a>
 </nav>
 
@@ -82,72 +82,135 @@
 </footer>
 
 <script>
-    // 로그인 상태 확인 및 사용자 정보 표시
-    const accessToken = localStorage.getItem('accessToken'); // 또는 세션에서 가져옴
     const userInfoDiv = document.getElementById('user-info');
     const logoutButton = document.getElementById('logout-button');
+    const loginLink = document.getElementById('login-link');
+    const signupLink = document.getElementById('signup-link');
 
-    if (accessToken) {
-        console.log('Access Token:', accessToken); // Access Token 확인
-
-        // 토큰이 JWT 형식인지 검사 (기본적으로 '.'이 2개 있는지 확인)
-        if (accessToken.split('.').length === 3) {
-            try {
-                const base64Url = accessToken.split('.')[1];
-                const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-                const jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
-                    return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
-                }).join(''));
-
-                const userPayload = JSON.parse(jsonPayload);
-                console.log('User Payload:', userPayload); // Payload 출력
-
-                const email = userPayload.email;
-                const role = userPayload.role;
-
-                if (email && role) {
-                    userInfoDiv.innerText = `이메일: ${email}, 역할: ${role}`;
-                    logoutButton.style.display = 'inline-block'; // 로그아웃 버튼 표시
-                } else {
-                    console.error('유효한 이메일 또는 역할 정보가 없습니다.');
-                    userInfoDiv.innerText = '정보를 표시할 수 없습니다';
-                }
-            } catch (error) {
-                console.error('JWT 디코딩 오류:', error); // 오류 발생 시 로그 출력
-                userInfoDiv.innerText = '정보를 표시할 수 없습니다'; // 오류 발생 시 표시
+    async function fetchAccessToken() {
+        try {
+            const response = await fetch('/auth/token/access', {
+                method: 'GET',
+                credentials: 'include'
+            });
+            if (!response.ok) {
+                throw new Error(`Server error: ${response.status}`);
             }
-        } else {
-            console.error('JWT 형식이 유효하지 않습니다.');
-            userInfoDiv.innerText = '로그인되지 않았습니다';
+            const data = await response.json();
+            const accessToken = data.accessToken;
+            if (accessToken) {
+                sessionStorage.setItem('accessToken', accessToken);
+                updateHeaderWithUserInfo(accessToken);
+            } else {
+                console.error('No access token found in response');
+            }
+        } catch (error) {
+            console.error('Error fetching access token:', error);
+            alert('Error occurred while fetching access token. Check console for more details.');
         }
-    } else {
-        console.log('Access Token 없음');
-        userInfoDiv.innerText = '로그인되지 않았습니다'; // 로그인되지 않았을 때 표시
     }
 
+    function updateHeaderWithUserInfo(accessToken) {
+        const base64Url = accessToken.split('.')[1];
+        const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+        const jsonPayload = decodeURIComponent(atob(base64).split('').map(c =>
+            '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)
+        ).join(''));
+        const userPayload = JSON.parse(jsonPayload);
+        const username = userPayload.name || "User";
 
-    // 로그아웃 버튼 클릭 이벤트
-    logoutButton.addEventListener('click', function() {
-        fetch('/logout', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                // 필요한 경우 인증 헤더 추가
-                // 'Authorization': `Bearer ${accessToken}`
+        userInfoDiv.innerText = `${username} 님 안녕하세요`;
+        logoutButton.style.display = 'inline-block';
+        loginLink.style.display = 'none';
+        signupLink.style.display = 'none';
+    }
+
+    function resetHeader() {
+        userInfoDiv.innerText = '로그인되지 않았습니다';
+        logoutButton.style.display = 'none';
+        loginLink.style.display = 'inline-block';
+        signupLink.style.display = 'inline-block';
+    }
+
+    window.onload = async function() {
+        let accessToken = sessionStorage.getItem('accessToken');
+        // RefreshToken이 있는지 확인
+        const refreshToken = document.cookie.split('; ').find(row => row.startsWith('refreshToken='));
+
+        if (accessToken == null) {  // 2가지 경우. 1. 카카오 로그인후 index.html 로 리다이랙트 -> url에 액세스토큰 있음 2. 로그아웃 후 돌아오는 경우 -> url에 액세스토큰 없음
+            console.log("페이지 로드시 액세스토큰 없음");
+            const urlParams = new URLSearchParams(window.location.search);
+            accessToken = urlParams.get('accessToken');
+            if (accessToken) {
+                console.log("url에서 액세스토큰 뽑음");
+                sessionStorage.setItem('accessToken', accessToken);
+
+                // URL에서 액세스토큰 제거
+                urlParams.delete('accessToken');
+                const newUrl = `${window.location.pathname}?${urlParams.toString()}`;
+                window.history.replaceState({}, document.title, newUrl);
             }
-        })
-            .then(response => {
-                if (response.ok) {
-                    localStorage.removeItem('accessToken'); // accessToken 삭제
-                    alert('로그아웃 성공');
-                    window.location.reload(); // 페이지 새로고침
-                } else {
-                    alert('로그아웃 실패');
+
+        }
+
+        console.log("액세스토큰 : ", accessToken);
+
+        if (accessToken) {
+            // accessToken이 있는 경우 - 로그인된 상태로 UI 업데이트
+            console.log("액세스토큰있음, 로그인 완료")
+            updateHeaderWithUserInfo(accessToken);
+        } else if (refreshToken && location.pathname !== '/index.html') {
+            // accessToken은 없지만 refreshToken이 있고, index.html이 아닐 때만 fetchAccessToken() 호출
+            console.log("액세스 토큰은 없지만 리프레시있음(카카오 로그인)")
+            await fetchAccessToken();
+        } else {
+            // 로그아웃 후 돌아왔거나,페이지 첫방문
+            // 로그인을 하지 않은 상태로 페이지 초기화
+            resetHeader();
+        }
+    };
+    logoutButton.addEventListener('click', async function() {
+        // 사용자 provider 정보 확인
+        const response = await fetch('/api/member/provider', {
+            method: 'GET',
+            headers: { 'Authorization': `Bearer ${sessionStorage.getItem('accessToken')}` }
+        });
+        const { provider } = await response.json();
+
+        if (provider === 'kakao') {
+            sessionStorage.removeItem('accessToken');  // 세션에서 액세스 토큰 제거
+            document.cookie = 'refreshToken=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT;';  // 쿠키에서 리프레시 토큰 삭제
+            resetHeader();  // 헤더를 초기 상태로 재설정
+
+            // 카카오 로그아웃 URL로 리다이렉트
+            const clientId = 'ecbe8197ad00125d1d59da0fb88f4b3c';    // YOUR_REST_API_KEY
+            const redirectUri = encodeURIComponent('http://localhost:8080/auth/api/member/kakao-logout');
+            const kakaoLogoutUrl = `https://kauth.kakao.com/oauth/logout?client_id=${clientId}&logout_redirect_uri=${redirectUri}`;
+
+            window.location.href = kakaoLogoutUrl;
+
+            alert('로그아웃 성공');
+        } else {
+            fetch('/logout', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
                 }
             })
-            .catch(error => {
-                console.error('로그아웃 중 오류 발생:', error);
-            });
+                .then(response => {
+                    if (response.ok) {
+                        sessionStorage.removeItem('accessToken');  // 세션에서 액세스 토큰 제거
+                        document.cookie = 'refreshToken=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT;';  // 쿠키에서 리프레시 토큰 삭제
+                        resetHeader();  // 헤더를 초기 상태로 재설정
+                        alert('로그아웃 성공');
+                    } else {
+                        alert('로그아웃 실패');
+                    }
+                })
+                .catch(error => {
+                    console.error('로그아웃 중 오류 발생:', error);
+                });
+        }
     });
 </script>
 
