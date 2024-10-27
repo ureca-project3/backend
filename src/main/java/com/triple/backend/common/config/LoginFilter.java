@@ -69,13 +69,6 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         System.out.println("로그인 성공!!");
         CustomMemberDetails customMemberDetails = (CustomMemberDetails) authentication.getPrincipal();
         String username = customMemberDetails.getUsername();
-        Collection<? extends GrantedAuthority> authorities = customMemberDetails.getAuthorities();
-        GrantedAuthority auth = authorities.iterator().next();
-        String role = auth.getAuthority();
-        Long id = customMemberDetails.getMemberId();
-
-        String groupId = "100"; // 실제 그룹 ID로 바꿔야 함
-        CommonCodeId roleCodeId = new CommonCodeId(role, groupId);
 
         // JWT Access Token 생성 (10시간 유효)
         Long memberId = customMemberDetails.getMemberId();
@@ -134,5 +127,6 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 
         //로그인 실패시 401 응답 코드 반환
         response.setStatus(401);
+
     }
 }
