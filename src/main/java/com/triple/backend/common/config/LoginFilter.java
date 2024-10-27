@@ -49,7 +49,7 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 
         if (member != null && member.getRole() != null) {
             // 역할이 있는 경우 권한 추가
-            String roleName = member.getRole().getId().getCodeId(); // 코드 ID를 사용하여 역할 이름 가져오기
+            String roleName = member.getRole(); // 코드 ID를 사용하여 역할 이름 가져오기
             authorities.add(new SimpleGrantedAuthority(roleName));
         } else {
             // 역할이 없을 경우, 기본 역할 설정 가능 (예: 익명 사용자)
@@ -106,14 +106,6 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         cookieR.setPath("/"); // 쿠키의 유효 경로를 설정
         response.addCookie(cookieR); // 생성된 쿠키를 HTTP 응답에 추가
 
-//        // Access 토큰을 HttpOnly 쿠키에 저장
-//        Cookie cookieA = new Cookie("Access-Token", accessToken);
-//        cookieA.setMaxAge(24 * 60 * 60); // 쿠키의 최대 수명 (1일)
-//        cookieA.setHttpOnly(true); // JavaScript에서 접근할 수 없도록 설정
-//        cookieA.setSecure(true); // HTTPS에서만 쿠키를 전송하도록 설정
-//        cookieA.setPath("/"); // 쿠키의 유효 경로를 설정
-//        response.addCookie(cookieA); // 생성된 쿠키를 HTTP 응답에 추가
-
         // Authorization 해더에 accessToken 값 추가
         response.addHeader("Authorization", "Bearer " + accessToken);
 
@@ -135,9 +127,6 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         PrintWriter out = response.getWriter();
         out.print(objectMapper.writeValueAsString(responseData));
         out.flush();
-
-        // 로그인 성공 후 index.html로 리다이렉트
-        //response.sendRedirect("/index.html"); // 리다이렉트 처리
 
     }
 

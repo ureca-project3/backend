@@ -22,13 +22,18 @@ public class CustomMemberDetails implements UserDetails {
     // 사용자의 role 값을 반환
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
+
         Collection<GrantedAuthority> collection = new ArrayList<>();
 
-        // CommonCode에서 권한 이름을 가져와서 SimpleGrantedAuthority 생성
-        if (member.getRole() != null) {
-            String roleName = member.getRole().getId().getCodeId(); // CommonCode의 코드 ID를 사용
-            collection.add(new SimpleGrantedAuthority(roleName)); // SimpleGrantedAuthority에 문자열 전달
-        }
+        collection.add(new GrantedAuthority() {
+
+            @Override
+            public String getAuthority() {
+
+                return member.getRole();
+            }
+        });
+
         return collection;
     }
 
