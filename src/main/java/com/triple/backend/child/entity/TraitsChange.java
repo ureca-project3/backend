@@ -25,17 +25,4 @@ public class TraitsChange extends BaseEntity {
 
     private Double changeAmount;
 
-    public void resetChangeAmount() {
-        this.changeAmount = 0.0;
-    }
-
-    public TraitsChange(Child child, Trait trait, Double changeAmount) {
-        this.child = child;
-        this.trait = trait;
-        this.changeAmount = changeAmount;
-    }
-
-    public void updateChangeAmount (Double changeAmount) {
-        this.changeAmount = changeAmount;
-    }
 }
