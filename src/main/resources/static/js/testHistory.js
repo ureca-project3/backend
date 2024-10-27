@@ -137,5 +137,5 @@ async function loadHistoryData(date) {
 
 // 상세 페이지로 이동
 function goToDetailPage() {
-    window.location.href = `childTestResultInfo.html`;
+    window.location.href = `childDetail.html`;
 }
