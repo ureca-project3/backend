@@ -1,134 +1,57 @@
 <!DOCTYPE html>
-<html lang="ko" xmlns:th="http://www.w3.org/1999/xhtml">
+<html lang="ko">
 <head>
-    <link rel="icon" href="data:;base64,iVBORw0KGgo=">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>로그인 페이지</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: #f4f4f4;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-        }
-        .login-container {
-            background-color: white;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-            width: 300px;
-        }
-        h1 {
-            text-align: center;
-            color: #007bff;
-        }
-        label {
-            margin-top: 10px;
-            display: block;
-            color: #333;
-        }
-        input[type="text"],
-        input[type="password"] {
-            width: 100%;
-            padding: 10px;
-            margin: 5px 0 15px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-        }
-        input[type="submit"] {
-            background-color: #007bff;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            padding: 10px;
-            cursor: pointer;
-            width: 100%;
-        }
-        input[type="submit"]:hover {
-            background-color: #0056b3;
-        }
-        .register-link {
-            text-align: center;
-            margin-top: 15px;
-        }
-        .register-link a {
-            text-decoration: none;
-            color: #007bff;
-        }
-        .register-link a:hover {
-            text-decoration: underline;
-        }
-    </style>
+    <title>로그인 - 트리플민수</title>
+    <link rel="stylesheet" href="/css/login.css">
+    <script src="/js/login.js" defer></script>
 </head>
 <body>
+<div class="decoration">🌟</div>
+<div class="decoration">🎨</div>
+<div class="decoration">✨</div>
+<div class="decoration">🌈</div>
 
-<div class="login-container">
+<div class="header">
+    <a href="/index.html" class="banner-link">
+        <img src="/image/1.jpg" alt="사이트 배너" class="banner-image">
+    </a>
+</div>
+
+<main class="login-container">
     <h1>로그인</h1>
-    <form>
-        <label for="email">email 주소</label>
-        <input type="text" id="email" name="email" required>
 
-        <label for="password">비밀번호</label>
-        <input type="password" id="password" name="password" required>
+    <form class="login-form">
+        <div class="form-group">
+            <label for="email">이메일 주소</label>
+            <input type="email" id="email" name="email" required>
+        </div>
 
-        <input type="submit" value="로그인">
+        <div class="form-group">
+            <label for="password">비밀번호</label>
+            <input type="password" id="password" name="password" required>
+        </div>
+
+        <button type="submit" class="login-button">로그인</button>
     </form>
-    <div class="container" style="display: flex; justify-content: center; align-content: center; align-items: center; flex-direction: column; margin: 200px auto; ">
-        <h1>카카오 로그인</h1>
-        <a href="/oauth2/authorization/kakao"><img src="/image/kakao_login_medium_narrow.png" ></a>
+
+    <div class="social-login">
+        <h2>카카오 로그인</h2>
+        <a href="/oauth2/authorization/kakao" class="kakao-login">
+            <img src="/image/kakao_login_medium_narrow.png" alt="카카오 로그인">
+        </a>
     </div>
+
     <div class="register-link">
         <p>아직 계정이 없으신가요? <a href="/signup.html">회원가입하기</a></p>
     </div>
-</div>
+</main>
 
-<script>
-    document.querySelector("form").addEventListener("submit", function(event) {
-        event.preventDefault(); // 기본 폼 제출 방지
+<footer class="footer">
+    <p>© 2024 트리플민수. Even하게 익히다.</p>
+</footer>
 
-        const email = document.getElementById("email").value;
-        const password = document.getElementById("password").value;
-
-        // 로그인 요청 보내기
-        fetch("/login", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/x-www-form-urlencoded",
-            },
-            body: new URLSearchParams({
-                email: email,
-                password: password,
-            }),
-        })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error("로그인 실패"); // 실패 시 에러 처리
-                }
-                return response.json(); // JSON 응답으로 변환
-            })
-            .then(data => {
-                // 로그인 성공 시
-                alert(data.message); // 성공 메시지 표시
-
-                // Access Token과 Refresh Token을 localStorage에 저장
-                sessionStorage.setItem('accessToken', data.data.accessToken);
-                //sessionStorage.setItem('refreshToken', data.data.refreshToken);
-                document.cookie = `refreshToken=${data.data.refreshToken}; path=/; secure; HttpOnly;`;
-                // 리다이렉션 처리
-                window.location.href = "/index.html"; // index.html로 이동
-            })
-            .catch(error => {
-                console.error("Error:", error);
-                alert("로그인에 실패했습니다."); // 실패 메시지 표시
-            });
-    });
-
-</script>
-
+<script src="/js/login.js"></script>
 </body>
 </html>

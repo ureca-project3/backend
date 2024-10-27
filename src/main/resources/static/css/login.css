@@ -1,0 +1,151 @@
+@import url('https://fonts.googleapis.com/css2?family=Jua&display=swap');
+
+body {
+    font-family: 'Jua', sans-serif;
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: #FFF5E6;
+    color: #4A4A4A;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.decoration {
+    position: fixed;
+    font-size: 40px;
+    opacity: 0.2;
+    z-index: -1;
+}
+
+.decoration:nth-child(1) { top: 10%; left: 5%; }
+.decoration:nth-child(2) { top: 30%; right: 5%; }
+.decoration:nth-child(3) { bottom: 20%; left: 8%; }
+.decoration:nth-child(4) { bottom: 10%; right: 8%; }
+
+.header {
+    display: flex;
+    justify-content: center;
+    padding: 20px 0;
+}
+
+.banner-link {
+    display: block;
+    max-width: 200px;
+}
+
+.banner-image {
+    width: 100%;
+    height: auto;
+    border-radius: 10px;
+}
+
+.login-container {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    max-width: 400px;
+    margin: 0 auto;
+    padding: 40px 20px;
+}
+
+.login-container h1 {
+    font-size: 32px;
+    margin-bottom: 30px;
+    color: #4A4A4A;
+}
+
+.login-form {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    margin-bottom: 40px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.form-group label {
+    font-size: 16px;
+    color: #666;
+}
+
+.form-group input {
+    padding: 12px;
+    border: 2px solid #FFE5A3;
+    border-radius: 8px;
+    font-size: 16px;
+    font-family: inherit;
+}
+
+.form-group input:focus {
+    outline: none;
+    border-color: #FF7F50;
+}
+
+.login-button {
+    background-color: #FF7F50;
+    color: white;
+    border: none;
+    border-radius: 25px;
+    padding: 12px 20px;
+    font-size: 18px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    font-family: inherit;
+}
+
+.login-button:hover {
+    background-color: #FF6B3D;
+}
+
+.social-login {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 30px;
+}
+
+.social-login h2 {
+    font-size: 24px;
+    color: #4A4A4A;
+}
+
+.kakao-login {
+    display: block;
+    transition: transform 0.3s;
+}
+
+.kakao-login:hover {
+    transform: scale(1.02);
+}
+
+.register-link {
+    text-align: center;
+    font-size: 16px;
+    color: #666;
+}
+
+.register-link a {
+    color: #FF7F50;
+    text-decoration: none;
+}
+
+.register-link a:hover {
+    text-decoration: underline;
+}
+
+.footer {
+    text-align: center;
+    padding: 20px 0;
+    color: #666;
+    font-size: 14px;
+}
