@@ -38,7 +38,6 @@ public class JoinService {
         // 이메일 존재 여부 확인
         boolean isEmailExist = memberRepository.existsByEmail(email);
 
-
         // 이미 존재하면 종료
         if (isEmailExist) {
             throw new IllegalStateException("이미 존재하는 이메일입니다.");
@@ -50,13 +49,14 @@ public class JoinService {
 
 
         // 회원가입 진행
-        Member newMember = new Member();
-        newMember.setName(memberName);
-        newMember.setEmail(email);
-        newMember.setPhone(phone);
-        // 비밀번호 암호화
-        newMember.setPassword(passwordEncoder.encode(password));
-        newMember.setRole(role); // 기본역할 부여
+        Member newMember = Member.builder()
+                .name(memberName)
+                .email(email)
+                .phone(phone)
+                .password(passwordEncoder.encode(password)) // 비밀번호 암호화
+                .role(role.getCommonName()) // 기본 역할 부여 (CommonCode에서 역할 이름을 가져오기)
+                .build();
+
         memberRepository.save(newMember);
 
         // JWT 생성 (예시: 만료 시간 10시간)
