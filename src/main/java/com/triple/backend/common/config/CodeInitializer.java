@@ -9,6 +9,8 @@ import jakarta.transaction.Transactional;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
+
 @Component
 @Transactional
 public class CodeInitializer implements CommandLineRunner {
@@ -17,7 +19,14 @@ public class CodeInitializer implements CommandLineRunner {
     private EntityManager em;
 
     @Override
-    public void run(String... args) throws Exception {
+    public void run(String... args) {
+        List<GroupCode> groupCodes = em.createQuery("SELECT gc FROM GroupCode gc", GroupCode.class)
+                .getResultList();
+
+        if (!groupCodes.isEmpty()) {
+            return;
+        }
+
         GroupCode groupCode1 = new GroupCode("100", "회원 관리");
         GroupCode groupCode2 = new GroupCode("200", "콘텐츠 장르");
 
