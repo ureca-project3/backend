@@ -97,6 +97,10 @@
         .modal-content img.selected {
             border-color: #FFD700;
         }
+        /* 강조 스타일 */
+        .highlight {
+            border: 2px solid red !important;
+        }
     </style>
 </head>
 <body>
@@ -147,6 +151,7 @@
 <script>
     const images = ['profile1.png', 'profile2.png', 'profile3.png', 'profile4.png', 'profile5.png', 'profile6.png', 'profile7.png'];
     let selectedImage = 'profileDefault.png';
+    let selectedGender = null;
 
     // 프로필 이미지 선택 모달 열기
     function openModal() {
@@ -164,7 +169,6 @@
 
     // 이미지 선택
     function selectImage(imgElement, image) {
-        // 이전 선택된 이미지 해제
         document.querySelectorAll("#image-options img").forEach(img => img.classList.remove("selected"));
         imgElement.classList.add("selected");
         selectedImage = image;
@@ -177,7 +181,6 @@
     }
 
     // 성별 선택 기능
-    let selectedGender = null;
     function selectGender(gender) {
         selectedGender = gender;
         document.getElementById("gender-male").classList.toggle("btn-dark", gender === "남");
@@ -196,6 +199,37 @@
 
     // 자녀 등록 API 호출
     function registerChild() {
+        const childName = document.getElementById('child-name').value;
+        const birthDate = document.getElementById('birthdate').value;
+
+        // 입력값 검증
+        let isValid = true;
+        if (!childName) {
+            document.getElementById('child-name').classList.add('highlight');
+            isValid = false;
+        } else {
+            document.getElementById('child-name').classList.remove('highlight');
+        }
+
+        if (!birthDate) {
+            document.getElementById('birthdate').classList.add('highlight');
+            isValid = false;
+        } else {
+            document.getElementById('birthdate').classList.remove('highlight');
+        }
+
+        if (!selectedGender) {
+            document.querySelector('.gender-selection').classList.add('highlight');
+            isValid = false;
+        } else {
+            document.querySelector('.gender-selection').classList.remove('highlight');
+        }
+
+        if (!isValid) {
+            alert("모든 필드를 작성해 주세요.");
+            return;
+        }
+
         const accessToken = sessionStorage.getItem('accessToken');
         if (!accessToken) {
             alert("로그인이 필요합니다.");
@@ -205,11 +239,11 @@
 
         // 입력된 자녀 정보 가져오기
         const childData = {
-            name: document.getElementById('child-name').value,
-            age: calculateAge(document.getElementById('birthdate').value),
-            birthDate: document.getElementById('birthdate').value,
+            name: childName,
+            age: calculateAge(birthDate),
+            birthDate: birthDate,
             gender: selectedGender === "남" ? "M" : "F",
-            profileImage: selectedImage // 파일 이름만 전송
+            profileImage: selectedImage
         };
 
         // API 호출
@@ -231,7 +265,7 @@
             })
             .then(data => {
                 alert(data.message);
-                window.location.href = "/mypage.html";
+                window.location.href = `/childTestInfo.html?childName=${encodeURIComponent(childData.name)}`;
             })
             .catch(error => {
                 console.error("Error:", error);
