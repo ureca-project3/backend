@@ -65,7 +65,7 @@ public class ChildServiceImpl implements ChildService {
         List<MbtiHistory> historyList = mbtiHistoryRepository.findByChild_ChildIdOrderByCreatedAtDesc(childId);
         List<String> historyDateList = historyList.stream()
                 .filter(history -> !history.isDeleted()) // 논리적 삭제인 경우 제외
-                .filter(history -> !history.getReason().equals("기본"))
+                .filter(history -> !history.getReason().equals("010"))
                 .map(history -> history.getCreatedAt().toString())
                 .collect(Collectors.toList());
 
@@ -110,7 +110,7 @@ public class ChildServiceImpl implements ChildService {
                 .orElseThrow(() -> NotFoundException.entityNotFound("자녀"));
 
         // 최근 MBTI 히스토리 조회
-        MbtiHistory latestHistory = mbtiHistoryRepository.findTopByChildAndReasonAndIsDeletedFalseOrderByCreatedAtDesc(child, "010")
+        MbtiHistory latestHistory = mbtiHistoryRepository.findTopByChildAndReasonAndIsDeletedFalseOrderByCreatedAtDesc(child, "020")
                 .orElseThrow(() -> NotFoundException.entityNotFound("최근 히스토리"));
 
         // 최신 히스토리의 성향 리스트에서 최신 성향만 조회
@@ -123,10 +123,10 @@ public class ChildServiceImpl implements ChildService {
         Mbti mbti = mbtiRepository.findByName(MbtiType.valueOf(latestHistory.getCurrentMbti()));
 
         //  날짜 집어넣기 ( 날짜 출력 형식 고민 )
-        List<MbtiHistory> historyList = mbtiHistoryRepository.findByChildAndReasonOrderByCreatedAtDesc(child, "010");
+        List<MbtiHistory> historyList = mbtiHistoryRepository.findByChildAndReasonOrderByCreatedAtDesc(child, "020");
         List<String> historyDateList = historyList.stream()
                 .filter(history -> !history.isDeleted()) // 논리적 삭제인 경우 제외
-                .filter(history -> !history.getReason().equals("기본"))
+                .filter(history -> !history.getReason().equals("010"))
                 .map(history -> history.getCreatedAt().toString())
                 .collect(Collectors.toList());
 
