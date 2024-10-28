@@ -132,6 +132,7 @@ public class AuthService {
         // 카카오 API로 카카오 계정 정보에서 providerId 획득하는 로직
         return "kakao-provider-id"; // 예시로 반환
     }
+
     // 리프레시 토큰으로 액세스 토큰 재발급
     public TokenResponseDto refreshAccessToken(HttpServletRequest request) {
         String refreshToken = jwtUtil.extractRefreshToken(request);
@@ -140,8 +141,9 @@ public class AuthService {
             throw new IllegalArgumentException("유효하지 않은 리프레시 토큰입니다.");
         }
 
-        Long memberId = jwtUtil.getMemberIdFromToken(refreshToken);
-        String newAccessToken = jwtUtil.createAccessToken(memberId);
+        Long memberId = jwtUtil.getMemberIdFromToken(refreshToken); // id 추출
+        String memberRole = jwtUtil.getRoleFromToken(refreshToken); // 역할 추출
+        String newAccessToken = jwtUtil.createAccessToken(memberId,memberRole);
 
         return new TokenResponseDto(newAccessToken, refreshToken); // 리프레시 토큰은 유지
     }

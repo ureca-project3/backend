@@ -86,7 +86,8 @@ public class AuthController {
         // 리프레시 토큰을 검증하고 새로운 액세스 토큰 발급
         if (jwtUtil.validateToken(refreshToken)) {
             Long memberId = jwtUtil.getMemberIdFromToken(refreshToken);
-            String newAccessToken = jwtUtil.createAccessToken(memberId);
+            String role = jwtUtil.getRoleFromToken(refreshToken);
+            String newAccessToken = jwtUtil.createAccessToken(memberId,role);
 
             // 액세스 토큰을 JSON 형태로 반환
             Map<String, String> response = new HashMap<>();
@@ -207,7 +208,8 @@ public class AuthController {
         // 리프레시 토큰을 검증하고 새로운 액세스 토큰 발급
         if (jwtUtil.validateToken(refreshToken)) {
             Long memberId = jwtUtil.getMemberIdFromToken(refreshToken);
-            String newAccessToken = jwtUtil.createAccessToken(memberId);
+            String role = jwtUtil.getRoleFromToken(refreshToken);
+            String newAccessToken = jwtUtil.createAccessToken(memberId,role);
 
             // 액세스 토큰을 JSON 형태로 반환
             Map<String, String> response = new HashMap<>();

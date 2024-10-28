@@ -110,7 +110,7 @@ public class OAuthLoginSuccessHandler extends SimpleUrlAuthenticationSuccessHand
         refreshTokenRepository.save(newRefreshToken);
 
         // 액세스 토큰 생성
-        String accessToken = jwtUtil.createAccessToken(member.getMemberId());
+        String accessToken = jwtUtil.createAccessToken(member.getMemberId(), member.getRole_code());
 
         // 리프레시 토큰을 쿠키에 저장
         Cookie refreshTokenCookie = new Cookie("refreshToken", refreshToken);

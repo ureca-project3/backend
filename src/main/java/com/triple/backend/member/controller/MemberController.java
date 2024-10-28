@@ -1,11 +1,13 @@
 package com.triple.backend.member.controller;
 
 import com.triple.backend.auth.dto.CustomMemberDetails;
+import com.triple.backend.member.entity.Member;
 import com.triple.backend.member.entity.MemberInfoDto;
 import com.triple.backend.member.service.MemberService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -56,5 +58,13 @@ public class MemberController {
         Map<String, String> response = new HashMap<>();
         response.put("provider", provider);
         return ResponseEntity.ok(response);
+    }
+
+    // 헤더에 사용자 access Token 담기
+    @GetMapping("/user")
+    public ResponseEntity<Member> getUser(@AuthenticationPrincipal CustomMemberDetails userDetails) { // @AuthenticationPrincipal: 컨트롤러 메서드에서 CustomMemberDetails 객체를 주입받음
+        // CustomMemberDetails에서 Member 객체를 가져와 반환
+        Member member = userDetails.getMember();
+        return ResponseEntity.ok(member);
     }
 }

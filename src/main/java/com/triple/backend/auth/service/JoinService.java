@@ -47,20 +47,18 @@ public class JoinService {
         CommonCode role = commonCodeRepository.findById(roleCodeId)
                 .orElseThrow(() -> new IllegalStateException("기본 역할을 찾을 수 없습니다.")); // 예외 처리
 
-
+        System.out.println("역할(Code ID): " + role.getId().getCodeId());
         // 회원가입 진행
         Member newMember = Member.builder()
                 .name(memberName)
                 .email(email)
                 .phone(phone)
                 .password(passwordEncoder.encode(password)) // 비밀번호 암호화
-                .role(role.getCommonName()) // 기본 역할 부여 (CommonCode에서 역할 이름을 가져오기)
+                .role_code(role.getCommonName()) // 기본 역할 부여 (CommonCode에서 역할 이름을 가져오기)
                 .build();
 
         memberRepository.save(newMember);
 
-        // JWT 생성 (예시: 만료 시간 10시간)
-        String token = jwtUtil.createJWTToken(email, roleCodeId, 36000000L); // 이메일과 역할 코드 ID 사용
 
     }
 }

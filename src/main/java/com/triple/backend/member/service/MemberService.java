@@ -62,13 +62,13 @@ public class MemberService implements UserDetailsService {
         return member.getProvider(); // provider 정보 반환
     }
 
-//    // memberId로 이메일 조회
-//    public String getEmailByMemberId(Long memberId) {
-//        return memberRepository.findById(memberId)
-//                .map(Member::getEmail)
-//                .orElseThrow(() -> new RuntimeException("Member not found"));
-//    }
-//
+    // memberId로 이메일 조회
+    public String getEmailByMemberId(Long memberId) {
+        return memberRepository.findById(memberId)
+                .map(Member::getEmail)
+                .orElseThrow(() -> new RuntimeException("Member not found"));
+    }
+
 //    // memberId로 자녀 ID 목록 조회
 //    public List<Long> getChildIdsByMemberId(Long memberId) {
 //        // memberId로 Member 객체 조회
@@ -81,7 +81,7 @@ public class MemberService implements UserDetailsService {
 //                .map(Child::getChildId)  // Child 엔티티에서 자녀의 ID를 가져옴
 //                .collect(Collectors.toList());
 //    }
-
+//
 //    // memberId를 기반으로 회원 정보 조회
 //    public MemberInfoDto getMemberInfoById(Long memberId) {
 //        Member member = memberRepository.findById(memberId)

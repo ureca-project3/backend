@@ -68,10 +68,7 @@ public class JWTUtil {
     public String createJWTToken(String email, CommonCodeId roleCodeId, Long expiredMs) {
         return createJwt(email, roleCodeId, expiredMs, "JWT");
     }
-    // 이메일 및 역할, 만료 기간을 포함한 Access JWT 토큰을 생성하는 메소드
-    public String createAccessToken(String email, CommonCodeId roleCodeId, Long expiredMs) {
-        return createJwt(email, roleCodeId, expiredMs, "access");
-    }
+
     // 이메일 및 역할, 만료 기간을 포함한 Refresh JWT 토큰을 생성하는 메소드
     public String createRefreshToken(String email, Long expiredMs) {
         return createJwt(email, null, expiredMs, "refresh"); // 사용자의 역할 정보가 필요하지 않으므로 null
@@ -107,9 +104,10 @@ public class JWTUtil {
 
 
     // Access Token 생성 메서드
-    public String createAccessToken(Long memberId) {
+    public String createAccessToken(Long memberId, String memberRole) {
         Claims claims = Jwts.claims();
-        claims.put("memberId", memberId);  // memberId만 저장
+        claims.put("memberId", memberId);  // memberId 저장
+        claims.put("role", memberRole);     // member_role 저장
 
         return Jwts.builder()
                 .setClaims(claims)
@@ -118,6 +116,7 @@ public class JWTUtil {
                 .signWith(key, SignatureAlgorithm.HS256)  // 서명 알고리즘과 키
                 .compact();  // 토큰 생성
     }
+
 
     // Refresh Token 생성 메서드
     public String createRefreshToken(Long memberId) {
@@ -143,6 +142,16 @@ public class JWTUtil {
         }
     }
 
+    // JWT 토큰에서 memberRole을 추출하는 메서드
+    public String getRoleFromToken(String token) {
+        try {
+            Claims claims = Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token).getBody();
+            return claims.get("role", String.class);  // member_role을 추출
+        } catch (JwtException | IllegalArgumentException e) {
+            log.warn("유효하지 않은 토큰입니다.");
+            throw new RuntimeException("Invalid token");
+        }
+    }
 
     // 토큰 검증 메서드
     public boolean validateToken(String token) {
