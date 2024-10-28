@@ -48,7 +48,8 @@ public class ChildServiceImpl implements ChildService {
                 .orElseThrow(() -> NotFoundException.entityNotFound("자녀"));
 
         // 최근 MBTI 히스토리 조회
-        MbtiHistory latestHistory = mbtiHistoryRepository.findTopByChild_ChildIdOrderByCreatedAtDesc(childId);
+        MbtiHistory latestHistory = mbtiHistoryRepository.findTopByChild_ChildIdOrderByCreatedAtDesc(childId)
+                .orElseThrow(() -> NotFoundException.entityNotFound("최신 히스토리"));
 
         // 최신 히스토리의 성향 리스트에서 최신 성향만 조회
         List<ChildTraits> traitList = childTraitsRepository.findLatestByMbtiHistory_HistoryIdWithTraits(latestHistory.getHistoryId());
@@ -84,7 +85,8 @@ public class ChildServiceImpl implements ChildService {
         LocalDateTime dateTime = LocalDateTime.parse(date, formatter);
 
         // date MBTI 히스토리 조회
-        MbtiHistory history = mbtiHistoryRepository.findByChildAndCreatedAt(child, dateTime);
+        MbtiHistory history = mbtiHistoryRepository.findByChildAndCreatedAt(child, dateTime)
+                .orElseThrow(() -> NotFoundException.entityNotFound("히스토리"));
 
         // 최신 히스토리로 성향 리스트 조회
         List<ChildTraits> traitList = childTraitsRepository.findLatestByMbtiHistory_HistoryIdWithTraits(history.getHistoryId());
@@ -108,7 +110,8 @@ public class ChildServiceImpl implements ChildService {
                 .orElseThrow(() -> NotFoundException.entityNotFound("자녀"));
 
         // 최근 MBTI 히스토리 조회
-        MbtiHistory latestHistory = mbtiHistoryRepository.findTopByChildAndReasonAndIsDeletedFalseOrderByCreatedAtDesc(child, "010");
+        MbtiHistory latestHistory = mbtiHistoryRepository.findTopByChildAndReasonAndIsDeletedFalseOrderByCreatedAtDesc(child, "010")
+                .orElseThrow(() -> NotFoundException.entityNotFound("최근 히스토리"));
 
         // 최신 히스토리의 성향 리스트에서 최신 성향만 조회
         TestParticipation testParticipation = testParticipationRepository.findTopByChild_ChildIdOrderByCreatedAtDesc(childId);
@@ -143,7 +146,8 @@ public class ChildServiceImpl implements ChildService {
         LocalDateTime dateTime = LocalDateTime.parse(date, formatter);
 
         // date MBTI 히스토리 조회
-        MbtiHistory history = mbtiHistoryRepository.findByChildAndCreatedAt(child, dateTime);
+        MbtiHistory history = mbtiHistoryRepository.findByChildAndCreatedAt(child, dateTime)
+                .orElseThrow(() -> NotFoundException.entityNotFound("히스토리"));
 
         // 최신 히스토리의 성향 리스트에서 최신 성향만 조회
         List<ChildTraits> traitList = childTraitsRepository.findLatestByMbtiHistory_HistoryIdWithTraits(history.getHistoryId());

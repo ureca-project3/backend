@@ -61,7 +61,9 @@ public class TestServiceImpl implements TestService {
     @Override
     public TestResultResponseDto getTestResult(Long childId) {
 
-        MbtiHistory history = mbtiHistoryRepository.findTopByChild_ChildIdOrderByCreatedAtDesc(childId);
+        MbtiHistory history = mbtiHistoryRepository.findTopByChild_ChildIdOrderByCreatedAtDesc(childId)
+                .orElseThrow(() -> NotFoundException.entityNotFound("최신 히스토리"));
+
         Long historyId = history.getHistoryId();
 
         TestParticipation testParticipation = testParticipationRepository.findTopByChild_ChildIdOrderByCreatedAtDesc(childId);

@@ -3,23 +3,19 @@ package com.triple.backend.child.repository;
 import com.triple.backend.child.entity.Child;
 import com.triple.backend.child.entity.MbtiHistory;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 public interface MbtiHistoryRepository extends JpaRepository<MbtiHistory, Long> {
 
-    MbtiHistory findTopByChild_ChildIdOrderByCreatedAtDesc(Long childId);
+    Optional<MbtiHistory> findTopByChild_ChildIdOrderByCreatedAtDesc(Long childId);
 
     List<MbtiHistory> findByChild_ChildIdOrderByCreatedAtDesc(Long childId);
 
     // 날짜로 자녀 히스토리 조회
-    MbtiHistory findByChildAndCreatedAt(Child child, LocalDateTime createdAt);
-
-    @Query("SELECT mh FROM MbtiHistory mh WHERE mh.child.childId = :childId AND mh.reason = '진단 결과'")
-    List<MbtiHistory> findResultsByChildId(@Param("childId") Long childId);
+    Optional<MbtiHistory> findByChildAndCreatedAt(Child child, LocalDateTime createdAt);
 
     // 삭제될 히스토리 찾는 코드
     List<MbtiHistory> findByReasonAndIsDeleted(String reason, boolean isDeleted);
@@ -28,7 +24,7 @@ public interface MbtiHistoryRepository extends JpaRepository<MbtiHistory, Long> 
     long count();
 
     // 자녀 성향 히스토리 모음 조회 - 자녀 성향 진단 결과 중 가장 최신 히스토리 조회
-    MbtiHistory findTopByChildAndReasonAndIsDeletedFalseOrderByCreatedAtDesc(Child child, String reason);
+    Optional<MbtiHistory> findTopByChildAndReasonAndIsDeletedFalseOrderByCreatedAtDesc(Child child, String reason);
 
     // 자녀 성향 히스토리 모음 조회 - 자녀 성향 진단 결과 날짜만 조회
     List<MbtiHistory> findByChildAndReasonOrderByCreatedAtDesc(Child child, String reason);
