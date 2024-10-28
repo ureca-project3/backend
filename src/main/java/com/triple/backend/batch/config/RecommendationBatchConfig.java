@@ -109,7 +109,8 @@ public class RecommendationBatchConfig {
 	public ItemProcessor<Long, List<RecBook>> recommendBookItemProcessor() {
 
 		return childId -> {
-			MbtiHistory mbtiHistory = mbtiHistoryRepository.findTopByChild_ChildIdOrderByCreatedAtDesc(childId);
+			MbtiHistory mbtiHistory = mbtiHistoryRepository.findTopByChild_ChildIdOrderByCreatedAtDesc(childId)
+				.orElse(null);
 			List<ChildTraits> childTraits = childTraitsRepository.findLatestTraitsByHistoryId(mbtiHistory.getHistoryId());
 
 			if (childTraits.isEmpty()) {
