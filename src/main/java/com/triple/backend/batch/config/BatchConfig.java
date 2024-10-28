@@ -55,12 +55,6 @@ public class BatchConfig extends DefaultBatchConfiguration {
       Step4 : updateMbtiHistory - 갱신된 ChildTraits 테이블을 읽어 Mbti가 달라졌다면 MbtiHistory에 새로운 레코드를 넣는다
      */
 
-    /*
-    istp 55 50 60 65
-    istp 45 50 50 65 -> estp
-
-     */
-
     @Bean
     public Job syncFeedbackAndUpdateTraitsJob(JobRepository jobRepository,
                                               Step syncFeedbackStep,
@@ -294,7 +288,7 @@ public class BatchConfig extends DefaultBatchConfiguration {
     public ItemWriter<MbtiDto> mbtiWriter() {
         return (Chunk<? extends MbtiDto> items) -> {
             if (items == null || items.isEmpty()) {
-                return; // 데이터가 없으면 반환
+                return;
             }
 
             String sql = """
@@ -302,9 +296,8 @@ public class BatchConfig extends DefaultBatchConfiguration {
             VALUES (:childId, :currentMbti, :changeReason, :changeReasonId, :isDeleted, :createdAt, :modifiedAt)
         """;
 
-            // Chunk의 각 요소를 List로 변환
             List<Map<String, Object>> batchValues = new ArrayList<>();
-            for (MbtiDto mbtiDto : items.getItems()) {  // getItems()를 통해 실제 요소를 순회
+            for (MbtiDto mbtiDto : items.getItems()) {
                 Map<String, Object> paramMap = Map.of(
                         "childId", mbtiDto.getChildId(),
                         "currentMbti", mbtiDto.getCurrentMbti(),
