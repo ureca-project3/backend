@@ -1,85 +1,57 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-    <link rel="icon" href="data:;base64,iVBORw0KGgo=">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>로그인 페이지</title>
-    <script src="https://cdn.jsdelivr.net/npm/jwt-decode/build/jwt-decode.min.js"></script> <!-- jwt-decode CDN -->
-    <style>
-        /* 스타일 생략 */
-    </style>
+    <title>로그인 - 트리플민수</title>
+    <link rel="stylesheet" href="/css/login.css">
+    <script src="/js/login.js" defer></script>
 </head>
 <body>
+<div class="decoration">🌟</div>
+<div class="decoration">🎨</div>
+<div class="decoration">✨</div>
+<div class="decoration">🌈</div>
 
-<div class="login-container">
+<div class="header">
+    <a href="/index.html" class="banner-link">
+        <img src="/image/1.jpg" alt="사이트 배너" class="banner-image">
+    </a>
+</div>
+
+<main class="login-container">
     <h1>로그인</h1>
-    <form>
-        <label for="email">email 주소</label>
-        <input type="text" id="email" name="email" required>
 
-        <label for="password">비밀번호</label>
-        <input type="password" id="password" name="password" required>
+    <form class="login-form">
+        <div class="form-group">
+            <label for="email">이메일 주소</label>
+            <input type="email" id="email" name="email" required>
+        </div>
 
-        <input type="submit" value="로그인">
+        <div class="form-group">
+            <label for="password">비밀번호</label>
+            <input type="password" id="password" name="password" required>
+        </div>
+
+        <button type="submit" class="login-button">로그인</button>
     </form>
+
+    <div class="social-login">
+        <h2>카카오 로그인</h2>
+        <a href="/oauth2/authorization/kakao" class="kakao-login">
+            <img src="/image/kakao_login_medium_narrow.png" alt="카카오 로그인">
+        </a>
+    </div>
+
     <div class="register-link">
         <p>아직 계정이 없으신가요? <a href="/signup.html">회원가입하기</a></p>
     </div>
-</div>
+</main>
 
-<script>
-    document.querySelector("form").addEventListener("submit", function(event) {
-        event.preventDefault();
+<footer class="footer">
+    <p>© 2024 트리플민수. Even하게 익히다.</p>
+</footer>
 
-        const email = document.getElementById("email").value;
-        const password = document.getElementById("password").value;
-
-        fetch("/login", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/x-www-form-urlencoded",
-            },
-            body: new URLSearchParams({
-                email: email,
-                password: password,
-            }),
-        })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error("로그인 실패");
-                }
-                return response.json();
-            })
-            .then(data => {
-                alert(data.message);
-
-                sessionStorage.setItem('accessToken', data.data.accessToken);
-                document.cookie = `refreshToken=${data.data.refreshToken}; path=/; secure; HttpOnly;`;
-
-                // Access Token 디코딩 및 role 확인
-                const decodedToken = jwt_decode(data.data.accessToken);
-                console.log("Decoded Token:", decodedToken);
-
-                // role 값에서 대괄호 제거
-                const userRole = decodedToken.role.replace(/[\[\]]/g, "");
-                console.log("User Role:", userRole);
-
-                if (userRole === "관리자") {
-                    window.location.href = "/admin.html";
-                } else if (userRole === "회원") {
-                    window.location.href = "/index.html";
-                } else {
-                    alert("알 수 없는 역할입니다. 역할: " + userRole);
-                }
-            })
-            .catch(error => {
-                console.error("Error:", error);
-                alert("로그인에 실패했습니다.");
-            });
-    });
-</script>
-
-
+<script src="/js/login.js"></script>
 </body>
 </html>
