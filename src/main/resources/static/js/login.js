@@ -1,39 +1,60 @@
-document.querySelector("form").addEventListener("submit", function(event) {
-    event.preventDefault(); // 기본 폼 제출 방지
+document.addEventListener('DOMContentLoaded', function() {
+    const loginForm = document.getElementById('loginForm');
 
-    const email = document.getElementById("email").value;
-    const password = document.getElementById("password").value;
+    if (!loginForm) {
+        console.error('Login form not found!');
+        return;
+    }
 
-    // 로그인 요청 보내기
-    fetch("/login", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/x-www-form-urlencoded",
-        },
-        body: new URLSearchParams({
-            email: email,
-            password: password,
-        }),
-    })
-        .then(response => {
+    loginForm.addEventListener('submit', async function(event) {
+        event.preventDefault();
+
+        const emailInput = document.getElementById('email');
+        const passwordInput = document.getElementById('password');
+
+        if (!emailInput || !passwordInput) {
+            console.error('Form inputs not found!');
+            return;
+        }
+
+        const email = emailInput.value.trim();
+        const password = passwordInput.value;
+
+        console.log('로그인 시도:', { email });
+
+        try {
+            const response = await fetch('/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'Accept': 'application/json'
+                },
+                body: `email=${encodeURIComponent(email)}&password=${encodeURIComponent(password)}`
+            });
+
+            console.log('서버 응답 상태:', response.status);
+            const contentType = response.headers.get("content-type");
+            console.log('응답 Content-Type:', contentType);
+
+            const responseText = await response.text();
+            console.log('서버 응답 텍스트:', responseText);
+
             if (!response.ok) {
-                throw new Error("로그인 실패"); // 실패 시 에러 처리
+                throw new Error(`로그인 실패: ${response.status}`);
             }
-            return response.json(); // JSON 응답으로 변환
-        })
-        .then(data => {
-            // 로그인 성공 시
-            alert(data.message); // 성공 메시지 표시
 
-            // Access Token과 Refresh Token을 localStorage에 저장
-            sessionStorage.setItem('accessToken', data.data.accessToken);
-            //sessionStorage.setItem('refreshToken', data.data.refreshToken);
-            document.cookie = `refreshToken=${data.data.refreshToken}; path=/; secure; HttpOnly;`;
-            // 리다이렉션 처리
-            window.location.href = "/index.html"; // index.html로 이동
-        })
-        .catch(error => {
-            console.error("Error:", error);
-            alert("로그인에 실패했습니다."); // 실패 메시지 표시
-        });
+            const data = JSON.parse(responseText);
+            console.log('로그인 성공 응답:', data);
+
+            if (data.data?.accessToken) {
+                sessionStorage.setItem('accessToken', data.data.accessToken);
+                window.location.href = '/index.html';
+            } else {
+                throw new Error('토큰을 받지 못했습니다.');
+            }
+        } catch (error) {
+            console.error('Login error:', error);
+            alert(error.message);
+        }
+    });
 });
