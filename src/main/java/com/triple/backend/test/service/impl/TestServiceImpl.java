@@ -71,7 +71,8 @@ public class TestServiceImpl implements TestService {
 
         List<TraitDataResponseDto> traitDataDtoList = childTraitsRepository.findTraitsByChildAndTest(childId, historyId, testId);
 
-        Mbti mbti = mbtiRepository.findByName(MbtiType.valueOf(history.getCurrentMbti()));
+        Mbti mbti = mbtiRepository.findByName(MbtiType.valueOf(history.getCurrentMbti()))
+                .orElseThrow(() -> NotFoundException.entityNotFound("MBTI"));
 
         return new TestResultResponseDto(
                 traitDataDtoList,

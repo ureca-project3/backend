@@ -113,14 +113,17 @@ public class ChildServiceImpl implements ChildService {
         MbtiHistory latestHistory = mbtiHistoryRepository.findTopByChildAndReasonAndIsDeletedFalseOrderByCreatedAtDesc(child, "010")
                 .orElseThrow(() -> NotFoundException.entityNotFound("최근 히스토리"));
 
-        // 최신 히스토리의 성향 리스트에서 최신 성향만 조회
+
         TestParticipation testParticipation = testParticipationRepository.findTopByChild_ChildIdOrderByCreatedAtDesc(childId);
         Long testId = testParticipation.getTest().getTestId();
 
+        // 최신 히스토리의 성향 리스트에서 최신 성향만 조회
         List<TraitDataResponseDto> traitDataDtoList = childTraitsRepository.findTraitsByChildAndTest(childId, latestHistory.getHistoryId(), testId);
 
         // MBTI 설명 조회
-        Mbti mbti = mbtiRepository.findByName(MbtiType.valueOf(latestHistory.getCurrentMbti()));
+        Mbti mbti = mbtiRepository.findByName(MbtiType.valueOf(latestHistory.getCurrentMbti()))
+                .orElseThrow(() -> NotFoundException.entityNotFound("MBTI"));
+
 
         //  날짜 집어넣기 ( 날짜 출력 형식 고민 )
         List<MbtiHistory> historyList = mbtiHistoryRepository.findByChildAndReasonOrderByCreatedAtDesc(child, "010");
@@ -157,7 +160,7 @@ public class ChildServiceImpl implements ChildService {
                 .orElseThrow(() -> NotFoundException.entityNotFound("히스토리"));
 
         // 최신 히스토리의 성향 리스트에서 최신 성향만 조회
-        List<ChildTraits> traitList = childTraitsRepository.findLatestByMbtiHistory_HistoryIdWithTraits(history.getHistoryId());
+        List<ChildTraits> traitList = childTraitsRepository.findByMbtiHistory_HistoryIdWithTraits(history.getHistoryId());
 
         Map<String, Integer> historyMbti = new LinkedHashMap<>();
         for (ChildTraits trait : traitList) {
@@ -167,7 +170,8 @@ public class ChildServiceImpl implements ChildService {
         }
 
         // MBTI 설명 조회
-        Mbti mbti = mbtiRepository.findByName(MbtiType.valueOf(history.getCurrentMbti()));
+        Mbti mbti = mbtiRepository.findByName(MbtiType.valueOf(history.getCurrentMbti()))
+                .orElseThrow(() -> NotFoundException.entityNotFound("MBTI"));
 
         return ChildTestHistoryDateResponseDto.builder()
                 .historyId(history.getHistoryId())
