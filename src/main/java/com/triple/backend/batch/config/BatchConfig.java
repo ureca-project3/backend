@@ -75,7 +75,7 @@ public class BatchConfig extends DefaultBatchConfiguration {
     @Bean
     public Step syncFeedbackStep(JobRepository jobRepository, DataSourceTransactionManager transactionManager) {
         return new StepBuilder("syncFeedbackStep", jobRepository)
-                .<FeedbackDto, FeedbackDto>chunk(1, transactionManager)
+                .<FeedbackDto, FeedbackDto>chunk(10, transactionManager)
                 .reader(feedbackReader)
                 .writer(feedbackWriter)
                 .build();
@@ -84,7 +84,7 @@ public class BatchConfig extends DefaultBatchConfiguration {
     @Bean
     public Step updateTraitsChange(JobRepository jobRepository, DataSourceTransactionManager transactionManager) {
         return new StepBuilder("updateTraitsChange", jobRepository)
-                .<FeedbackAndTraitsDto, List<TraitsChangeDto>>chunk(1, transactionManager)
+                .<FeedbackAndTraitsDto, List<TraitsChangeDto>>chunk(10, transactionManager)
                 .reader(mySQLFeedbackReader())
                 .processor(traitsChangeProcessor())
                 .writer(traitsChangeWriter())
@@ -94,7 +94,7 @@ public class BatchConfig extends DefaultBatchConfiguration {
     @Bean
     public Step updateChildTraits(JobRepository jobRepository, DataSourceTransactionManager transactionManager) {
         return new StepBuilder("updateChildTraits", jobRepository)
-                .<TraitsChangeDto, TraitsChangeDto>chunk(1, transactionManager)
+                .<TraitsChangeDto, TraitsChangeDto>chunk(10, transactionManager)
                 .reader(traitsChangeReader())
                 .writer(childTraitsWriter())
                 .build();
@@ -103,7 +103,7 @@ public class BatchConfig extends DefaultBatchConfiguration {
     @Bean
     public Step updateMbtiHistory(JobRepository jobRepository, DataSourceTransactionManager transactionManager, MbtiProcessor mbtiProcessor) {
         return new StepBuilder("updateMbtiHistory", jobRepository)
-                .<List<MbtiWithTraitScoreDto>, MbtiDto>chunk(1, transactionManager)
+                .<List<MbtiWithTraitScoreDto>, MbtiDto>chunk(10, transactionManager)
                 .reader(mbtiReader)
                 .processor(mbtiProcessor)
                 .writer(mbtiWriter())
