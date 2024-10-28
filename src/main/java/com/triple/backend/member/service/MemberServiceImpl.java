@@ -6,10 +6,12 @@ import com.triple.backend.child.repository.ChildRepository;
 import com.triple.backend.member.entity.Member;
 import com.triple.backend.member.entity.MemberInfoDto;
 import com.triple.backend.member.repository.MemberRepository;
+import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -19,6 +21,7 @@ import java.util.List;
 public class MemberServiceImpl implements MemberService, UserDetailsService {
     private final MemberRepository memberRepository;
     private final ChildRepository childRepository;
+    private final PasswordEncoder passwordEncoder; // 비밀번호 암호화를 위한 의존성
 
     // 데이터베이스에서 특정 이름 조회 , DB 로그인 기능 구현을 위함
     @Override
@@ -57,5 +60,35 @@ public class MemberServiceImpl implements MemberService, UserDetailsService {
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new RuntimeException("Member not found"));
         return member.getProvider(); // provider 정보 반환
+    }
+
+    @Override
+    public void updateMemberInfo(Long memberId, Member updatedMember) {
+        // 기존 회원 정보 조회
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new IllegalArgumentException("Member not found"));
+
+        // 필드 업데이트
+        member.setName(updatedMember.getName());
+        member.setEmail(updatedMember.getEmail());
+        member.setPhone(updatedMember.getPhone());
+
+        // 비밀번호 암호화하여 업데이트 (비어 있지 않은 경우에만)
+        if (updatedMember.getPassword() != null && !updatedMember.getPassword().isEmpty()) {
+            String encodedPassword = passwordEncoder.encode(updatedMember.getPassword());
+            member.setPassword(encodedPassword);
+        }
+
+        // 변경된 정보 저장
+        memberRepository.save(member);
+    }
+
+    @Override
+    @Transactional // 데이터 일관성
+    public void deleteMember(Long memberId) {
+        if (!memberRepository.existsById(memberId)) {
+            throw new IllegalArgumentException("Member not found");
+        }
+        memberRepository.deleteById(memberId);
     }
 }
