@@ -4,63 +4,19 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>회원가입 페이지</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: #f4f4f4;
-        }
-
-        header {
-            display: flex; /* 플렉스박스를 사용하여 배너와 제목을 정렬 */
-            align-items: center; /* 수직 중앙 정렬 */
-            background-color: #007bff;
-            color: white;
-            padding: 10px 20px;
-        }
-
-        header img {
-            width: 100px; /* 배너 이미지의 너비 조절 */
-            height: auto; /* 비율에 맞춰 높이 자동 조절 */
-            margin-right: 20px; /* 이미지와 제목 간의 여백 */
-        }
-
-        nav {
-            margin: 20px;
-            text-align: center;
-        }
-
-        nav a {
-            margin: 0 15px;
-            text-decoration: none;
-            color: #007bff;
-            font-weight: bold;
-        }
-
-        nav a:hover {
-            text-decoration: underline;
-        }
-
-        footer {
-            text-align: center;
-            margin: 20px 0;
-            font-size: 0.8em;
-            color: #777;
-        }
-    </style>
+    <link rel="stylesheet" href="/css/signup.css">
 </head>
 <body>
 
 <header>
-    <a href="/index.html">
-        <img src="/image/1.jpg" alt="사이트 배너"> <!-- 수정된 경로 -->
+    <a href="/index.html" class="banner-link">
+        <img src="/image/1.jpg" alt="사이트 배너" class="banner-image">
     </a>
     <h1>트리플민수</h1>
 </header>
 
 <main>
-    <form action="/join" method="post">
+    <form action="/auth/signup" method="post">
         <label for="memberName">이름</label>
         <input type="text" id="memberName" name="memberName" required>
         <br>

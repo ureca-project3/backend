@@ -62,8 +62,6 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         return authenticationManager.authenticate(authToken);
     }
 
-
-
     // 로그인 성공시 실행하는 메소드 (여기서 를 accessToken,refreshToken 발급하면 됨)
     @Override
     protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain,
@@ -71,11 +69,8 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         System.out.println("로그인 성공!!");
         CustomMemberDetails customMemberDetails = (CustomMemberDetails) authentication.getPrincipal();
         String username = customMemberDetails.getUsername();
-        Collection<? extends GrantedAuthority> authorities = customMemberDetails.getAuthorities();
-        GrantedAuthority auth = authorities.iterator().next();
-        String role = auth.getAuthority();
-        Long id = customMemberDetails.getMemberId();
 
+        // JWT Access Token 생성 (10시간 유효)
 
 
         // 멤버의 역할 가져오기

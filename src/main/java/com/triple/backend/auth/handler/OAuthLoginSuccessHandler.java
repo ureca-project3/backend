@@ -18,8 +18,6 @@ import org.springframework.security.web.authentication.SimpleUrlAuthenticationSu
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
-import java.io.PrintWriter;
-import java.net.URLEncoder;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -30,12 +28,6 @@ import java.util.Map;
 @Component
 @RequiredArgsConstructor
 public class OAuthLoginSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
-
-    @Value("${spring.jwt.redirect}")
-    private String REDIRECT_URI;
-
-    @Value("${spring.jwt.access-token.expiration-time}")
-    private long ACCESS_TOKEN_EXPIRATION_TIME;
 
     @Value("${spring.jwt.refresh-token.expiration-time}")
     private long REFRESH_TOKEN_EXPIRATION_TIME;
@@ -99,7 +91,6 @@ public class OAuthLoginSuccessHandler extends SimpleUrlAuthenticationSuccessHand
             response.addCookie(existingRefreshToken);
         }
 
-
         // 리프레시 토큰 생성 및 DB 저장
         String refreshToken = jwtUtil.createRefreshToken(member.getMemberId());
         RefreshToken newRefreshToken = RefreshToken.builder()
@@ -121,20 +112,17 @@ public class OAuthLoginSuccessHandler extends SimpleUrlAuthenticationSuccessHand
         refreshTokenCookie.setDomain("localhost"); // 쿠키 도메인 설정
         response.addCookie(refreshTokenCookie);
 
-        // 액세스 토큰은 헤더에 추가 -> 리다이렉트시 헤더에 있는 액세스토큰은 사라짐
-        // response.setHeader("Authorization", "Bearer " + accessToken);
-
-
         log.info("Creating Access Token for memberId: {}",member.getMemberId());
         log.info("Created Access Token: {}", accessToken);
 
         log.info("Creating Refresh Token for memberId: {}", member.getMemberId());
         log.info("Created Refresh Token: {}", refreshToken);
 
-        // index.html로 리다이렉트
-        // getRedirectStrategy().sendRedirect(request, response, "/index2.html");
-        // index.html 로 리다이렉트시, uri에 포함해서 전달
-        // 액세스 토큰을 URL 파라미터로 전달하여 리다이렉트
-        getRedirectStrategy().sendRedirect(request, response, "/index.html?accessToken=" + accessToken);
+//        // index.html 로 리다이렉트시, uri에 포함해서 전달 헤더로 전달시 리다이렉트로 인해 사라짐
+//        // 액세스 토큰을 URL 파라미터로 전달하여 리다이렉트
+//        getRedirectStrategy().sendRedirect(request, response, "/index.html?accessToken=" + accessToken);
+
+        // auth-success.html로 리다이렉트
+        getRedirectStrategy().sendRedirect(request, response, "/auth-success.html?accessToken=" + accessToken);
     }
 }

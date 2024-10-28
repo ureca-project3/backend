@@ -3,32 +3,24 @@ package com.triple.backend.auth.service;
 import com.triple.backend.auth.dto.JoinDto;
 import com.triple.backend.common.code.CommonCode;
 import com.triple.backend.common.code.CommonCodeId;
-import com.triple.backend.common.repository.CommonCodeRepository;
-import com.triple.backend.member.entity.Member;
-import com.triple.backend.member.repository.MemberRepository;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Service;
 import com.triple.backend.common.config.JWTUtil;
+import com.triple.backend.common.repository.CommonCodeRepository;
+import com.triple.backend.member.repository.MemberRepository;
+import lombok.AllArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import com.triple.backend.member.entity.Member;
+import org.springframework.stereotype.Service;
 
 @Service
-public class JoinService {
-
-    private final MemberRepository memberRepository;
-
-    // 비밀번호 가입시 암호화
+@AllArgsConstructor
+public class AuthServiceImpl implements AuthService{
 
     private final PasswordEncoder passwordEncoder; // 타입 변경
+    private final MemberRepository memberRepository;
     private final CommonCodeRepository commonCodeRepository; // 공통코드 정보 찾기위한 기능
     private final JWTUtil jwtUtil; // JWTUtil 사용
-    // 생성자 초기화
-    public JoinService(MemberRepository memberRepository, CommonCodeRepository commonCodeRepository, PasswordEncoder passwordEncoder, JWTUtil jwtUtil) {
-        this.memberRepository = memberRepository;
-        this.commonCodeRepository = commonCodeRepository;
-        this.passwordEncoder = passwordEncoder;
-        this.jwtUtil = jwtUtil;
-    }
 
-
+    @Override
     public void joinProcess(JoinDto joinDto) {
         String memberName = joinDto.getMemberName();
         String email = joinDto.getEmail();
@@ -47,18 +39,15 @@ public class JoinService {
         CommonCode role = commonCodeRepository.findById(roleCodeId)
                 .orElseThrow(() -> new IllegalStateException("기본 역할을 찾을 수 없습니다.")); // 예외 처리
 
-        System.out.println("역할(Code ID): " + role.getId().getCodeId());
         // 회원가입 진행
         Member newMember = Member.builder()
                 .name(memberName)
                 .email(email)
                 .phone(phone)
                 .password(passwordEncoder.encode(password)) // 비밀번호 암호화
-                .role_code(role.getCommonName()) // 기본 역할 부여 (CommonCode에서 역할 이름을 가져오기)
+                .role(role.getCommonName()) // 기본 역할 부여 (CommonCode에서 역할 이름을 가져오기)
                 .build();
 
         memberRepository.save(newMember);
-
-
     }
 }

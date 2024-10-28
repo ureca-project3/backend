@@ -17,7 +17,6 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -29,7 +28,6 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 
 import java.util.Arrays;
-import java.util.Collections;
 
 @RequiredArgsConstructor
 @Configuration
@@ -64,8 +62,6 @@ public class SecurityConfig {
         return source;
     }
 
-
-
     // HTTP 보안 설정
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
@@ -75,7 +71,16 @@ public class SecurityConfig {
                 .cors(corsConfigurer -> corsConfigurer.configurationSource(corsConfigurationSource()))
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/auth/**", "/public/**", "/join","/login", "/index.html").permitAll()
+                        .requestMatchers("/auth/**",
+                                "/public/**",
+                                "/auth/signup",
+                                "/auth/login",
+                                "/index.html",
+                                "/auth-success.html",
+                                "/auth/kakao-logout-callback",
+                                "/css/**",
+                                "/js/**",
+                                "/image/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .oauth2Login(oauth ->
@@ -128,7 +133,7 @@ public class SecurityConfig {
                                 response.getWriter().write("{\"message\": \"로그아웃 성공\"}");
 
                                 // index.html로 리다이렉트
-                                response.sendRedirect("/index.html?logout=success");
+                                response.sendRedirect("/index.html?logout");
                             } catch (Exception e) {
                                 response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
                                 response.getWriter().write("{\"message\": \"로그아웃 처리 중 오류 발생\"}");

@@ -26,7 +26,7 @@ public class Member extends BaseEntity {
 
     private String password;
 
-    private String provider;  // 소셜 로그인 제공자 (KAKAO) 일단 string으로 구현
+    private String provider;  // 소셜 로그인 제공자 (kakao,email)
     private String providerId;  // 소셜 로그인에서 제공하는 고유 사용자 ID (카카오 ID)
     private String role_code;
 
@@ -43,8 +43,7 @@ public class Member extends BaseEntity {
     }
 
     @Builder
-
-    public Member(String providerId, String provider, String name, String email, String phone,String role_code) {
+    public Member(String providerId, String provider, String name, String email, String phone,String role) {
         this.providerId = providerId;
         this.provider = provider;
         this.name = name;
@@ -53,8 +52,5 @@ public class Member extends BaseEntity {
         this.role_code = role_code; // 역할 필드 초기화
     }
 
-    public Member() {
-
-    }
-
+    public Member() {}
 }

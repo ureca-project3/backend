@@ -15,7 +15,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 
 import java.security.Key;
@@ -63,10 +62,6 @@ public class JWTUtil {
                 .getBody()
                 .getExpiration()
                 .before(new Date());
-    }
-
-    public String createJWTToken(String email, CommonCodeId roleCodeId, Long expiredMs) {
-        return createJwt(email, roleCodeId, expiredMs, "JWT");
     }
 
     // 이메일 및 역할, 만료 기간을 포함한 Refresh JWT 토큰을 생성하는 메소드
@@ -117,7 +112,6 @@ public class JWTUtil {
                 .compact();  // 토큰 생성
     }
 
-
     // Refresh Token 생성 메서드
     public String createRefreshToken(Long memberId) {
         Claims claims = Jwts.claims();
@@ -142,17 +136,6 @@ public class JWTUtil {
         }
     }
 
-    // JWT 토큰에서 memberRole을 추출하는 메서드
-    public String getRoleFromToken(String token) {
-        try {
-            Claims claims = Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token).getBody();
-            return claims.get("role", String.class);  // member_role을 추출
-        } catch (JwtException | IllegalArgumentException e) {
-            log.warn("유효하지 않은 토큰입니다.");
-            throw new RuntimeException("Invalid token");
-        }
-    }
-
     // 토큰 검증 메서드
     public boolean validateToken(String token) {
         try {
@@ -162,22 +145,6 @@ public class JWTUtil {
             log.warn("토큰 검증에 실패했습니다.");
             return false;
         }
-    }
-
-    // 토큰의 만료 여부를 확인하는 메서드
-    public boolean isTokenExpired(String token) {
-        try {
-            Date expirationDate = Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token).getBody().getExpiration();
-            return expirationDate.before(new Date());  // 현재 날짜와 만료 날짜 비교
-        } catch (JwtException | IllegalArgumentException e) {
-            log.warn("유효하지 않은 토큰입니다.");
-            throw new RuntimeException("Invalid token");
-        }
-    }
-
-    // 쿠키에서 액세스 토큰 추출
-    public String extractAccessToken(HttpServletRequest request) {
-        return extractTokenFromCookies(request, "accessToken");
     }
 
     // 쿠키에서 리프레시 토큰 추출
