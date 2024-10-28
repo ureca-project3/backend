@@ -43,19 +43,12 @@ body {
     border-radius: 10px;
 }
 
-.user-section {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-end;
-    gap: 15px;
-}
-
-#user-info {
-    font-size: 16px;
-    color: #666;
-}
-
 .nav-buttons {
+    display: flex;
+    align-items: center;
+}
+
+.auth-buttons {
     display: flex;
     gap: 10px;
 }
@@ -70,6 +63,7 @@ body {
     text-decoration: none;
     cursor: pointer;
     transition: background-color 0.3s;
+    font-family: inherit;
 }
 
 .nav-button:hover {

@@ -1,41 +1,51 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ko">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>회원가입 페이지</title>
+    <title>회원가입 - 트리플민수</title>
     <link rel="stylesheet" href="/css/signup.css">
 </head>
 <body>
-
-<header>
+<div class="header">
     <a href="/index.html" class="banner-link">
         <img src="/image/1.jpg" alt="사이트 배너" class="banner-image">
     </a>
     <h1>트리플민수</h1>
-</header>
+</div>
 
-<main>
-    <form action="/auth/signup" method="post">
-        <label for="memberName">이름</label>
-        <input type="text" id="memberName" name="memberName" required>
-        <br>
-        <label for="email">이메일</label>
-        <input type="email" id="email" name="email" required>
-        <br>
-        <label for="password">비밀번호</label>
-        <input type="password" id="password" name="password" required>
-        <br>
-        <label for="phone">전화번호</label>
-        <input type="tel" id="phone" name="phone" required>
-        <br>
-        <input type="submit" value="회원가입">
+<main class="signup-container">
+    <form class="signup-form">
+        <div class="form-group">
+            <label for="name">이름</label>
+            <input type="text" id="name" required>
+        </div>
+
+        <div class="form-group">
+            <label for="email">이메일</label>
+            <input type="email" id="email" required>
+        </div>
+
+        <div class="form-group">
+            <label for="password">비밀번호</label>
+            <input type="password" id="password" required>
+        </div>
+
+        <div class="form-group">
+            <label for="phone">전화번호</label>
+            <input type="tel" id="phone" required>
+        </div>
+
+        <button type="submit" class="signup-button">가입하기</button>
     </form>
+
     <div class="login-link">
-        <p>이미 계정이 있으신가요? <a href="/login.html">로그인하기</a></p>
+        이미 계정이 있으신가요? <a href="/login.html">로그인하기</a>
     </div>
 </main>
 
+<footer class="footer">
+    © 2024 트리플민수. Even하게 익히다.
+</footer>
 </body>
-
 </html>
