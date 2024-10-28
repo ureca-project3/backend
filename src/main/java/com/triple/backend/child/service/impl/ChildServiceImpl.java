@@ -74,18 +74,14 @@ public class ChildServiceImpl implements ChildService {
 
     // 자녀 히스토리 조회
     @Override
-    public ChildHistoryResponseDto getChildHistory(Long childId, String date) {
+    public ChildHistoryResponseDto getChildHistory(Long childId, LocalDateTime date) {
 
         // 자녀 정보 조회
         Child child = childRepository.findById(childId)
                 .orElseThrow(() -> NotFoundException.entityNotFound("자녀"));
 
-        // date type을 String -> LocalDateTime 으로 변환
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSSSS");
-        LocalDateTime dateTime = LocalDateTime.parse(date, formatter);
-
         // date MBTI 히스토리 조회
-        MbtiHistory history = mbtiHistoryRepository.findByChildAndCreatedAt(child, dateTime)
+        MbtiHistory history = mbtiHistoryRepository.findByChildAndCreatedAt(child, date)
                 .orElseThrow(() -> NotFoundException.entityNotFound("히스토리"));
 
         // 최신 히스토리로 성향 리스트 조회
@@ -147,16 +143,13 @@ public class ChildServiceImpl implements ChildService {
 
     // 자녀 성향 진단 결과 모음 날짜 조회
     @Override
-    public ChildTestHistoryDateResponseDto getChildTestHistoryDate(Long childId, String date) {
+    public ChildTestHistoryDateResponseDto getChildTestHistoryDate(Long childId, LocalDateTime date) {
         // 자녀 정보 모음 전체 조회
         Child child = childRepository.findById(childId)
                 .orElseThrow(() -> NotFoundException.entityNotFound("자녀"));
 
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSSSS");
-        LocalDateTime dateTime = LocalDateTime.parse(date, formatter);
-
         // date MBTI 히스토리 조회
-        MbtiHistory history = mbtiHistoryRepository.findByChildAndCreatedAt(child, dateTime)
+        MbtiHistory history = mbtiHistoryRepository.findByChildAndCreatedAt(child, date)
                 .orElseThrow(() -> NotFoundException.entityNotFound("히스토리"));
 
         // 최신 히스토리의 성향 리스트에서 최신 성향만 조회

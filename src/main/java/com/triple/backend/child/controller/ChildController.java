@@ -8,6 +8,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import com.triple.backend.child.service.ChildService;
 
+import java.time.LocalDateTime;
+
 
 @RestController
 @RequiredArgsConstructor
@@ -25,7 +27,7 @@ public class ChildController {
 
     // 자녀 히스토리 조회
     @GetMapping("/child-info/history/{childId}")
-    public ResponseEntity<?> getChildHistory(@PathVariable(name = "childId") Long childId, @RequestParam String date) {
+    public ResponseEntity<?> getChildHistory(@PathVariable(name = "childId") Long childId, @RequestParam LocalDateTime date) {
         ChildHistoryResponseDto childHistory = childService.getChildHistory(childId, date);
         return CommonResponse.ok("Get MyChildHistory Success", childHistory);
     }
@@ -39,7 +41,7 @@ public class ChildController {
 
     // 자녀 성향 진단 결과 모음 날짜 조회
     @GetMapping("/child-info/result/history/{childId}")
-    public ResponseEntity<?> getChildTestHistoryDate(@PathVariable(name = "childId") Long childId, @RequestParam String date) {
+    public ResponseEntity<?> getChildTestHistoryDate(@PathVariable(name = "childId") Long childId, @RequestParam LocalDateTime date) {
         ChildTestHistoryDateResponseDto childTestHistory = childService.getChildTestHistoryDate(childId, date);
         return CommonResponse.ok("Get MyChildTestHistory Success", childTestHistory);
     }
