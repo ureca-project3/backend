@@ -73,7 +73,7 @@ public class BatchConfig extends DefaultBatchConfiguration {
 
     // Step
     @Bean
-    public Step syncFeedbackStep(JobRepository jobRepository, DataSourceTransactionManager transactionManager) {
+    public Step syncFeedbackStep(JobRepository jobRepository, PlatformTransactionManager transactionManager) {
         return new StepBuilder("syncFeedbackStep", jobRepository)
                 .<FeedbackDto, FeedbackDto>chunk(10, transactionManager)
                 .reader(feedbackReader)
@@ -82,7 +82,7 @@ public class BatchConfig extends DefaultBatchConfiguration {
     }
 
     @Bean
-    public Step updateTraitsChange(JobRepository jobRepository, DataSourceTransactionManager transactionManager) {
+    public Step updateTraitsChange(JobRepository jobRepository, PlatformTransactionManager transactionManager) {
         return new StepBuilder("updateTraitsChange", jobRepository)
                 .<FeedbackAndTraitsDto, List<TraitsChangeDto>>chunk(10, transactionManager)
                 .reader(mySQLFeedbackReader())
@@ -92,7 +92,7 @@ public class BatchConfig extends DefaultBatchConfiguration {
     }
 
     @Bean
-    public Step updateChildTraits(JobRepository jobRepository, DataSourceTransactionManager transactionManager) {
+    public Step updateChildTraits(JobRepository jobRepository, PlatformTransactionManager transactionManager) {
         return new StepBuilder("updateChildTraits", jobRepository)
                 .<TraitsChangeDto, TraitsChangeDto>chunk(10, transactionManager)
                 .reader(traitsChangeReader())
@@ -101,7 +101,7 @@ public class BatchConfig extends DefaultBatchConfiguration {
     }
 
     @Bean
-    public Step updateMbtiHistory(JobRepository jobRepository, DataSourceTransactionManager transactionManager, MbtiProcessor mbtiProcessor) {
+    public Step updateMbtiHistory(JobRepository jobRepository, PlatformTransactionManager transactionManager, MbtiProcessor mbtiProcessor) {
         return new StepBuilder("updateMbtiHistory", jobRepository)
                 .<List<MbtiWithTraitScoreDto>, MbtiDto>chunk(10, transactionManager)
                 .reader(mbtiReader)
@@ -137,6 +137,14 @@ public class BatchConfig extends DefaultBatchConfiguration {
                 List<BookTraitsDto> bookTraits = dto.getBookTraits();
 
                 List<TraitsChangeDto> traitsChangeDtos = new ArrayList<>();
+
+                if (childTraits.isEmpty() || bookTraits.isEmpty()) {
+                    return null;
+                }
+
+                if (childTraits.size() != bookTraits.size()) {
+                    throw new IllegalStateException("childTraits와 bookTraits의 크기가 다릅니다.");
+                }
 
                 for (int i = 0; i < childTraits.size(); i++) {
                     ChildTraitsDto childTrait = childTraits.get(i);
