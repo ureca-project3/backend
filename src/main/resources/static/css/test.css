@@ -1,0 +1,169 @@
+@import url('https://fonts.googleapis.com/css2?family=Jua&display=swap');
+
+body {
+    font-family: 'Jua', sans-serif;
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: #FFF5E6;
+    color: #4A4A4A;
+}
+
+.title {
+    text-align: center;
+    font-size: 32px;
+    font-weight: bold;
+    margin: 20px 0;
+    color: #FF9800;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+}
+
+.info-box {
+    background-color: #FFE0B2;
+    padding: 25px;
+    border-radius: 20px;
+    margin: 20px 0;
+    text-align: center;
+    line-height: 1.8;
+    font-size: 18px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    border: 3px dashed #FFB74D;
+}
+
+.progress-container {
+    text-align: center;
+    margin: 20px 0;
+}
+
+.progress-text {
+    margin-bottom: 10px;
+    font-size: 18px;
+    color: #795548;
+}
+
+.progress-bar {
+    width: 100%;
+    height: 20px;
+    background-color: #FFE0B2;
+    border-radius: 10px;
+    margin: 10px 0;
+    overflow: hidden;
+}
+
+.progress {
+    height: 100%;
+    background-color: #FF9800;
+    transition: width 0.3s ease;
+}
+
+.question {
+    margin: 40px 0;
+    background-color: white;
+    padding: 30px;
+    border-radius: 20px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.question-text {
+    font-size: 22px;
+    margin-bottom: 30px;
+    text-align: center;
+    color: #5D4037;
+}
+
+.score-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+}
+
+.score-labels {
+    display: flex;
+    justify-content: space-between;
+    width: 90%;
+    margin-bottom: -10px;
+    color: #795548;
+    font-size: 18px;
+}
+
+.score-selection {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 90%;
+    background-color: #FFF3E0;
+    padding: 15px;
+    border-radius: 30px;
+}
+
+.circle {
+    border-radius: 50%;
+    background-color: #FFE0B2;
+    border: 3px solid #FFB74D;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.circle:nth-child(1) { width: 50px; height: 50px; }
+.circle:nth-child(2) { width: 45px; height: 45px; }
+.circle:nth-child(3) { width: 40px; height: 40px; }
+.circle:nth-child(4) { width: 40px; height: 40px; }
+.circle:nth-child(5) { width: 45px; height: 45px; }
+.circle:nth-child(6) { width: 50px; height: 50px; }
+
+.circle:hover {
+    transform: scale(1.1);
+    background-color: #FFB74D;
+}
+
+.circle.selected {
+    background-color: #FF9800;
+    border-color: #F57C00;
+    transform: scale(1.1);
+}
+
+.button-container {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    margin: 40px 0;
+}
+
+.nav-button {
+    width: 140px;
+    height: 50px;
+    background-color: #FF9800;
+    color: white;
+    border: none;
+    border-radius: 25px;
+    font-size: 20px;
+    cursor: pointer;
+    transition: all 0.3s;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+.nav-button:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+.nav-button:not(:disabled):hover {
+    background-color: #F57C00;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 8px rgba(0,0,0,0.2);
+}
+
+.decoration {
+    position: fixed;
+    font-size: 40px;
+    opacity: 0.2;
+    z-index: -1;
+}
+
+.decoration:nth-child(1) { top: 10%; left: 5%; }
+.decoration:nth-child(2) { top: 30%; right: 5%; }
+.decoration:nth-child(3) { bottom: 20%; left: 8%; }
+.decoration:nth-child(4) { bottom: 10%; right: 8%; }

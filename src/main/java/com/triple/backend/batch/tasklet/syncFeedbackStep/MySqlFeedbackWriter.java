@@ -17,6 +17,10 @@ import java.util.List;
 @RequiredArgsConstructor
 @Slf4j
 public class MySqlFeedbackWriter implements ItemWriter<FeedbackDto> {
+    /*
+    FeedbackDto 객체들을 MySQL의 feedback 테이블에 삽입한다
+    NamedParameterJdbcTemplate는 SQL 쿼리를 실행하기 위한 템플릿이다
+     */
     private final NamedParameterJdbcTemplate namedParameterJdbcTemplate;
 
     @Override
@@ -32,6 +36,8 @@ public class MySqlFeedbackWriter implements ItemWriter<FeedbackDto> {
         List<? extends FeedbackDto> items = chunk.getItems();
         List<FeedbackDto> updates = new ArrayList<>(items);
 
+        // 각 FeedbackDto 객체는 MapSqlParameterSource를 통해 sql문에 매핑된다
+        // 이후 FeedbackDto 객체들이 배열 형태의 SqlParameterSource[]로 전달되어 chunk 크기만큼 한꺼번에 쿼리가 날아간다
         SqlParameterSource[] batchParams = updates.stream()
                 .map(dto -> new MapSqlParameterSource()
                         .addValue("childId", dto.getChildId())

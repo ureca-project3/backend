@@ -16,7 +16,7 @@ public class MbtiProcessor implements ItemProcessor<List<MbtiWithTraitScoreDto>,
     @Override
     public MbtiDto process(List<MbtiWithTraitScoreDto> items) throws Exception {
         if (items == null || items.isEmpty()) {
-            return null; // 데이터가 없으면 null 반환
+            return null;
         }
 
         Long childId = items.get(0).getChildId();
@@ -30,15 +30,16 @@ public class MbtiProcessor implements ItemProcessor<List<MbtiWithTraitScoreDto>,
             MbtiDto mbtiDto = new MbtiDto();
             mbtiDto.setChildId(childId);
             mbtiDto.setCurrentMbti(newMbti);
-            mbtiDto.setChangeReason("020"); // 변경 원인 코드
+            mbtiDto.setChangeReason("020");
             mbtiDto.setChangeReasonId(items.stream()
                     .max(Comparator.comparing(MbtiWithTraitScoreDto::getCreatedAt))
-                    .get().getHistoryId()); // 최신 history_id 사용
+                    .get().getHistoryId()); // 변경원인에는 바뀌기 직전 history_id를 넣는다
             mbtiDto.setIsDeleted(false);
             return mbtiDto;
         }
 
-        return null; // MBTI가 변경되지 않은 경우 null 반환
+        // MBTI가 변경되지 않은 경우 null을 반환한다
+        return null;
     }
 
 }

@@ -21,10 +21,10 @@ public class MbtiCalculator {
         }
 
         StringBuilder mbti = new StringBuilder();
-        mbti.append(traitScores[0] >= 50 ? "E" : "I"); // E vs I
-        mbti.append(traitScores[1] >= 50 ? "S" : "N"); // S vs N
-        mbti.append(traitScores[2] >= 50 ? "T" : "F"); // T vs F
-        mbti.append(traitScores[3] >= 50 ? "J" : "P"); // J vs P
+        mbti.append(traitScores[0] <= 50 ? "E" : "I"); // E vs I
+        mbti.append(traitScores[1] <= 50 ? "S" : "N"); // S vs N
+        mbti.append(traitScores[2] <= 50 ? "T" : "F"); // T vs F
+        mbti.append(traitScores[3] <= 50 ? "J" : "P"); // J vs P
 
         return mbti.toString();
     }
