@@ -61,7 +61,9 @@ public class TestServiceImpl implements TestService {
     @Override
     public TestResultResponseDto getTestResult(Long childId) {
 
-        MbtiHistory history = mbtiHistoryRepository.findTopByChild_ChildIdOrderByCreatedAtDesc(childId);
+        MbtiHistory history = mbtiHistoryRepository.findTopByChild_ChildIdOrderByCreatedAtDesc(childId)
+                .orElseThrow(() -> NotFoundException.entityNotFound("최신 히스토리"));
+
         Long historyId = history.getHistoryId();
 
         TestParticipation testParticipation = testParticipationRepository.findTopByChild_ChildIdOrderByCreatedAtDesc(childId);
@@ -69,7 +71,8 @@ public class TestServiceImpl implements TestService {
 
         List<TraitDataResponseDto> traitDataDtoList = childTraitsRepository.findTraitsByChildAndTest(childId, historyId, testId);
 
-        Mbti mbti = mbtiRepository.findByName(MbtiType.valueOf(history.getCurrentMbti()));
+        Mbti mbti = mbtiRepository.findByName(MbtiType.valueOf(history.getCurrentMbti()))
+                .orElseThrow(() -> NotFoundException.entityNotFound("MBTI"));
 
         return new TestResultResponseDto(
                 traitDataDtoList,
@@ -139,7 +142,7 @@ public class TestServiceImpl implements TestService {
         MbtiHistory mbtiHistory = mbtiHistoryRepository.save(MbtiHistory.builder()
                 .child(child)
                 .currentMbti(currentMbti.toString())
-                .reason("010")
+                .reason("020")
                 .reasonId(testParticipation.getTestParticipationId())
                 .isDeleted(false)
                 .build());

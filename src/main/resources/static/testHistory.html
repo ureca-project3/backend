@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>우리아이 페이지</title>
+    <link rel="stylesheet" href="/css/testHistory.css">
+    <script src="/js/testHistory.js" defer></script>
+</head>
+<body>
+<div class="decoration">🌟</div>
+<div class="decoration">🎨</div>
+<div class="decoration">✨</div>
+<div class="decoration">🌈</div>
+
+<div class="header">
+    <button class="logo-button">로고</button>
+</div>
+
+<div class="title-section">
+    <h1 class="title">우리아이 정보</h1>
+    <div class="detail-button-container">
+        <button class="logo-button" onclick="goToDetailPage()">진단 결과 상세</button>
+    </div>
+</div>
+
+<div class="profile-section">
+    <div class="profile-circle" id="profileImage">
+        프로필
+    </div>
+    <div class="profile-info" id="profileInfo">
+        <!-- 프로필 정보가 여기에 동적으로 삽입됩니다 -->
+    </div>
+
+</div>
+
+<div class="mbti-result" id="mbtiResult">
+    <!-- MBTI 결과가 여기에 동적으로 삽입됩니다 -->
+</div>
+
+<div class="main-content">
+    <div class="history-dates" id="historyDates">
+        <h3>성향 변경 히스토리</h3>
+        <!-- 히스토리 날짜가 여기에 동적으로 삽입됩니다 -->
+    </div>
+
+    <div class="indicator-container" id="indicatorContainer">
+        <div class="indicator-row">
+            <div class="indicator-labels">
+                <span>E</span>
+                <span>I</span>
+            </div>
+            <div class="indicator-bar">
+                <div style="position: absolute; left: 0; width: 50%; height: 100%; background-color: #FF99CC; border-radius: 12px 0 0 12px;"></div>
+                <div style="position: absolute; right: 0; width: 50%; height: 100%; background-color: #FFCECE; border-radius: 0 12px 12px 0;"></div>
+                <div style="position: absolute; left: 50%; width: 2px; height: 100%; background-color: white; transform: translateX(-50%);"></div>
+                <div class="indicator-circle" id="energyIndicator"></div>
+            </div>
+        </div>
+
+        <div class="indicator-row">
+            <div class="indicator-labels">
+                <span>S</span>
+                <span>N</span>
+            </div>
+            <div class="indicator-bar">
+                <div style="position: absolute; left: 0; width: 50%; height: 100%; background-color: #FFE5A3; border-radius: 12px 0 0 12px;"></div>
+                <div style="position: absolute; right: 0; width: 50%; height: 100%; background-color: #C8E6C9; border-radius: 0 12px 12px 0;"></div>
+                <div style="position: absolute; left: 50%; width: 2px; height: 100%; background-color: white; transform: translateX(-50%);"></div>
+                <div class="indicator-circle" id="perceptionIndicator"></div>
+            </div>
+        </div>
+
+        <div class="indicator-row">
+            <div class="indicator-labels">
+                <span>T</span>
+                <span>F</span>
+            </div>
+            <div class="indicator-bar">
+                <div style="position: absolute; left: 0; width: 50%; height: 100%; background-color: #B2DFDB; border-radius: 12px 0 0 12px;"></div>
+                <div style="position: absolute; right: 0; width: 50%; height: 100%; background-color: #E8BBB8; border-radius: 0 12px 12px 0;"></div>
+                <div style="position: absolute; left: 50%; width: 2px; height: 100%; background-color: white; transform: translateX(-50%);"></div>
+                <div class="indicator-circle" id="judgmentIndicator"></div>
+            </div>
+        </div>
+
+        <div class="indicator-row">
+            <div class="indicator-labels">
+                <span>J</span>
+                <span>P</span>
+            </div>
+            <div class="indicator-bar">
+                <div style="position: absolute; left: 0; width: 50%; height: 100%; background-color: #FFCDD2; border-radius: 12px 0 0 12px;"></div>
+                <div style="position: absolute; right: 0; width: 50%; height: 100%; background-color: #D1C4E9; border-radius: 0 12px 12px 0;"></div>
+                <div style="position: absolute; left: 50%; width: 2px; height: 100%; background-color: white; transform: translateX(-50%);"></div>
+                <div class="indicator-circle" id="lifestyleIndicator"></div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

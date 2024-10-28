@@ -80,8 +80,9 @@ public class CodeInitializer implements CommandLineRunner {
         CommonCode commonCode42 = new CommonCode(new CommonCodeId("057", "200"), groupCode2, "놀이/체험", true);
         CommonCode commonCode43 = new CommonCode(new CommonCodeId("058", "200"), groupCode2, "그림/음악", true);
 
-        CommonCode commonCode44 = new CommonCode(new CommonCodeId("010", "300"), groupCode3, "자녀 성향 진단", true);
-        CommonCode commonCode45 = new CommonCode(new CommonCodeId("020", "300"), groupCode3, "피드백", true);
+        CommonCode commonCode46 = new CommonCode(new CommonCodeId("010", "300"), groupCode3, "기본", true);
+        CommonCode commonCode44 = new CommonCode(new CommonCodeId("020", "300"), groupCode3, "자녀 성향 진단", true);
+        CommonCode commonCode45 = new CommonCode(new CommonCodeId("030", "300"), groupCode3, "피드백", true);
 
         em.persist(commonCode1);
         em.persist(commonCode2);
@@ -130,6 +131,7 @@ public class CodeInitializer implements CommandLineRunner {
 
         em.persist(commonCode44);
         em.persist(commonCode45);
+        em.persist(commonCode46);
 
         em.flush();
     }

@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>성향 진단 결과 모음</title>
+    <link rel="stylesheet" href="/css/childDetail.css">
+    <script src="/js/childDetail.js" defer></script>
+</head>
+<body>
+<div class="decoration">🌟</div>
+<div class="decoration">🎨</div>
+<div class="decoration">✨</div>
+<div class="decoration">🌈</div>
+
+<div class="header">
+    <button class="logo-button">로고</button>
+    <button class="logo-button">마이 페이지</button>
+</div>
+
+<h1 class="title">성향 진단 결과 모음</h1>
+
+<div class="main-content">
+    <div class="history-dates" id="date-buttons">
+        <h3>진단 기록</h3>
+        <!-- Date buttons will be dynamically populated -->
+    </div>
+
+    <div class="info-container">
+        <div class="personality-type">
+            <div class="type-circle">
+                <img id="mbti-image" src="" alt="MBTI 이미지" style="width: 100%; height: 100%; object-fit: cover;">
+            </div>
+            <div class="type-info">
+                <div class="type-title" id="personality-code"></div>
+                <div class="type-subtitle" id="personality-description"></div>
+            </div>
+            <div class="delete-button-container">
+                <button class="logo-button" id="delete-button">삭제</button>
+            </div>
+        </div>
+
+        <div class="indicator-container">
+            <div class="indicator-row">
+                <div class="indicator-labels">
+                    <span>E</span>
+                    <span>I</span>
+                </div>
+                <div class="indicator-bar" id="energy-bar"></div>
+                <p class="description" id="energy-description" style="margin-top: 30px; font-size: 18px; color: #666;"></p>
+            </div>
+            <div class="indicator-row">
+                <div class="indicator-labels">
+                    <span>S</span>
+                    <span>N</span>
+                </div>
+                <div class="indicator-bar" id="perception-bar"></div>
+                <p class="description" id="perception-description" style="margin-top: 30px; font-size: 18px; color: #666;"></p>
+            </div>
+            <div class="indicator-row">
+                <div class="indicator-labels">
+                    <span>T</span>
+                    <span>F</span>
+                </div>
+                <div class="indicator-bar" id="judgment-bar"></div>
+                <p class="description" id="judgment-description" style="margin-top: 30px; font-size: 18px; color: #666;"></p>
+            </div>
+            <div class="indicator-row">
+                <div class="indicator-labels">
+                    <span>J</span>
+                    <span>P</span>
+                </div>
+                <div class="indicator-bar" id="lifestyle-bar"></div>
+                <p class="description" id="lifestyle-description" style="margin-top: 30px; font-size: 18px; color: #666;"></p>
+            </div>
+        </div>
+        <div class="description" id="mbti-full-description"></div>
+    </div>
+</div>
+</body>
+</html>
