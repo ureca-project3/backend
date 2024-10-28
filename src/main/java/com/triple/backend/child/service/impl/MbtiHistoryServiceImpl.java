@@ -68,7 +68,7 @@ public class MbtiHistoryServiceImpl implements MbtiHistoryService {
     public void cleanUpOldRecords() {
         LocalDateTime thresholdDate = LocalDateTime.now().minusDays(30);
 
-        List<MbtiHistory> mbtiHistoryList = mbtiHistoryRepository.findByReasonAndIsDeleted("010", true);
+        List<MbtiHistory> mbtiHistoryList = mbtiHistoryRepository.findByReasonAndIsDeleted("020", true);
 
         // mbtiHistory 목록 중 30일 이상 경과한 것만 필터링하기
         List<MbtiHistory> deleteMbtiHistoryList = mbtiHistoryList.stream()

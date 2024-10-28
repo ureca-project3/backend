@@ -142,7 +142,7 @@ public class TestServiceImpl implements TestService {
         MbtiHistory mbtiHistory = mbtiHistoryRepository.save(MbtiHistory.builder()
                 .child(child)
                 .currentMbti(currentMbti.toString())
-                .reason("010")
+                .reason("020")
                 .reasonId(testParticipation.getTestParticipationId())
                 .isDeleted(false)
                 .build());
