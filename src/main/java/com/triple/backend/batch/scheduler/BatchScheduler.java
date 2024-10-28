@@ -15,7 +15,7 @@ import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
-@Slf4j(topic = "Scheduler")
+@Slf4j(topic = "Batch Scheduler")
 @Configuration
 @RequiredArgsConstructor
 public class BatchScheduler {
@@ -58,7 +58,7 @@ public class BatchScheduler {
         log.info("피드백 계산 및 MySQL 동기화 배치 스케줄링 종료 Time: {}, elapsed: {}", end, Duration.between(start, end));
     }
 
-    @Scheduled(cron = "0 0 3 * * *")
+    @Scheduled(cron = "0 0 4 * * *")
     public void recommendBook() throws Exception {
         LocalDateTime start = LocalDateTime.now();
         log.info("책 추천 배치 스케줄링 시작 Time: {}", start);
