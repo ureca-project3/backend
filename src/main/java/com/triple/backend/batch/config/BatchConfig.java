@@ -204,6 +204,7 @@ public class BatchConfig extends DefaultBatchConfiguration {
 
     @Bean
     public JdbcCursorItemReader<TraitsChangeDto> traitsChangeReader() {
+        // traits_change 테이블에서 누적 변화량이 5 이상인 데이터들을 읽어온다
         JdbcCursorItemReader<TraitsChangeDto> reader = new JdbcCursorItemReader<>();
         reader.setDataSource(dataSource);
         reader.setSql("""
@@ -221,6 +222,13 @@ public class BatchConfig extends DefaultBatchConfiguration {
             @Override
             public void write(Chunk<? extends TraitsChangeDto> chunk) throws Exception {
                 // 1. ChildTraits에 새로운 레코드 생성
+
+                /*
+                child_traits 테이블에 새로운 trait 정보를 삽입하는 sql 쿼리
+                step1: child_id에 걸린 history 중 가장 최근 history_id 찾는다
+                step2: 1에서 찾은 history_id와 파라미터로 받은 trait_id를 가진 가장 최근 데이터를 찾는다
+                step3: 2에서 찾은 데이터의 trait_score에 changeAmound 값을 더해 새로운 값으로 갱신한다
+                */
                 String insertChildTraitsSql = """
                 INSERT INTO child_traits (history_id, trait_id, trait_score, created_at)
                 SELECT
@@ -256,9 +264,15 @@ public class BatchConfig extends DefaultBatchConfiguration {
                     insertChildTraitsParams.add(params);
                 }
 
+                /*
+                .toArray() 관련 설명
+                insertChildTraitsParams 리스트를 Map<String, Object> 배열로 변환하는 부분
+                batchUpdate는 배열의 각 맵을 insertChildTraitsSql 쿼리에 적용하여 일괄적으로 실행
+                 */
+
                 namedParameterJdbcTemplate.batchUpdate(insertChildTraitsSql, insertChildTraitsParams.toArray(new Map[0]));
 
-                // 2. TraitsChange 초기화
+                // 2. TraitsChange 초기화 : 반영이 완료된 누적변화량은 0으로 초기화한다
                 String resetTraitsChangeSql = """
                 UPDATE traits_change
                 SET change_amount = 0
