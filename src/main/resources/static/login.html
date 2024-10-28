@@ -70,7 +70,7 @@
 <div class="decoration">✨</div>
 <div class="decoration">🌈</div>
 
-<header>
+<header class="header">
     <a href="/index.html" class="banner-link">
         <img src="/image/1.jpg" alt="사이트 배너" class="banner-image">
     </a>
@@ -79,8 +79,7 @@
 <main class="login-container">
     <h1>로그인</h1>
 
-    <!-- form 태그에 id 추가 -->
-    <form id="loginForm" method="post">
+    <form id="loginForm">
         <div class="form-group">
             <div class="input-group">
                 <label for="email">이메일 주소</label>
@@ -95,7 +94,7 @@
             </div>
         </div>
 
-        <button type="submit">로그인</button>
+        <button type="submit" class="login-button">로그인</button>
     </form>
 
     <div class="social-login">
@@ -110,11 +109,11 @@
     </div>
 </main>
 
+
 <footer>
-    <p>&copy; 2024 트리플민수. Even하게 익히다.</p>
+    <p>© 2024 트리플민수. Even하게 익히다.</p>
 </footer>
 
-<!-- login.js를 body 끝에 배치 -->
 <script src="/js/login.js"></script>
 </body>
 </html>
