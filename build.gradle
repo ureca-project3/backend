@@ -49,6 +49,12 @@ dependencies {
 
     // Redis
     implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+
+    // Batch
+    implementation 'org.springframework.boot:spring-boot-starter-batch'
+
+    // JDBC
+    implementation 'org.springframework.boot:spring-boot-starter-jdbc'
 }
 
 tasks.named('test') {

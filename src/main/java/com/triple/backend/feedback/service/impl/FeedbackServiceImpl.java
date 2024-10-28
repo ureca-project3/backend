@@ -155,9 +155,13 @@ public class FeedbackServiceImpl implements FeedbackService {
             return;
         }
 
-        if (hatedBooks != null && hatedBooks.contains(bookId)) {
+        if (hatedBooks.contains(bookId)) {
             hatedBooks.remove(bookId);
-            hashOperations.put(HATE_HASH_KEY, String.valueOf(childId), hatedBooks);
+            if (hatedBooks.isEmpty()) {
+                hashOperations.delete(HATE_HASH_KEY, String.valueOf(childId));
+            } else {
+                hashOperations.put(HATE_HASH_KEY, String.valueOf(childId), hatedBooks);
+            }
             return;
         }
 
