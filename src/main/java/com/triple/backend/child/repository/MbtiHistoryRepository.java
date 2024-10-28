@@ -3,6 +3,7 @@ package com.triple.backend.child.repository;
 import com.triple.backend.child.entity.Child;
 import com.triple.backend.child.entity.MbtiHistory;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -29,4 +30,7 @@ public interface MbtiHistoryRepository extends JpaRepository<MbtiHistory, Long> 
     // 자녀 성향 히스토리 모음 조회 - 자녀 성향 진단 결과 날짜만 조회
     List<MbtiHistory> findByChildAndReasonOrderByCreatedAtDesc(Child child, String reason);
 
+    @Query(value = "select mh from MbtiHistory mh left join ChildTraits ct " +
+            "on mh.historyId = ct.mbtiHistory.historyId where ct.mbtiHistory.historyId is null")
+    List<MbtiHistory> findNotHavingChildTraits();
 }
