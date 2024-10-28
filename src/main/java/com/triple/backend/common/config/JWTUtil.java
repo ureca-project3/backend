@@ -135,7 +135,16 @@ public class JWTUtil {
             throw new RuntimeException("Invalid token");
         }
     }
-
+    // JWT 토큰에서 memberRole을 추출하는 메서드
+    public String getRoleFromToken(String token) {
+        try {
+            Claims claims = Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token).getBody();
+            return claims.get("role", String.class);  // member_role을 추출
+        } catch (JwtException | IllegalArgumentException e) {
+            log.warn("유효하지 않은 토큰입니다.");
+            throw new RuntimeException("Invalid token");
+        }
+    }
     // 토큰 검증 메서드
     public boolean validateToken(String token) {
         try {
