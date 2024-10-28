@@ -26,7 +26,7 @@ public class FeedbackController {
         @PathVariable(name = "bookId") Long bookId,
         @RequestHeader(name = "Child-Id") Long childId
     ) {
-        feedbackService.insertLike(bookId, childId);
+        feedbackService.insertLike(childId, bookId);
 
         return CommonResponse.created("Insert Like Success");
     }
@@ -39,7 +39,7 @@ public class FeedbackController {
         @PathVariable(name = "bookId") Long bookId,
         @RequestHeader(name = "Child-Id") Long childId
     ) {
-        feedbackService.deleteLike(bookId, childId);
+        feedbackService.deleteLike(childId, bookId);
 
         return CommonResponse.ok("Delete Like Success");
     }
