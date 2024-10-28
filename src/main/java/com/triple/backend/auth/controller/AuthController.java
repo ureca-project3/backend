@@ -40,6 +40,14 @@ public class AuthController {
         return "login"; // login.html 파일을 반환합니다. (뷰 리졸버에 따라 경로 조정 필요)
     }
 
+    // 실제 로그인 처리를 위한 엔드포인트 추가
+    @PostMapping("/login")
+    @ResponseBody
+    public ResponseEntity<?> login(HttpServletRequest request) {
+        // 실제 인증은 LoginFilter에서 처리
+        return ResponseEntity.ok().build();
+    }
+
     @PostMapping("/signup")
     public String joinProcess(JoinDto joinDto, RedirectAttributes redirectAttributes) {
         authService.joinProcess(joinDto);
