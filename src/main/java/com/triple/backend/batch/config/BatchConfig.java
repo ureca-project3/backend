@@ -21,9 +21,11 @@ import org.springframework.batch.item.Chunk;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.batch.item.database.JdbcCursorItemReader;
+import org.springframework.batch.item.redis.RedisItemReader;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.transaction.PlatformTransactionManager;
 
 import javax.sql.DataSource;
@@ -44,6 +46,21 @@ public class BatchConfig extends DefaultBatchConfiguration {
     private final DataSource dataSource;
     private final NamedParameterJdbcTemplate namedParameterJdbcTemplate;
 
+    /*
+    Job 이름: syncFeedbackAndUpdateTraitsJob
+    Step 설명:
+      Step1 : syncFeedbackStep - redis에 임시 저장되어 있던 좋아요/싫어요를 mysql로 이관한다
+      Step2 : updateTraitsChange - mysql에서 오늘자 좋아요/싫어요를 읽어 성향에 반영될 점수를 계산하고 TraitsChange 테이블을 업데이트한다
+      Step3 : updateChildTraits - 갱신된 TraitsChange 테이블을 읽어 점수가 5 이상이면 ChildTraits에 새로운 레코드를 넣는다
+      Step4 : updateMbtiHistory - 갱신된 ChildTraits 테이블을 읽어 Mbti가 달라졌다면 MbtiHistory에 새로운 레코드를 넣는다
+     */
+
+    /*
+    istp 55 50 60 65
+    istp 45 50 50 65 -> estp
+
+     */
+
     @Bean
     public Job syncFeedbackAndUpdateTraitsJob(JobRepository jobRepository,
                                               Step syncFeedbackStep,
@@ -60,8 +77,9 @@ public class BatchConfig extends DefaultBatchConfiguration {
                 .build();
     }
 
+    // Step
     @Bean
-    public Step syncFeedbackStep(JobRepository jobRepository, PlatformTransactionManager transactionManager) {
+    public Step syncFeedbackStep(JobRepository jobRepository, DataSourceTransactionManager transactionManager) {
         return new StepBuilder("syncFeedbackStep", jobRepository)
                 .<FeedbackDto, FeedbackDto>chunk(1, transactionManager)
                 .reader(feedbackReader)
@@ -70,7 +88,7 @@ public class BatchConfig extends DefaultBatchConfiguration {
     }
 
     @Bean
-    public Step updateTraitsChange(JobRepository jobRepository, PlatformTransactionManager transactionManager) {
+    public Step updateTraitsChange(JobRepository jobRepository, DataSourceTransactionManager transactionManager) {
         return new StepBuilder("updateTraitsChange", jobRepository)
                 .<FeedbackAndTraitsDto, List<TraitsChangeDto>>chunk(1, transactionManager)
                 .reader(mySQLFeedbackReader())
@@ -80,7 +98,7 @@ public class BatchConfig extends DefaultBatchConfiguration {
     }
 
     @Bean
-    public Step updateChildTraits(JobRepository jobRepository, PlatformTransactionManager transactionManager) {
+    public Step updateChildTraits(JobRepository jobRepository, DataSourceTransactionManager transactionManager) {
         return new StepBuilder("updateChildTraits", jobRepository)
                 .<TraitsChangeDto, TraitsChangeDto>chunk(1, transactionManager)
                 .reader(traitsChangeReader())
@@ -89,7 +107,7 @@ public class BatchConfig extends DefaultBatchConfiguration {
     }
 
     @Bean
-    public Step updateMbtiHistory(JobRepository jobRepository, PlatformTransactionManager transactionManager, MbtiProcessor mbtiProcessor) {
+    public Step updateMbtiHistory(JobRepository jobRepository, DataSourceTransactionManager transactionManager, MbtiProcessor mbtiProcessor) {
         return new StepBuilder("updateMbtiHistory", jobRepository)
                 .<List<MbtiWithTraitScoreDto>, MbtiDto>chunk(1, transactionManager)
                 .reader(mbtiReader)
@@ -98,6 +116,7 @@ public class BatchConfig extends DefaultBatchConfiguration {
                 .build();
     }
 
+    // Tasklet
     @Bean
     public JdbcCursorItemReader<FeedbackAndTraitsDto> mySQLFeedbackReader() {
         JdbcCursorItemReader<FeedbackAndTraitsDto> reader = new JdbcCursorItemReader<>();
@@ -117,6 +136,8 @@ public class BatchConfig extends DefaultBatchConfiguration {
             @Override
             public List<TraitsChangeDto> process(FeedbackAndTraitsDto dto) throws Exception {
 
+                // 책과 아이의 성향을 비교한 후, 자녀 성향 점수 변화량를 계산한다
+                // 계산 결과는 TraitsChangeDto에 담아 반환한다
                 Long childId = dto.getChildId();
                 List<ChildTraitsDto> childTraits = dto.getChildTraits();
                 List<BookTraitsDto> bookTraits = dto.getBookTraits();
@@ -133,9 +154,8 @@ public class BatchConfig extends DefaultBatchConfiguration {
                     );
 
                     // 계산된 changeAmount 확인
-                    System.out.println("Processor에서 계산된 changeAmount: " + changeAmount
-                            + " (childId: " + childId + ", traitId: " + childTrait.getTraitId() + ")");
-
+//                    System.out.println("Processor에서 계산된 changeAmount: " + changeAmount
+//                            + " (childId: " + childId + ", traitId: " + childTrait.getTraitId() + ")");
 
                     TraitsChangeDto traitsChangeDto = new TraitsChangeDto();
                     traitsChangeDto.setChildId(childId);
@@ -155,6 +175,7 @@ public class BatchConfig extends DefaultBatchConfiguration {
         return new ItemWriter<List<TraitsChangeDto>>() {
             @Override
             public void write(Chunk<? extends List<TraitsChangeDto>> chunk) throws Exception {
+                // 아이의 성향 4개가 담긴 List<TraitsChangeDto>를 청크 크기만큼 받아 일괄 업데이트한다
                 String updateSql = """
                 UPDATE traits_change
                 SET change_amount = change_amount + :changeAmount
