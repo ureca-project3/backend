@@ -118,7 +118,7 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 
             log.info("토큰 생성 중. memberId: {}", memberId);
 
-            String accessToken = jwtUtil.createAccessToken(memberId);
+            String accessToken = jwtUtil.createAccessToken(memberId, "회원");
             String refreshToken = jwtUtil.createRefreshToken(memberId);
 
             // 리프레시 토큰 쿠키 설정
