@@ -32,8 +32,10 @@ public class JWTUtil {
     // Access Token과 Refresh Token의 만료 시간을 properties에서 가져옴
     @Value("${spring.jwt.access-token.expiration-time}")
     private Long accessTokenExpirationMillis;
+
     @Value("${spring.jwt.refresh-token.expiration-time}")
     private Long refreshTokenExpirationMillis;
+
 
     // secret 값을 Base64 디코딩하여 Key로 변환하는 생성자
     public JWTUtil(@Value("${spring.jwt.secret}") String secret) {
@@ -74,6 +76,7 @@ public class JWTUtil {
             role = commonCodeRepository.findById(roleCodeId)
                     .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 역할 코드입니다."));
         }
+
         // Claims 객체 생성
         Claims claims = Jwts.claims();
         claims.setSubject(email);
@@ -94,10 +97,12 @@ public class JWTUtil {
         return jwt;
     }
 
+
     // Access Token 생성 메서드
-    public String createAccessToken(Long memberId) {
+    public String createAccessToken(Long memberId, String memberRole) {
         Claims claims = Jwts.claims();
-        claims.put("memberId", memberId);  // memberId만 저장
+        claims.put("memberId", memberId);  // memberId 저장
+        claims.put("role", memberRole);     // member_role 저장
 
         return Jwts.builder()
                 .setClaims(claims)
@@ -130,7 +135,16 @@ public class JWTUtil {
             throw new RuntimeException("Invalid token");
         }
     }
-
+    // JWT 토큰에서 memberRole을 추출하는 메서드
+    public String getRoleFromToken(String token) {
+        try {
+            Claims claims = Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token).getBody();
+            return claims.get("role", String.class);  // member_role을 추출
+        } catch (JwtException | IllegalArgumentException e) {
+            log.warn("유효하지 않은 토큰입니다.");
+            throw new RuntimeException("Invalid token");
+        }
+    }
     // 토큰 검증 메서드
     public boolean validateToken(String token) {
         try {
