@@ -5,62 +5,34 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>마이페이지</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <style>
-        .profile-container {
-            max-width: 600px;
-            margin: 50px auto;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        }
-        .profile-header {
-            text-align: center;
-            margin-bottom: 30px;
-        }
-        .profile-header h2 {
-            margin-bottom: 5px;
-            font-weight: bold;
-        }
-        .profile-info {
-            font-size: 1.1rem;
-            margin-bottom: 20px;
-            padding: 10px;
-            border-radius: 8px;
-            background-color: #f8f9fa;
-        }
-        .profile-info span {
-            font-weight: bold;
-            margin-right: 10px;
-            color: #495057;
-        }
-        .child-profile {
-            margin-top: 20px;
-        }
-        .child-profile h4 {
-            margin-bottom: 10px;
-            font-weight: bold;
-            color: #007bff;
-        }
-        .edit-profile {
-            display: none; /* Initially hidden */
-            margin-top: 20px;
-        }
-    </style>
+    <link rel="stylesheet" href="/css/index.css">
 </head>
 <body>
-<!-- Navigation Bar -->
-<nav class="navbar navbar-expand-lg navbar-dark bg-primary">
-    <div class="container">
-        <a class="navbar-brand" href="#">마이페이지</a>
-        <div class="collapse navbar-collapse justify-content-end">
-            <ul class="navbar-nav">
-                <li class="nav-item">
-                    <button class="btn btn-danger" id="logout-button">로그아웃</button>
-                </li>
-            </ul>
+<!-- Decorative Elements -->
+<div class="decoration">🌟</div>
+<div class="decoration">🎨</div>
+<div class="decoration">✨</div>
+<div class="decoration">🌈</div>
+
+<header class="header">
+    <a href="/index.html" class="banner-link">
+        <img src="/image/1.jpg" alt="사이트 배너" class="banner-image">
+    </a>
+
+    <nav class="nav-buttons">
+        <!-- 로그인 상태일 때 보이는 버튼들 -->
+        <div class="auth-buttons logged-in" style="display: none;">
+            <a href="/mypage.html" class="nav-button">마이페이지</a>
+            <button id="logout-button" class="nav-button">로그아웃</button>
         </div>
-    </div>
-</nav>
+
+        <!-- 비로그인 상태일 때 보이는 버튼들 -->
+        <div class="auth-buttons logged-out">
+            <a href="/login.html" id="login-link" class="nav-button">로그인</a>
+            <a href="/signup.html" id="signup-link" class="nav-button">회원가입</a>
+        </div>
+    </nav>
+</header>
 
 <!-- Profile Section -->
 <div class="profile-container bg-light p-4">
@@ -90,6 +62,8 @@
                 <input type="text" class="form-control" id="edit-phone" required>
             </div>
             <button type="submit" class="btn btn-success">저장</button>
+            <button id="delete-account-button" class="btn btn-danger">탈퇴하기</button>
+
         </form>
     </div>
 
@@ -102,99 +76,10 @@
     </div>
 </div>
 
-<script>
-    // 로그아웃 버튼 기능
-    document.getElementById('logout-button').addEventListener('click', function() {
-        sessionStorage.removeItem('accessToken');
-        alert("로그아웃 되었습니다.");
-        window.location.href = "/login.html";
-    });
+<footer class="footer">
+    © 2024 트리플민수. Even하게 익히다.
+</footer>
 
-    // 페이지 로드 시 사용자 정보 로드
-    window.onload = function() {
-        const accessToken = sessionStorage.getItem('accessToken');
-        if (!accessToken) {
-            alert("로그인 상태가 아닙니다.");
-            window.location.href = "/login.html";
-            return;
-        }
-
-        // 사용자 정보 요청
-        fetch('/api/user/profile', {
-            method: 'GET',
-            headers: {
-                'Authorization': `Bearer ${accessToken}`
-            }
-        })
-            .then(response => response.json())
-            .then(data => {
-                // 사용자 정보 표시
-                document.getElementById('user-name').textContent += data.name;
-                document.getElementById('user-email').textContent = data.email;
-                document.getElementById('user-phone').textContent = data.phone;
-
-                // 수정 폼 초기 값 설정
-                document.getElementById('edit-name').value = data.name;
-                document.getElementById('edit-email').value = data.email;
-                document.getElementById('edit-phone').value = data.phone;
-
-                // 자녀 프로필 추가
-                const childProfiles = document.getElementById('child-profiles');
-                data.children.forEach(child => {
-                    const listItem = document.createElement('li');
-                    listItem.classList.add('list-group-item');
-                    listItem.textContent = `이름: ${child.name}, 나이: ${child.age}, 성별: ${child.gender}`;
-                    childProfiles.appendChild(listItem);
-                });
-            })
-            .catch(error => {
-                console.error("Error fetching profile:", error);
-                alert("사용자 정보를 불러올 수 없습니다.");
-            });
-    }
-
-    // 프로필 수정 버튼 클릭 시 폼 토글
-    document.getElementById('edit-profile-button').addEventListener('click', function() {
-        const editProfileDiv = document.getElementById('edit-profile');
-        editProfileDiv.style.display = editProfileDiv.style.display === 'none' || editProfileDiv.style.display === '' ? 'block' : 'none';
-    });
-
-    // 프로필 수정 폼 제출
-    document.getElementById('profile-edit-form').addEventListener('submit', function(event) {
-        event.preventDefault();
-        const accessToken = sessionStorage.getItem('accessToken');
-
-        // 수정된 사용자 정보
-        const updatedData = {
-            name: document.getElementById('edit-name').value,
-            email: document.getElementById('edit-email').value,
-            phone: document.getElementById('edit-phone').value
-        };
-
-        // 사용자 정보 수정 요청
-        fetch('/api/user/profile', {
-            method: 'PUT', // Assuming the API uses PUT for updates
-            headers: {
-                'Authorization': `Bearer ${accessToken}`,
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(updatedData)
-        })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error("프로필 수정 실패");
-                }
-                return response.json();
-            })
-            .then(data => {
-                alert("프로필이 수정되었습니다.");
-                window.location.reload(); // 페이지 새로 고침
-            })
-            .catch(error => {
-                console.error("Error updating profile:", error);
-                alert("프로필 수정에 실패했습니다.");
-            });
-    });
-</script>
+<script src="/js/mypage.js"></script>
 </body>
 </html>

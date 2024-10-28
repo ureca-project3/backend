@@ -18,4 +18,9 @@ public interface MemberService {
     // memberId를 기반으로 provider 정보 조회 - 카카오 계정 로그아웃 시 사용
     String getProviderByMemberId(Long memberId);
 
+    // 회원 정보 업데이트 메서드
+    void updateMemberInfo(Long memberId, Member member);
+
+    void deleteMember(Long memberId); // 회원 탈퇴 메서드
+
 }
