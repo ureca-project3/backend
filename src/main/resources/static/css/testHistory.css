@@ -1,0 +1,196 @@
+@import url('https://fonts.googleapis.com/css2?family=Jua&display=swap');
+
+body {
+    font-family: 'Jua', sans-serif;
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: #FFF5E6;
+    color: #4A4A4A;
+}
+
+.header {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.logo-button {
+    background-color: #FF7F50;
+    color: white;
+    border: none;
+    border-radius: 25px;
+    padding: 10px 20px;
+    font-size: 18px;
+    cursor: pointer;
+}
+
+.title-section {
+    position: relative;
+    margin-bottom: 40px;
+}
+
+.title {
+    text-align: center;
+    font-size: 36px;
+    margin: 20px 0;
+}
+
+.detail-button-container {
+    position: absolute;
+    right: 0;
+    bottom: -10px;
+}
+
+.profile-section {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
+.profile-circle {
+    width: 120px;
+    height: 120px;
+    background-color: #00C853;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: white;
+    font-size: 16px;
+    overflow: hidden;
+}
+
+.profile-circle img {
+    width: 130%;
+    height: 130%;
+    object-fit: cover;
+}
+
+.profile-info {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.profile-info span {
+    font-size: 18px;
+    margin: 2px 0;
+}
+
+.main-content {
+    display: flex;
+    gap: 20px;
+}
+
+.history-dates {
+    width: 150px;
+    flex-shrink: 0;
+}
+
+.history-dates h3 {
+    text-align: center;
+    margin-bottom: 15px;
+}
+
+.history-date {
+    display: block;
+    background-color: #FFE5A3;
+    padding: 8px 16px;
+    border-radius: 20px;
+    margin: 10px 0;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.3s; /* 애니메이션 추가 */
+    text-align: center;
+}
+
+.history-date:hover {
+    background-color: #FFD773;
+}
+
+
+.history-date.active {
+    background-color: #FFCECE; /* 클릭 시 강조 색상 */
+    border: 2px solid #FF7F50; /* 강조 효과 */
+}
+
+.indicator-container {
+    flex-grow: 1;
+    padding: 20px;
+}
+
+.indicator-row {
+    display: flex;
+    align-items: center;
+    margin: 50px 0;
+    position: relative;
+}
+
+.indicator-labels {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    font-size: 24px;
+    color: #666;
+    position: absolute;
+    top: -30px;
+    left: 0;
+    right: 0;
+}
+
+.indicator-bar {
+    flex: 1;
+    height: 24px;
+    border-radius: 12px;
+    position: relative;
+    background: #f0f0f0;
+    overflow: visible;
+}
+
+.indicator-circle {
+    width: 36px;
+    height: 36px;
+    background-color: white;
+    border: 3px solid #ccc;
+    border-radius: 50%;
+    position: absolute;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 2;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    cursor: pointer;
+    transition: left 0.3s ease;
+}
+
+.mbti-result {
+    text-align: center;
+    font-size: 60px;
+    margin: 20px 0;
+    color: #FF7F50;
+    transition: all 0.3s ease;
+}
+
+.mbti-result.changed {
+    animation: pulse 1s infinite;
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+}
+
+.decoration {
+    position: fixed;
+    font-size: 40px;
+    opacity: 0.2;
+    z-index: -1;
+}
+
+.decoration:nth-child(1) { top: 10%; left: 5%; }
+.decoration:nth-child(2) { top: 30%; right: 5%; }
+.decoration:nth-child(3) { bottom: 20%; left: 8%; }
+.decoration:nth-child(4) { bottom: 10%; right: 8%; }
