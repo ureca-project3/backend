@@ -35,42 +35,15 @@
         }
         .child-profile {
             margin-top: 20px;
-            text-align: center;
         }
         .child-profile h4 {
             margin-bottom: 10px;
             font-weight: bold;
             color: #007bff;
         }
-        .child-profile .child-photo {
-            display: inline-block;
-            width: 100px;
-            height: 100px;
-            border-radius: 50%;
-            margin: 10px;
-            overflow: hidden;
-            cursor: pointer;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-        }
-        .child-profile .child-photo img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-        .add-child {
-            display: inline-block;
-            width: 100px;
-            height: 100px;
-            border-radius: 50%;
-            background-color: #e9ecef;
-            margin: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            font-size: 2rem;
-            color: #007bff;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        .edit-profile {
+            display: none; /* Initially hidden */
+            margin-top: 20px;
         }
     </style>
 </head>
@@ -99,15 +72,33 @@
         <p><span>전화번호:</span> <span id="user-phone">010-0000-0000</span></p>
     </div>
 
+    <button class="btn btn-primary" id="edit-profile-button">수정</button>
+
+    <div class="edit-profile" id="edit-profile">
+        <h4>프로필 수정</h4>
+        <form id="profile-edit-form">
+            <div class="mb-3">
+                <label for="edit-name" class="form-label">이름</label>
+                <input type="text" class="form-control" id="edit-name" required>
+            </div>
+            <div class="mb-3">
+                <label for="edit-email" class="form-label">이메일</label>
+                <input type="email" class="form-control" id="edit-email" required>
+            </div>
+            <div class="mb-3">
+                <label for="edit-phone" class="form-label">전화번호</label>
+                <input type="text" class="form-control" id="edit-phone" required>
+            </div>
+            <button type="submit" class="btn btn-success">저장</button>
+        </form>
+    </div>
+
     <!-- Child Profile Section -->
     <div class="child-profile">
         <h4>자녀 프로필</h4>
-        <div id="child-profiles">
-            <!-- 자녀 프로필 사진이 동적으로 추가될 예정 -->
-        </div>
-        <div class="add-child" onclick="window.location.href='/childRegister.html'">
-            +
-        </div>
+        <ul class="list-group" id="child-profiles">
+            <!-- 자녀 프로필 정보가 동적으로 추가될 예정 -->
+        </ul>
     </div>
 </div>
 
@@ -142,18 +133,18 @@
                 document.getElementById('user-email').textContent = data.email;
                 document.getElementById('user-phone').textContent = data.phone;
 
+                // 수정 폼 초기 값 설정
+                document.getElementById('edit-name').value = data.name;
+                document.getElementById('edit-email').value = data.email;
+                document.getElementById('edit-phone').value = data.phone;
+
                 // 자녀 프로필 추가
                 const childProfiles = document.getElementById('child-profiles');
                 data.children.forEach(child => {
-                    const profileDiv = document.createElement('div');
-                    profileDiv.classList.add('child-photo');
-                    profileDiv.onclick = () => window.location.href = `/childDetails.html?id=${child.id}`;
-
-                    const img = document.createElement('img');
-                    img.src = `/image/${child.imageUrl}`; // 이미지 경로 설정
-
-                    profileDiv.appendChild(img);
-                    childProfiles.appendChild(profileDiv);
+                    const listItem = document.createElement('li');
+                    listItem.classList.add('list-group-item');
+                    listItem.textContent = `이름: ${child.name}, 나이: ${child.age}, 성별: ${child.gender}`;
+                    childProfiles.appendChild(listItem);
                 });
             })
             .catch(error => {
@@ -161,6 +152,49 @@
                 alert("사용자 정보를 불러올 수 없습니다.");
             });
     }
+
+    // 프로필 수정 버튼 클릭 시 폼 토글
+    document.getElementById('edit-profile-button').addEventListener('click', function() {
+        const editProfileDiv = document.getElementById('edit-profile');
+        editProfileDiv.style.display = editProfileDiv.style.display === 'none' || editProfileDiv.style.display === '' ? 'block' : 'none';
+    });
+
+    // 프로필 수정 폼 제출
+    document.getElementById('profile-edit-form').addEventListener('submit', function(event) {
+        event.preventDefault();
+        const accessToken = sessionStorage.getItem('accessToken');
+
+        // 수정된 사용자 정보
+        const updatedData = {
+            name: document.getElementById('edit-name').value,
+            email: document.getElementById('edit-email').value,
+            phone: document.getElementById('edit-phone').value
+        };
+
+        // 사용자 정보 수정 요청
+        fetch('/api/user/profile', {
+            method: 'PUT', // Assuming the API uses PUT for updates
+            headers: {
+                'Authorization': `Bearer ${accessToken}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(updatedData)
+        })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error("프로필 수정 실패");
+                }
+                return response.json();
+            })
+            .then(data => {
+                alert("프로필이 수정되었습니다.");
+                window.location.reload(); // 페이지 새로 고침
+            })
+            .catch(error => {
+                console.error("Error updating profile:", error);
+                alert("프로필 수정에 실패했습니다.");
+            });
+    });
 </script>
 </body>
 </html>

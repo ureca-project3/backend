@@ -95,9 +95,10 @@ public class JWTUtil {
     }
 
     // Access Token 생성 메서드
-    public String createAccessToken(Long memberId) {
+    public String createAccessToken(Long memberId, String memberRole) {
         Claims claims = Jwts.claims();
-        claims.put("memberId", memberId);  // memberId만 저장
+        claims.put("memberId", memberId);  // memberId 저장
+        claims.put("role", memberRole);     // member_role 저장
 
         return Jwts.builder()
                 .setClaims(claims)

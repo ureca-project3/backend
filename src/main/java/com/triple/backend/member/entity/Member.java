@@ -28,18 +28,18 @@ public class Member extends BaseEntity {
 
     private String provider;  // 소셜 로그인 제공자 (kakao,email)
     private String providerId;  // 소셜 로그인에서 제공하는 고유 사용자 ID (카카오 ID)
-    private String role;
+    private String role_code;
 
     // 생성자에 @Builder 어노테이션을 적용하여 소셜 로그인과 일반 로그인을 구분하는 방식
     @Builder
-    public Member(String name, String email, String phone, String password, String provider, String providerId,String role) {
+    public Member(String name, String email, String phone, String password, String provider, String providerId,String role_code) {
         this.name = name;
         this.email = email;
         this.phone = phone;
         this.password = password;
         this.provider = provider;
         this.providerId = providerId;
-        this.role = role;
+        this.role_code = role_code;
     }
 
     @Builder
@@ -49,7 +49,7 @@ public class Member extends BaseEntity {
         this.name = name;
         this.email = email;
         this.phone = phone;
-        this.role = role; // 역할 필드 초기화
+        this.role_code = role_code; // 역할 필드 초기화
     }
 
     public Member() {}
