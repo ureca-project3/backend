@@ -1,10 +1,9 @@
 document.querySelector("form").addEventListener("submit", function(event) {
-    event.preventDefault(); // 기본 폼 제출 방지
+    event.preventDefault();
 
     const email = document.getElementById("email").value;
     const password = document.getElementById("password").value;
 
-    // 로그인 요청 보내기
     fetch("/login", {
         method: "POST",
         headers: {
@@ -17,23 +16,34 @@ document.querySelector("form").addEventListener("submit", function(event) {
     })
         .then(response => {
             if (!response.ok) {
-                throw new Error("로그인 실패"); // 실패 시 에러 처리
+                throw new Error("로그인 실패");
             }
-            return response.json(); // JSON 응답으로 변환
+            return response.json();
         })
         .then(data => {
-            // 로그인 성공 시
-            alert(data.message); // 성공 메시지 표시
+            alert(data.message);
 
-            // Access Token과 Refresh Token을 localStorage에 저장
             sessionStorage.setItem('accessToken', data.data.accessToken);
-            //sessionStorage.setItem('refreshToken', data.data.refreshToken);
             document.cookie = `refreshToken=${data.data.refreshToken}; path=/; secure; HttpOnly;`;
-            // 리다이렉션 처리
-            window.location.href = "/index.html"; // index.html로 이동
+
+            // Access Token 디코딩 및 role 확인
+            const decodedToken = jwt_decode(data.data.accessToken);
+            console.log("Decoded Token:", decodedToken);
+
+            // role 값에서 대괄호 제거
+            const userRole = decodedToken.role.replace(/[\[\]]/g, "");
+            console.log("User Role:", userRole);
+
+            if (userRole === "관리자") {
+                window.location.href = "/admin.html";
+            } else if (userRole === "회원") {
+                window.location.href = "/index.html";
+            } else {
+                alert("알 수 없는 역할입니다. 역할: " + userRole);
+            }
         })
         .catch(error => {
             console.error("Error:", error);
-            alert("로그인에 실패했습니다."); // 실패 메시지 표시
+            alert("로그인에 실패했습니다.");
         });
 });

@@ -47,9 +47,9 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         Member member = memberService.findByEmail(email); // 이메일 찾는 서비스
         List<GrantedAuthority> authorities = new ArrayList<>();
 
-        if (member != null && member.getRole() != null) {
+        if (member != null && member.getRole_code() != null) {
             // 역할이 있는 경우 권한 추가
-            String roleName = member.getRole(); // 코드 ID를 사용하여 역할 이름 가져오기
+            String roleName = member.getRole_code(); // 코드 ID를 사용하여 역할 이름 가져오기
             authorities.add(new SimpleGrantedAuthority(roleName));
         } else {
             // 역할이 없을 경우, 기본 역할 설정 가능 (예: 익명 사용자)
@@ -71,8 +71,14 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         String username = customMemberDetails.getUsername();
 
         // JWT Access Token 생성 (10시간 유효)
+
+
+        // 멤버의 역할 가져오기
+        String memberRole = customMemberDetails.getAuthorities().toString();
+
+        // JWT Access Token 생성 (10시간 유효) - 시은 액세스토큰에 멤버아이디 추가 (mypage 테스트)
         Long memberId = customMemberDetails.getMemberId();
-        String accessToken = jwtUtil.createAccessToken(memberId);
+        String accessToken = jwtUtil.createAccessToken(memberId,memberRole);
 
         // JWT Refresh Token 생성 (24시간 유효)
         String refreshToken = jwtUtil.createRefreshToken(username, 24 * 60 * 60 * 1000L);
@@ -119,6 +125,8 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         out.flush();
 
     }
+
+
 
     // 로그인 실패시 실행하는 메소드
     @Override

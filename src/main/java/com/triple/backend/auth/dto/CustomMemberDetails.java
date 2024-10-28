@@ -2,6 +2,7 @@ package com.triple.backend.auth.dto;
 
 import com.triple.backend.member.entity.Member;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.ArrayList;
@@ -19,19 +20,13 @@ public class CustomMemberDetails implements UserDetails {
     // 사용자의 role 값을 반환
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
+        Collection<GrantedAuthority> authorities = new ArrayList<>();
 
-        Collection<GrantedAuthority> collection = new ArrayList<>();
+        // 역할을 문자열로 반환하도록 수정
+        String role = member.getRole_code(); // 역할이 문자열이어야 함
+        authorities.add(new SimpleGrantedAuthority(role));
 
-        collection.add(new GrantedAuthority() {
-
-            @Override
-            public String getAuthority() {
-
-                return member.getRole();
-            }
-        });
-
-        return collection;
+        return authorities;
     }
 
     // password 값을 반환

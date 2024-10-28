@@ -113,6 +113,8 @@ public class AuthController {
 
     @GetMapping("/token/access")
     public ResponseEntity<Map<String, String>> getAccessToken(HttpServletRequest request) {
+        System.out.println("/token/access 에 들어옴");
+
         // 쿠키가 null인지 먼저 확인
         Cookie[] cookies = request.getCookies();
         if (cookies == null) {
@@ -129,7 +131,8 @@ public class AuthController {
         // 리프레시 토큰을 검증하고 새로운 액세스 토큰 발급
         if (jwtUtil.validateToken(refreshToken)) {
             Long memberId = jwtUtil.getMemberIdFromToken(refreshToken);
-            String newAccessToken = jwtUtil.createAccessToken(memberId);
+            String role = jwtUtil.getRoleFromToken(refreshToken);
+            String newAccessToken = jwtUtil.createAccessToken(memberId,role);
 
             // 액세스 토큰을 JSON 형태로 반환
             Map<String, String> response = new HashMap<>();

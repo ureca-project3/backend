@@ -45,7 +45,8 @@ public class AuthServiceImpl implements AuthService{
                 .email(email)
                 .phone(phone)
                 .password(passwordEncoder.encode(password)) // 비밀번호 암호화
-                .role(role.getCommonName()) // 기본 역할 부여 (CommonCode에서 역할 이름을 가져오기)
+                .role_code(role.getCommonName()) // 기본 역할 부여 (CommonCode에서 역할 이름을 가져오기)
+                .provider("email") // 기본 provider 설정
                 .build();
 
         memberRepository.save(newMember);
