@@ -1,5 +1,8 @@
 package com.triple.backend.auth.handler;
 
+import com.triple.backend.common.code.CommonCode;
+import com.triple.backend.common.code.CommonCodeId;
+import com.triple.backend.common.repository.CommonCodeRepository;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -36,6 +39,7 @@ public class OAuthLoginSuccessHandler extends SimpleUrlAuthenticationSuccessHand
     private final MemberRepository memberRepository;
     private final RefreshTokenRepository refreshTokenRepository;
     private final OAuth2AuthorizedClientService authorizedClientService;
+    private final CommonCodeRepository commonCodeRepository;
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException {
@@ -61,12 +65,18 @@ public class OAuthLoginSuccessHandler extends SimpleUrlAuthenticationSuccessHand
             // 신규 유저 처리
             log.info("신규 유저입니다. 등록을 진행합니다.");
 
+            // 기본 역할 "010" (사용자) 가져오기
+            CommonCodeId roleCodeId = new CommonCodeId("010", "100"); // 010(사용자), 100(회원가입)
+            CommonCode role = commonCodeRepository.findById(roleCodeId)
+                    .orElseThrow(() -> new IllegalStateException("기본 역할을 찾을 수 없습니다.")); // 예외 처리
+
             member = Member.builder()
                     .name(name)
                     .email(email)
                     .phone(phone)
                     .provider(provider)
                     .providerId(providerId)
+                    .role_code(role.getCommonName())
                     .build();
             memberRepository.save(member);
         } else {
@@ -117,10 +127,6 @@ public class OAuthLoginSuccessHandler extends SimpleUrlAuthenticationSuccessHand
 
         log.info("Creating Refresh Token for memberId: {}", member.getMemberId());
         log.info("Created Refresh Token: {}", refreshToken);
-
-//        // index.html 로 리다이렉트시, uri에 포함해서 전달 헤더로 전달시 리다이렉트로 인해 사라짐
-//        // 액세스 토큰을 URL 파라미터로 전달하여 리다이렉트
-//        getRedirectStrategy().sendRedirect(request, response, "/index.html?accessToken=" + accessToken);
 
         // auth-success.html로 리다이렉트
         getRedirectStrategy().sendRedirect(request, response, "/auth-success.html?accessToken=" + accessToken);
