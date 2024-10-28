@@ -130,8 +130,15 @@ public class ChildServiceImpl implements ChildService {
                 .map(history -> history.getCreatedAt().toString())
                 .collect(Collectors.toList());
 
-        return new ChildTestHistoryResponseDto(latestHistory.getHistoryId(), traitDataDtoList, latestHistory.getCurrentMbti(),
-                historyDateList, mbti.getPhrase(), mbti.getDescription(), mbti.getImage());
+        return ChildTestHistoryResponseDto.builder()
+                .historyId(latestHistory.getHistoryId())
+                .historyMbti(traitDataDtoList)
+                .currentMbti(latestHistory.getCurrentMbti())
+                .historyDate(historyDateList)
+                .mbtiPhrase(mbti.getPhrase())
+                .mbtiDescription(mbti.getDescription())
+                .mbtiImage(mbti.getImage())
+                .build();
 
     }
 
@@ -162,8 +169,14 @@ public class ChildServiceImpl implements ChildService {
         // MBTI 설명 조회
         Mbti mbti = mbtiRepository.findByName(MbtiType.valueOf(history.getCurrentMbti()));
 
-        return new ChildTestHistoryDateResponseDto(history.getHistoryId(), historyMbti, history.getCurrentMbti(),
-                mbti.getPhrase(), mbti.getDescription(), mbti.getImage());
+        return ChildTestHistoryDateResponseDto.builder()
+                .historyId(history.getHistoryId())
+                .historyMbti(historyMbti)
+                .currentMbti(history.getCurrentMbti())
+                .mbtiPhrase(mbti.getPhrase())
+                .mbtiDescription(mbti.getDescription())
+                .mbtiImage(mbti.getImage())
+                .build();
     }
 
 }

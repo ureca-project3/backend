@@ -1,5 +1,6 @@
 package com.triple.backend.child.dto;
 
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -15,6 +16,7 @@ public class ChildTestHistoryDateResponseDto {
     private String mbtiDescription;
     private String mbtiImage;
 
+    @Builder
     public ChildTestHistoryDateResponseDto(Long historyId, Map<String, Integer> historyMbti, String currentMbti,
                                            String mbtiPhrase, String mbtiDescription, String mbtiImage) {
         this.historyId = historyId;
