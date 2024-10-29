@@ -19,5 +19,4 @@ public interface TestQuestionRepository extends JpaRepository<TestQuestion, Long
     @Query("SELECT new com.triple.backend.test.dto.TestQuestionTraitResponseDto(q.questionId, q.test, q.trait, q.questionText, t.traitName) " +
         "FROM TestQuestion q JOIN q.trait t WHERE q.questionId = :questionId ")
     TestQuestionTraitResponseDto findQuestionWithTraitById(@Param("questionId") Long questionId);
-
 }

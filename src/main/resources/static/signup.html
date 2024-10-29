@@ -3,40 +3,40 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>회원가입 - 트리플민수</title>
+    <title>회원가입 페이지</title>
     <link rel="stylesheet" href="/css/signup.css">
 </head>
 <body>
-<div class="header">
+<header class="header">
     <a href="/index.html" class="banner-link">
         <img src="/image/1.jpg" alt="사이트 배너" class="banner-image">
     </a>
     <h1>트리플민수</h1>
-</div>
+</header>
 
 <main class="signup-container">
-    <form class="signup-form">
+    <form action="/auth/signup" method="post" class="signup-form">
         <div class="form-group">
-            <label for="name">이름</label>
-            <input type="text" id="name" required>
+            <label for="memberName">이름</label>
+            <input type="text" id="memberName" name="memberName" required>
         </div>
 
         <div class="form-group">
             <label for="email">이메일</label>
-            <input type="email" id="email" required>
+            <input type="email" id="email" name="email" required>
         </div>
 
         <div class="form-group">
             <label for="password">비밀번호</label>
-            <input type="password" id="password" required>
+            <input type="password" id="password" name="password" required>
         </div>
 
         <div class="form-group">
             <label for="phone">전화번호</label>
-            <input type="tel" id="phone" required>
+            <input type="tel" id="phone" name="phone" required>
         </div>
 
-        <button type="submit" class="signup-button">가입하기</button>
+        <button type="submit" class="signup-button">회원가입</button>
     </form>
 
     <div class="login-link">
