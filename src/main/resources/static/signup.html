@@ -14,8 +14,8 @@
     <h1>트리플민수</h1>
 </header>
 
-<main class="signup-container">
-    <form action="/auth/signup" method="post" class="signup-form">
+<main class="signup-container" role="main">
+    <form id="signupForm" class="signup-form">
         <div class="form-group">
             <label for="memberName">이름</label>
             <input type="text" id="memberName" name="memberName" required>
@@ -44,8 +44,17 @@
     </div>
 </main>
 
+<!-- 모달 추가 -->
+<div id="errorModal" class="modal">
+    <div class="modal-content">
+        <p id="modalMessage"></p>
+        <button class="modal-button" onclick="closeModal()">확인</button>
+    </div>
+</div>
+
 <footer class="footer">
     © 2024 트리플민수. Even하게 익히다.
 </footer>
+<script src="/js/signup.js"></script>
 </body>
 </html>

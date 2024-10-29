@@ -1,6 +1,7 @@
 package com.triple.backend.member.service;
 
 import com.triple.backend.auth.dto.CustomMemberDetails;
+import com.triple.backend.child.dto.ChildDto;
 import com.triple.backend.child.entity.Child;
 import com.triple.backend.child.repository.ChildRepository;
 import com.triple.backend.member.entity.Member;
@@ -13,6 +14,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
@@ -57,5 +59,18 @@ public class MemberServiceImpl implements MemberService, UserDetailsService {
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new RuntimeException("Member not found"));
         return member.getProvider(); // provider 정보 반환
+    }
+
+    // 자녀 프로필 선택시 자녀 데이터 제공
+    @Override
+    public List<ChildDto> getChildrenByMemberId(Long memberId) {
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new RuntimeException("Member not found"));
+
+        List<Child> children = childRepository.findAllByMember(member);
+
+        return children.stream()
+                .map(ChildDto::from)  // ChildDto의 정적 메서드를 사용하여 변환
+                .collect(Collectors.toList());
     }
 }

@@ -1,9 +1,12 @@
 package com.triple.backend.member.service;
 
+import com.triple.backend.child.dto.ChildDto;
 import com.triple.backend.member.entity.Member;
 import com.triple.backend.member.entity.MemberInfoDto;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+
+import java.util.List;
 
 public interface MemberService {
 
@@ -17,5 +20,9 @@ public interface MemberService {
 
     // memberId를 기반으로 provider 정보 조회 - 카카오 계정 로그아웃 시 사용
     String getProviderByMemberId(Long memberId);
+
+    // 자녀 프로필 선택시 자녀 데이터 제공
+    List<ChildDto> getChildrenByMemberId(Long memberId);
+
 
 }
