@@ -3,6 +3,7 @@ package com.triple.backend.auth.controller;
 import com.triple.backend.auth.dto.JoinDto;
 import com.triple.backend.auth.repository.RefreshTokenRepository;
 import com.triple.backend.auth.service.AuthService;
+import com.triple.backend.common.dto.CommonResponse;
 import com.triple.backend.member.entity.Member;
 import com.triple.backend.common.config.JWTUtil;
 import jakarta.servlet.http.HttpServletRequest;
@@ -18,7 +19,6 @@ import jakarta.servlet.http.Cookie;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -35,29 +35,13 @@ public class AuthController {
     private final RefreshTokenRepository refreshTokenRepository;
     private final AuthService authService;
 
-    @GetMapping("/login")
-    public String loginPage() {
-        return "login"; // login.html 파일을 반환합니다. (뷰 리졸버에 따라 경로 조정 필요)
-    }
-
     // 실제 로그인 처리를 위한 엔드포인트 추가
     @PostMapping("/login")
     @ResponseBody
-    public ResponseEntity<?> login(HttpServletRequest request) {
+    public ResponseEntity<CommonResponse<Void>> login(HttpServletRequest request) {
         // 실제 인증은 LoginFilter에서 처리
-        return ResponseEntity.ok().build();
+        return CommonResponse.ok("로그인이 성공적으로 완료되었습니다.");
     }
-
-//    @PostMapping("/signup")
-//    public String joinProcess(JoinDto joinDto, RedirectAttributes redirectAttributes) {
-//        authService.joinProcess(joinDto);
-//
-//        // 회원가입 성공 메시지 추가 (필요에 따라 수정 가능)
-//        redirectAttributes.addFlashAttribute("message", "회원가입이 완료되었습니다!");
-//
-//        // index.html로 리다이렉트
-//        return "redirect:/index.html";
-//    }
 
     @PostMapping("/signup")
     @ResponseBody  // REST API 응답을 위해 추가
@@ -133,9 +117,7 @@ public class AuthController {
     }
 
     @GetMapping("/token/access")
-    public ResponseEntity<Map<String, String>> getAccessToken(HttpServletRequest request) {
-        System.out.println("/token/access 에 들어옴");
-
+    public ResponseEntity<CommonResponse<Map<String, String>>> getAccessToken(HttpServletRequest request) {
         // 쿠키가 null인지 먼저 확인
         Cookie[] cookies = request.getCookies();
         if (cookies == null) {
@@ -158,10 +140,11 @@ public class AuthController {
             // 액세스 토큰을 JSON 형태로 반환
             Map<String, String> response = new HashMap<>();
             response.put("accessToken", newAccessToken);
-            return ResponseEntity.ok(response);
+            return CommonResponse.ok("새로운 액세스 토큰이 발급되었습니다.", response);
         } else {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+            throw new RuntimeException("Invalid refresh token");
         }
+
     }
 
     @GetMapping("/success")

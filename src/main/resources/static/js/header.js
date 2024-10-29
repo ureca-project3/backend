@@ -9,15 +9,17 @@ class Header {
         this.loggedInButtons = document.querySelector('.auth-buttons.logged-in');
         this.loggedOutButtons = document.querySelector('.auth-buttons.logged-out');
         this.profileSelector = document.querySelector('.profile-selector');
-        this.currentProfileBtn = document.getElementById('current-profile');
+        this.profileButton = document.querySelector('.profile-button');
         this.profileDropdown = document.querySelector('.profile-dropdown');
         this.profileList = document.querySelector('.profile-list');
         this.logoutButton = document.getElementById('logout-button');
+        this.currentChildName = document.getElementById('current-child-name');
+        this.currentProfileImage = document.getElementById('current-profile-image');
     }
 
     initializeEventListeners() {
-        if (this.currentProfileBtn) {
-            this.currentProfileBtn.addEventListener('click', () => {
+        if (this.profileButton) {
+            this.profileButton.addEventListener('click', () => {
                 if (this.profileDropdown) {
                     this.profileDropdown.style.display =
                         this.profileDropdown.style.display === 'none' ? 'block' : 'none';
@@ -51,25 +53,42 @@ class Header {
     async fetchAndDisplayChildren() {
         try {
             const response = await Api.get('/api/member/children');
-            const children = await response.json();
-            this.renderChildrenProfiles(children);
+            const result = await response.json();
 
-            // 저장된 현재 선택된 자녀가 있다면 표시
-            const currentChildId = sessionStorage.getItem('currentChildId');
-            if (currentChildId && children.length > 0) {
-                const currentChild = children.find(child => child.childId.toString() === currentChildId);
-                if (currentChild) {
-                    this.updateCurrentProfile(currentChild);
-                } else {
-                    this.updateCurrentProfile(children[0]);
+            // CommonResponse 형식에서 data 배열 추출
+            const children = result.data;  // data: [] 형식으로 오는 것을 처리
+
+            if (children && Array.isArray(children)) {  // 배열인지 확인
+                if (children.length > 0) {  // 자녀가 있는 경우
+                    this.renderChildrenProfiles(children);
+
+                    const currentChildId = sessionStorage.getItem('currentChildId');
+                    if (currentChildId) {
+                        const currentChild = children.find(child => child.childId.toString() === currentChildId);
+                        if (currentChild) {
+                            this.updateCurrentProfile(currentChild);
+                        } else {
+                            this.updateCurrentProfile(children[0]);
+                            sessionStorage.setItem('currentChildId', children[0].childId.toString());
+                        }
+                    } else {
+                        this.updateCurrentProfile(children[0]);
+                        sessionStorage.setItem('currentChildId', children[0].childId.toString());
+                    }
+                } else {  // 자녀가 없는 경우
+                    if (this.currentChildName) {
+                        this.currentChildName.textContent = "등록된 자녀 없음";
+                    }
+                    if (this.profileList) {
+                        this.profileList.innerHTML = '<div class="no-children-message">등록된 자녀가 없습니다.</div>';
+                    }
                 }
-            } else if (children.length > 0) {
-                this.updateCurrentProfile(children[0]);
-                // 첫 번째 자녀를 기본값으로 저장
-                sessionStorage.setItem('currentChildId', children[0].childId.toString());
             }
         } catch (error) {
             console.error('Error fetching children:', error);
+            if (this.currentChildName) {
+                this.currentChildName.textContent = "자녀 정보 로드 실패";
+            }
         }
     }
 
@@ -77,16 +96,17 @@ class Header {
         if (!this.profileList) return;
 
         this.profileList.innerHTML = children.map(child => `
-        <div class="profile-item" data-child-id="${child.childId}">
-            <img class="profile-item-image" 
-                 src="/image/${child.imageUrl || 'profileDefault.png'}" 
-                 alt="${child.name}의 프로필">
-            <div class="profile-item-info">
-                <div class="profile-item-name">${child.name}</div>
-                <div class="profile-item-age">${child.age}세</div>
+            <div class="profile-item" data-child-id="${child.childId}">
+                <img class="profile-item-image" 
+                     src="/image/${child.imageUrl || 'profileDefault.png'}" 
+                     alt="${child.name}의 프로필"
+                     onerror="this.src='/image/profileDefault.png'">
+                <div class="profile-item-info">
+                    <div class="profile-item-name">${child.name}</div>
+                    <div class="profile-item-age">${child.age}세</div>
+                </div>
             </div>
-        </div>
-    `).join('');
+        `).join('');
 
         this.profileList.querySelectorAll('.profile-item').forEach(item => {
             item.addEventListener('click', () => {
@@ -95,10 +115,7 @@ class Header {
 
                 if (child) {
                     this.updateCurrentProfile(child);
-                    if (this.profileDropdown) {
-                        this.profileDropdown.style.display = 'none';
-                    }
-
+                    this.profileDropdown.style.display = 'none';
                     sessionStorage.setItem('currentChildId', childId);
 
                     const event = new CustomEvent('childProfileChanged', {
@@ -110,21 +127,15 @@ class Header {
         });
     }
 
-
     updateCurrentProfile(child) {
-        if (!child) return;
+        if (!child || !this.currentChildName || !this.currentProfileImage) return;
 
-        const currentChildNameElement = document.getElementById('current-child-name');
-        const currentProfileImage = document.getElementById('current-profile-image');
-
-        if (currentChildNameElement) {
-            currentChildNameElement.textContent = child.name;
-        }
-        if (currentProfileImage) {
-            // 이미지 경로를 /image/ 디렉토리 하위로 수정
-            currentProfileImage.src = `/image/${child.imageUrl || 'profileDefault.png'}`;
-            currentProfileImage.alt = `${child.name}의 프로필`;
-        }
+        this.currentChildName.textContent = child.name;
+        this.currentProfileImage.src = `/image/${child.imageUrl || 'profileDefault.png'}`;
+        this.currentProfileImage.alt = `${child.name}의 프로필`;
+        this.currentProfileImage.onerror = () => {
+            this.currentProfileImage.src = '/image/profileDefault.png';
+        };
 
         if (this.profileList) {
             this.profileList.querySelectorAll('.profile-item').forEach(item => {
@@ -160,7 +171,8 @@ class Header {
     async handleLogout() {
         try {
             const response = await Api.get('/api/member/provider');
-            const { provider } = await response.json();
+            const data = await response.json();
+            const {provider} = data.data; // Extract data from CommonResponse
 
             if (provider === 'kakao') {
                 await this.performKakaoLogout();
