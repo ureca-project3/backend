@@ -4,6 +4,7 @@ import com.triple.backend.book.entity.Book;
 import com.triple.backend.child.entity.Child;
 import com.triple.backend.common.entity.BaseEntity;
 import jakarta.persistence.*;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -23,6 +24,9 @@ public class RecBook extends BaseEntity {
     @JoinColumn(name = "book_id")
     private Book book;
 
-    private Double weight;
-
+    @Builder
+    public RecBook(Child child, Book book) {
+        this.child = child;
+        this.book = book;
+    }
 }
