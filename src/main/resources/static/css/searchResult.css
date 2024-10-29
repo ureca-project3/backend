@@ -1,0 +1,95 @@
+@import url('https://fonts.googleapis.com/css2?family=Jua&display=swap');
+
+body {
+    font-family: 'Jua', sans-serif;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: #FFF5E6;
+    color: #4A4A4A;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+h1 {
+    font-size: 28px;
+    color: #333;
+    margin-bottom: 30px;
+    text-align: left;
+}
+
+/* 검색어 강조 스타일 */
+.highlight {
+    color: #FF6347; /* 강조 색상 (예: 빨간색) */
+}
+
+/* 검색 결과 컨테이너 */
+.results-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    justify-content: flex-start;
+    max-width: 100%;
+}
+
+/* 개별 카드 스타일 */
+.book-card {
+    width: 220px;
+    background-color: #FFF;
+    border-radius: 12px;
+    box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
+    padding: 15px;
+    text-align: left;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    cursor: pointer;
+}
+
+.book-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
+}
+
+/* 이미지 스타일 */
+.book-image {
+    width: 100%;
+    height: 300px; /* 고정된 높이 */
+    object-fit: cover; /* 이미지가 컨테이너 크기에 맞춰 잘림 */
+    border-radius: 10px;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+    margin-bottom: 10px;
+}
+
+.book-title {
+    font-size: 18px;
+    color: #333;
+    font-weight: bold;
+    margin: 10px 0 5px;
+    line-height: 1.2;
+}
+
+.book-age {
+    font-size: 14px;
+    color: #666;
+    margin-top: 5px;
+}
+
+/* 전체 페이지 배경 이미지 */
+.background-image {
+    position: fixed;
+    bottom: 20px;
+    right: 60px;
+    width: 400px;
+    height: auto;
+    opacity: 0.8;
+    pointer-events: none;
+    z-index: -1;
+}
+
+.no-results-message {
+    font-size: 18px;
+    color: #666;
+    margin-top: 20px;
+    text-align: center;
+    font-weight: bold;
+}
