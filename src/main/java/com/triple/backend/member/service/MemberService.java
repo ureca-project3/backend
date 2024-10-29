@@ -1,9 +1,12 @@
 package com.triple.backend.member.service;
 
+import com.triple.backend.child.dto.ChildDto;
 import com.triple.backend.member.entity.Member;
 import com.triple.backend.member.entity.MemberInfoDto;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+
+import java.util.List;
 
 public interface MemberService {
 
@@ -25,5 +28,9 @@ public interface MemberService {
     void updateMemberInfo(Long memberId, Member member);
 
     void deleteMember(Long memberId); // 회원 탈퇴 메서드
+
+    // 자녀 프로필 선택시 자녀 데이터 제공
+    List<ChildDto> getChildrenByMemberId(Long memberId);
+
 
 }
