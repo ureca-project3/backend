@@ -1,0 +1,184 @@
+@import url('https://fonts.googleapis.com/css2?family=Jua&display=swap');
+body {
+    font-family: 'Jua', sans-serif;
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: #FFF5E6;
+    color: #4A4A4A;
+}
+
+.decoration {
+    position: fixed;
+    font-size: 40px;
+    opacity: 0.2;
+    z-index: -1;
+}
+
+.decoration:nth-child(1) { top: 10%; left: 5%; }
+.decoration:nth-child(2) { top: 30%; right: 5%; }
+.decoration:nth-child(3) { bottom: 20%; left: 8%; }
+.decoration:nth-child(4) { bottom: 10%; right: 8%; }
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 40px;
+}
+
+.logo-button {
+    background-color: #FF7F50;
+    color: white;
+    border: none;
+    border-radius: 25px;
+    padding: 10px 20px;
+    font-size: 18px;
+    cursor: pointer;
+}
+
+.title {
+    text-align: center;
+    font-size: 32px;
+    font-weight: bold;
+    margin: 20px 0;
+}
+
+.main-content {
+    display: flex;
+    gap: 20px;
+}
+
+.history-dates {
+    width: 150px;
+    flex-shrink: 0;
+}
+
+.history-dates h3 {
+    text-align: center;
+    margin-bottom: 15px;
+}
+
+.history-date {
+    display: block;
+    background-color: #FFE5A3;
+    padding: 8px 16px;
+    border-radius: 20px;
+    margin: 10px 0;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.3s; /* 애니메이션 추가 */
+    text-align: center;
+}
+
+.history-date:hover {
+    background-color: #FFD773;
+}
+
+
+.history-date.active {
+    background-color: #FFCECE; /* 클릭 시 강조 색상 */
+    border: 2px solid #FF7F50; /* 강조 효과 */
+}
+
+.info-container {
+    flex-grow: 1;
+}
+
+.personality-type {
+    display: grid;
+    grid-template-columns: 150px auto 100px;
+    align-items: center;
+    gap: 20px;
+    margin-bottom: 20px;
+    justify-content: space-between;
+}
+
+.type-circle {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+}
+
+.type-info {
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.type-title {
+    font-size: 48px;
+    font-weight: bold;
+}
+
+.type-subtitle {
+    font-size: 24px;
+    color: #666;
+}
+
+.delete-button-container {
+    justify-self: end;
+}
+
+.indicator-container {
+    padding: 20px;
+}
+
+.indicator-row {
+    align-items: center;
+    margin-bottom: 50px;
+    position: relative;
+}
+
+.indicator-row:last-child {
+    margin-bottom: 0; /* 마지막 row는 아래 마진을 제거합니다 */
+}
+
+.indicator-labels {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    font-size: 24px;
+    color: #666;
+    position: absolute;
+    top: -30px;
+    left: 0;
+    right: 0;
+}
+
+.indicator-bar {
+    flex: 1;
+    height: 24px;
+    border-radius: 12px;
+    position: relative;
+    background: #f0f0f0;
+    overflow: visible;
+}
+
+.indicator-circle {
+    width: 36px;
+    height: 36px;
+    background-color: white;
+    border: 3px solid #ccc;
+    border-radius: 50%;
+    position: absolute;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 2;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    cursor: pointer;
+    transition: left 0.3s ease;
+}
+
+.description {
+    margin-top: 20px;
+    font-size: 18px;
+    line-height: 1.5;
+    color: #666;
+    white-space: pre-line;
+}
