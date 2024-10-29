@@ -25,4 +25,5 @@ public interface EventService {
     // 선착순 응모 이벤트 조회
     EventResponseDto getEvent(Long eventId);
 
+    Object getEventList();
 }

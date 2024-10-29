@@ -16,28 +16,19 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
-import com.triple.backend.common.exception.NotFoundException;
 import com.triple.backend.event.dto.EventResponseDto;
-import com.triple.backend.event.entity.Event;
 import com.triple.backend.event.entity.EventQuestion;
 import com.triple.backend.event.repository.EventQuestionRepository;
-import com.triple.backend.event.repository.EventRepository;
-import com.triple.backend.event.service.EventService;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
-import java.util.HashMap;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -175,5 +166,24 @@ public class EventServiceImpl implements EventService {
                 .status(event.isStatus())
                 .eventQuestion(eventQuestionMap)
                 .build();
+    }
+
+    // 메인페이지에서 이벤트 배너에 띄울 이벤트 목록
+    @Override
+    public List<EventResponseDto> getEventList() {
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime oneDayAgo = now.minusHours(24);
+
+        return eventRepository.findAll().stream()
+                .filter(event -> event.getAnnounceTime().isAfter(oneDayAgo))  // 결과발표 후 24시간 이내인 것만
+                .map(event -> EventResponseDto.builder()
+                        .eventId(event.getEventId())
+                        .eventName(event.getEventName())
+                        .startTime(event.getStartTime())
+                        .endTime(event.getEndTime())
+                        .announceTime(event.getAnnounceTime())
+                        .status(now.isAfter(event.getStartTime()) && now.isBefore(event.getEndTime()))
+                        .build())
+                .collect(Collectors.toList());
     }
 }

@@ -24,6 +24,75 @@ body {
 .decoration:nth-child(3) { bottom: 20%; left: 8%; }
 .decoration:nth-child(4) { bottom: 10%; right: 8%; }
 
+/* 이벤트 배너 스타일 */
+.event-banners {
+    margin: 2rem 0;
+    padding: 0 20px;
+}
+
+.event-banners h2 {
+    color: #4A4A4A;
+    margin-bottom: 1rem;
+    font-size: 1.5rem;
+}
+
+.banner-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
+}
+
+.event-banner {
+    display: block;
+    text-decoration: none;
+    color: inherit;
+    background: white;
+    border-radius: 15px;
+    overflow: hidden;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease;
+}
+
+.event-banner.disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.event-banner .status {
+    display: inline-block;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    font-weight: bold;
+}
+
+.event-banner:hover {
+    transform: translateY(-5px);
+}
+
+.event-banner:not(.disabled):hover {
+    transform: translateY(-5px);
+}
+
+.event-banner img {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+}
+
+.banner-info {
+    padding: 1rem;
+}
+
+.banner-info h3 {
+    margin: 0 0 0.5rem;
+    color: #4A4A4A;
+}
+
+.banner-info p {
+    margin: 0.3rem 0;
+}
+
 .footer {
     margin-top: auto;
     text-align: center;

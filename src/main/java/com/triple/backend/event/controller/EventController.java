@@ -7,10 +7,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import com.triple.backend.common.dto.CommonResponse;
-import com.triple.backend.event.service.EventService;
-import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -43,5 +39,10 @@ public class EventController {
 
         EventApplyResponse response = eventService.insertEventParticipate(eventId, memberId);
         return  CommonResponse.ok(response.getMessage(), response);
+    }
+
+    @GetMapping("/list")
+    public ResponseEntity<?> getEventList() {
+        return CommonResponse.ok("Get event list Success", eventService.getEventList());
     }
 }
