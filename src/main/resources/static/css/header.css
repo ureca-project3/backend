@@ -1,0 +1,89 @@
+.profile-selector {
+    position: relative;
+}
+
+.profile-button {
+    background: none;
+    border: none;
+    padding: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.profile-button-content {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 4px 12px;
+    background-color: rgba(255, 127, 80, 0.9);
+    border-radius: 25px;
+}
+
+.profile-image {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.profile-dropdown {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    background-color: white;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    width: 280px;
+    margin-top: 8px;
+    z-index: 1000;
+    overflow-y: auto;
+    max-height: 400px;
+}
+
+.profile-list {
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.profile-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.profile-item:hover {
+    background-color: #FFF5E6;
+}
+
+.profile-item.active {
+    background-color: #FFE4D6;
+}
+
+.profile-item-image {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.profile-item-info {
+    flex: 1;
+}
+
+.profile-item-name {
+    font-size: 16px;
+    font-weight: 500;
+    color: #333;
+}
+
+.profile-item-age {
+    font-size: 14px;
+    color: #666;
+    margin-top: 2px;
+}

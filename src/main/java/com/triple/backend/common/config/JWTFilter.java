@@ -125,7 +125,8 @@ public class JWTFilter extends OncePerRequestFilter {
                 path.equals("/favicon.ico") ||
                 path.equals("/login.html") ||
                 path.equals("/signup.html") ||
-                path.equals("/index.html");
+                path.equals("/index.html") ||
+                path.equals("/header.html");
     }
 
     private boolean isApiRequest(HttpServletRequest request) {

@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>트리플민수</title>
+    <link rel="stylesheet" href="/css/header.css">
     <link rel="stylesheet" href="/css/index.css">
 </head>
 <body>
@@ -13,30 +14,19 @@
 <div class="decoration">✨</div>
 <div class="decoration">🌈</div>
 
-<header class="header">
-    <a href="/index.html" class="banner-link">
-        <img src="/image/1.jpg" alt="사이트 배너" class="banner-image">
-    </a>
-
-    <nav class="nav-buttons">
-        <!-- 로그인 상태일 때 보이는 버튼들 -->
-        <div class="auth-buttons logged-in" style="display: none;">
-            <a href="/mypage.html" class="nav-button">마이페이지</a>
-            <button id="logout-button" class="nav-button">로그아웃</button>
-        </div>
-
-        <!-- 비로그인 상태일 때 보이는 버튼들 -->
-        <div class="auth-buttons logged-out">
-            <a href="/login.html" id="login-link" class="nav-button">로그인</a>
-            <a href="/signup.html" id="signup-link" class="nav-button">회원가입</a>
-        </div>
-    </nav>
-</header>
+<div id="header-container"></div>
 
 <footer class="footer">
     © 2024 트리플민수. Even하게 익히다.
 </footer>
 
-<script src="/js/index.js"></script>
+<script>
+    fetch('/header.html')
+        .then(response => response.text())
+        .then(html => {
+            document.getElementById('header-container').innerHTML = html;
+        });
+</script>
+<script src="/js/header.js"></script>
 </body>
 </html>

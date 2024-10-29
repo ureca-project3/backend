@@ -1,6 +1,8 @@
 package com.triple.backend.member.controller;
 
 import com.triple.backend.auth.dto.CustomMemberDetails;
+import com.triple.backend.child.dto.ChildDto;
+import com.triple.backend.child.entity.Child;
 import com.triple.backend.member.entity.Member;
 import com.triple.backend.member.entity.MemberInfoDto;
 import com.triple.backend.member.service.MemberService;
@@ -13,7 +15,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api")
@@ -51,5 +55,15 @@ public class MemberController {
         // CustomMemberDetails에서 Member 객체를 가져와 반환
         Member member = userDetails.getMember();
         return ResponseEntity.ok(member);
+    }
+
+    // 자녀 프로필 선택시 자녀 데이터 제공
+    @GetMapping("/member/children")
+    public ResponseEntity<List<ChildDto>> getChildren(Authentication authentication) {
+        CustomMemberDetails memberDetails = (CustomMemberDetails) authentication.getPrincipal();
+        Long memberId = memberDetails.getMember().getMemberId();
+
+        List<ChildDto> children = memberService.getChildrenByMemberId(memberId);
+        return ResponseEntity.ok(children);
     }
 }
