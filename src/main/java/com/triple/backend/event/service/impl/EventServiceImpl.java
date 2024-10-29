@@ -62,8 +62,16 @@ public class EventServiceImpl implements EventService {
 
     @Override
     public EventResultResponseDto getEventWinner(Long eventId) {
+        Event event = eventRepository.findById(eventId).orElseThrow( () -> NotFoundException.entityNotFound("이벤트"));
         List<WinnerResponseDto> winnerList = winningRepository.findWinningDataByEventId(eventId);
-        return new EventResultResponseDto(winnerList);
+        return EventResultResponseDto.builder()
+                .eventName(event.getEventName())
+                .startTime(event.getStartTime())
+                .endTime(event.getEndTime())
+                .winnerCnt(event.getWinnerCnt())
+                .announceTime(event.getAnnounceTime())
+                .winnerList(winnerList)
+                .build();
     }
 
     @Override
