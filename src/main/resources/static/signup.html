@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>회원가입 페이지</title>
+    <link rel="stylesheet" href="/css/signup.css">
+</head>
+<body>
+<header class="header">
+    <a href="/index.html" class="banner-link">
+        <img src="/image/1.jpg" alt="사이트 배너" class="banner-image">
+    </a>
+    <h1>트리플민수</h1>
+</header>
+
+<main class="signup-container" role="main">
+    <form id="signupForm" class="signup-form">
+        <div class="form-group">
+            <label for="memberName">이름</label>
+            <input type="text" id="memberName" name="memberName" required>
+        </div>
+
+        <div class="form-group">
+            <label for="email">이메일</label>
+            <input type="email" id="email" name="email" required>
+        </div>
+
+        <div class="form-group">
+            <label for="password">비밀번호</label>
+            <input type="password" id="password" name="password" required>
+        </div>
+
+        <div class="form-group">
+            <label for="phone">전화번호</label>
+            <input type="tel" id="phone" name="phone" required>
+        </div>
+
+        <button type="submit" class="signup-button">회원가입</button>
+    </form>
+
+    <div class="login-link">
+        이미 계정이 있으신가요? <a href="/login.html">로그인하기</a>
+    </div>
+</main>
+
+<!-- 모달 추가 -->
+<div id="errorModal" class="modal">
+    <div class="modal-content">
+        <p id="modalMessage"></p>
+        <button class="modal-button" onclick="closeModal()">확인</button>
+    </div>
+</div>
+
+<footer class="footer">
+    © 2024 트리플민수. Even하게 익히다.
+</footer>
+<script src="/js/signup.js"></script>
+</body>
+</html>
