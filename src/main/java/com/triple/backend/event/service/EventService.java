@@ -3,6 +3,8 @@ package com.triple.backend.event.service;
 import com.triple.backend.event.dto.EventApplyResponse;
 import com.triple.backend.event.dto.EventResultResponseDto;
 
+import com.triple.backend.event.dto.EventResponseDto;
+
 public interface EventService {
 
     /**
@@ -19,4 +21,8 @@ public interface EventService {
      */
 //    void batchSaveEventParticipants(Long eventId);
     EventResultResponseDto getEventWinner(Long eventId);
+
+    // 선착순 응모 이벤트 조회
+    EventResponseDto getEvent(Long eventId);
+
 }
