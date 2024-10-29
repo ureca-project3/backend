@@ -97,6 +97,7 @@ public class RecommendationBatchConfig {
 			.selectClause("SELECT child_id")
 			.fromClause("FROM child")
 			.sortKeys(Collections.singletonMap("child_id", Order.ASCENDING))
+			.pageSize(10)
 			.rowMapper((rs, rowNum) -> rs.getLong("child_id"))
 			.build();
 	}
