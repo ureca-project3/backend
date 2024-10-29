@@ -273,3 +273,10 @@ body {
     box-shadow: 0 0 10px rgba(255, 127, 80, 0.5);
 }
 
+/* 글자크기 사용자정보 */
+#user-email, #user-phone {
+    font-size: 1.2rem;
+}
+.mb-1 {
+    font-size: 1.4rem;
+}
