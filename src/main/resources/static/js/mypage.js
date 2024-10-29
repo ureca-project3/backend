@@ -114,6 +114,8 @@ document.getElementById('profile-edit-form').addEventListener('submit', function
             if (data.message === "Update MyInfo Success") {
                 alert("프로필이 수정되었습니다.");
                 window.location.reload();
+            } else if (data.message === "Email already exists") { // 이메일 중복 처리
+                alert("이미 사용 중인 이메일입니다.");
             } else {
                 alert("프로필 수정에 실패했습니다.");
             }

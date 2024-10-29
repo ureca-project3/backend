@@ -18,7 +18,12 @@ document.getElementById('signupForm').addEventListener('submit', async function(
         });
 
         if (response.ok) {
-            window.location.href = '/index.html';
+            // 회원가입 성공 시 모달 창에 성공 메시지 표시
+            showModal('회원가입에 성공했습니다!');
+            // 일정 시간 후에 리다이렉트
+            setTimeout(() => {
+                window.location.href = '/index.html';
+            }, 5000); // 5초 후에 리다이렉트
         } else {
             const errorData = await response.json();
             showModal(errorData.message || '회원가입에 실패했습니다.');
