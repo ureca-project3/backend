@@ -18,10 +18,10 @@
         <!-- 프로필 정보 영역 -->
         <div class="col-md-6">
             <div class="profile-container bg-light p-4 rounded shadow-sm position-relative">
-                <div class="profile-header mb-3">
+                <div class="profile-header mb-3 style=display: block">
                     <h2 id="user-name" class="text-primary">이름: </h2>
                 </div>
-                <div class="profile-info mb-4">
+                <div class="profile-info mb-4 style=display: block">
                     <p class="mb-1">이메일: <span id="user-email" class="text-muted"></span></p>
                     <p class="mb-1">전화번호: <span id="user-phone" class="text-muted"></span></p>
                 </div>
@@ -33,26 +33,30 @@
                 </div>
 
                 <div class="edit-profile" id="edit-profile" style="display: none;">
-                    <h4 class="mb-3">프로필 수정</h4>
                     <form id="profile-edit-form">
+                        <h4 class="mb-3">프로필 수정</h4>
+
                         <div class="mb-3">
                             <label for="edit-name" class="form-label">이름</label>
-                            <input type="text" class="form-control" id="edit-name" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="edit-email" class="form-label">이메일</label>
-                            <input type="email" class="form-control" id="edit-email" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="edit-phone" class="form-label">전화번호</label>
-                            <input type="text" class="form-control" id="edit-phone" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="edit-password" class="form-label">비밀번호</label>
-                            <input type="password" class="form-control" id="edit-password">
+                            <input type="text" class="form-control" id="edit-name" name="name" required>
                         </div>
 
-                        <button type="submit" class="btn btn-success">저장</button>
+                        <div class="mb-3">
+                            <label for="edit-email" class="form-label">이메일</label>
+                            <input type="email" class="form-control" id="edit-email" name="email" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="edit-phone" class="form-label">전화번호</label>
+                            <input type="tel" class="form-control" id="edit-phone" name="phone">
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="edit-password" class="form-label">비밀번호</label>
+                            <input type="password" class="form-control" id="edit-password" name="password">
+                        </div>
+
+                        <button type="submit" class="btn btn-primary">저장</button>
                     </form>
                 </div>
             </div>
