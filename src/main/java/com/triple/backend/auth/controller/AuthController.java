@@ -12,13 +12,10 @@ import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import jakarta.servlet.http.Cookie;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
@@ -148,13 +145,4 @@ public class AuthController {
         }
 
     }
-
-    @GetMapping("/success")
-    public String authSuccess(@RequestParam String accessToken, Model model) {
-        // 토큰을 모델에 추가
-        model.addAttribute("accessToken", accessToken);
-        // auth-success.html 템플릿을 반환
-        return "auth-success";
-    }
-
 }
