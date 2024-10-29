@@ -46,7 +46,7 @@
 
     <button class="btn btn-primary" id="edit-profile-button">수정</button>
 
-    <div class="edit-profile" id="edit-profile">
+    <div class="edit-profile" id="edit-profile" style="display: none;">
         <h4>프로필 수정</h4>
         <form id="profile-edit-form">
             <div class="mb-3">
@@ -61,9 +61,13 @@
                 <label for="edit-phone" class="form-label">전화번호</label>
                 <input type="text" class="form-control" id="edit-phone" required>
             </div>
-            <button type="submit" class="btn btn-success">저장</button>
-            <button id="delete-account-button" class="btn btn-danger">탈퇴하기</button>
+            <div class="mb-3">
+                <label for="edit-password" class="form-label">비밀번호</label>
+                <input type="password" class="form-control" id="edit-password">
+            </div>
 
+            <button type="submit" class="btn btn-success">저장</button>
+            <button type="button" id="delete-account-button" class="btn btn-danger">탈퇴하기</button>
         </form>
     </div>
 

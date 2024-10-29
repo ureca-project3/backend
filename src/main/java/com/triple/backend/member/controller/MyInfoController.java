@@ -22,7 +22,7 @@ public class MyInfoController {
 
 
     // 사용자 정보 수정 엔드포인트
-    @PatchMapping("/my-info")
+    @PostMapping("/my-info")
     public ResponseEntity<Map<String, String>> updateMemberInfo(
             @RequestBody Member member,
             Authentication authentication) {
@@ -30,6 +30,13 @@ public class MyInfoController {
         // 인증된 사용자의 ID 가져오기
         CustomMemberDetails memberDetails = (CustomMemberDetails) authentication.getPrincipal();
         Long memberId = memberDetails.getMember().getMemberId();
+
+        // 이메일 중복 확인
+        if (memberService.isEmailDuplicate(member.getEmail(), memberId)) {
+            Map<String, String> response = new HashMap<>();
+            response.put("message", "이메일이 이미 존재합니다.");
+            return ResponseEntity.badRequest().body(response); // 400 Bad Request 응답
+        }
 
         // 서비스에서 정보 업데이트 실행
         memberService.updateMemberInfo(memberId, member);
@@ -41,7 +48,7 @@ public class MyInfoController {
     }
 
     // 회원 탈퇴 엔드포인트
-    @DeleteMapping("/my-info")
+    @DeleteMapping("/delete-account")
     public ResponseEntity<Map<String, String>> deleteMember(Authentication authentication) {
 
         CustomMemberDetails memberDetails = (CustomMemberDetails) authentication.getPrincipal();

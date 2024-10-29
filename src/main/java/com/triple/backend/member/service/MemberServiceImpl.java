@@ -1,6 +1,7 @@
 package com.triple.backend.member.service;
 
 import com.triple.backend.auth.dto.CustomMemberDetails;
+import com.triple.backend.child.dto.ChildDto;
 import com.triple.backend.child.entity.Child;
 import com.triple.backend.child.repository.ChildRepository;
 import com.triple.backend.member.entity.Member;
@@ -18,6 +19,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -54,6 +56,7 @@ public class MemberServiceImpl implements MemberService, UserDetailsService {
                 member.getName(),
                 member.getEmail(),
                 member.getPhone(),
+                member.getProvider(),
                 children
         );
     }
@@ -64,6 +67,26 @@ public class MemberServiceImpl implements MemberService, UserDetailsService {
                 .orElseThrow(() -> new RuntimeException("Member not found"));
         return member.getProvider(); // provider 정보 반환
     }
+
+    // 자녀 프로필 선택시 자녀 데이터 제공
+    @Override
+    public List<ChildDto> getChildrenByMemberId(Long memberId) {
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new RuntimeException("Member not found"));
+
+        List<Child> children = childRepository.findAllByMember(member);
+
+        return children.stream()
+                .map(ChildDto::from)  // ChildDto의 정적 메서드를 사용하여 변환
+                .collect(Collectors.toList());
+    }
+
+    // 이메일 중복 확인 메서드
+    @Override
+    public boolean isEmailDuplicate(String email, Long memberId) {
+        return memberRepository.existsByEmailAndMemberIdNot(email, memberId);
+    }
+
 
     @Override
     public void updateMemberInfo(Long memberId, Member updatedMember) {

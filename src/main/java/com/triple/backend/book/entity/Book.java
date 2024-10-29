@@ -24,6 +24,7 @@ public class Book extends BaseEntity {
     
     private String recAge;
 
+    @Column(columnDefinition = "TEXT")
     private String summary;
 
     private String genreCode;
