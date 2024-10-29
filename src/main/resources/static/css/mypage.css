@@ -96,3 +96,178 @@ body {
     font-size: 0.8rem; /* 버튼 크기 조정 */
 }
 
+/* 모달 스타일 */
+.modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+    justify-content: center;
+    align-items: center;
+}
+
+.modal-content {
+    background-color: #FFF5E6;
+    padding: 30px;
+    border-radius: 15px;
+    max-width: 500px;
+    width: 90%;
+    position: relative;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.modal-header {
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.modal-header h5 {
+    color: #FF7F50;
+    font-size: 24px;
+    margin: 0;
+}
+
+.profile-circle {
+    width: 120px;
+    height: 120px;
+    margin: 0 auto 20px;
+    position: relative;
+    cursor: pointer;
+}
+
+.profile-circle img {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid #FF7F50;
+}
+
+.profile-circle:hover::after {
+    content: '사진 변경';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: rgba(255, 127, 80, 0.8);
+    color: white;
+    padding: 5px;
+    border-bottom-left-radius: 60px;
+    border-bottom-right-radius: 60px;
+    text-align: center;
+    font-size: 14px;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    color: #4A4A4A;
+    font-size: 16px;
+}
+
+.form-group input {
+    width: 100%;
+    padding: 10px;
+    border: 2px solid #FFD4C2;
+    border-radius: 8px;
+    font-size: 16px;
+    background-color: white;
+}
+
+.form-group input:focus {
+    outline: none;
+    border-color: #FF7F50;
+}
+
+.gender-selection {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    margin-top: 10px;
+}
+
+.gender-btn {
+    padding: 10px 30px;
+    border: 2px solid #FF7F50;
+    border-radius: 25px;
+    background-color: white;
+    color: #FF7F50;
+    cursor: pointer;
+    transition: all 0.3s;
+    font-size: 16px;
+}
+
+.gender-btn.selected {
+    background-color: #FF7F50;
+    color: white;
+}
+
+.modal-footer {
+    margin-top: 30px;
+    text-align: center;
+}
+
+.register-btn {
+    background-color: #FF7F50;
+    color: white;
+    border: none;
+    padding: 12px 40px;
+    border-radius: 25px;
+    font-size: 18px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.register-btn:hover {
+    background-color: #FF6B3D;
+}
+
+.later-btn {
+    background: none;
+    border: none;
+    color: #666;
+    margin-top: 10px;
+    cursor: pointer;
+    text-decoration: underline;
+    font-size: 14px;
+}
+
+.highlight {
+    border-color: #ff0000 !important;
+}
+
+/* 이미지 선택 모달 */
+#image-options {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+    gap: 10px;
+    margin: 20px 0;
+}
+
+#image-options img {
+    width: 100%;
+    height: 100px;
+    object-fit: cover;
+    border-radius: 10px;
+    cursor: pointer;
+    border: 2px solid transparent;
+    transition: all 0.3s;
+}
+
+#image-options img:hover {
+    border-color: #FF7F50;
+}
+
+#image-options img.selected {
+    border-color: #FF7F50;
+    box-shadow: 0 0 10px rgba(255, 127, 80, 0.5);
+}
+

@@ -11,6 +11,14 @@ async function fetchAndDisplayProfile() {
             document.getElementById('user-email').textContent = profileData.email || '';
             document.getElementById('user-phone').textContent = profileData.phone || '';
 
+            // provider 확인하여 수정 버튼 표시/숨김 처리
+            const editButton = document.querySelector('.button-container button:first-child');
+            if (profileData.provider === 'kakao') {
+                editButton.style.display = 'none';
+            } else {
+                editButton.style.display = 'block';
+            }
+
             // 수정 폼 초기값 설정
             document.getElementById('edit-name').value = profileData.name || '';
             document.getElementById('edit-email').value = profileData.email || '';
@@ -46,19 +54,33 @@ function toggleEditProfile() {
 }
 
 // 프로필 수정 폼 제출 처리
-document.getElementById('profile-edit-form').addEventListener('submit', async function(e) {
+document.getElementById('profile-edit-form').addEventListener('submit', async function (e) {
     e.preventDefault();
 
-    const formData = new FormData(this);
-    const profileData = Object.fromEntries(formData);
-
     try {
-        const response = await fetch('/api/user/profile/update', {
+        // 현재 사용자의 provider 정보 확인
+        const profileResponse = await fetch('/mypage/my-info');
+        const profileData = await profileResponse.json();
+
+        if (profileData.data.provider === 'kakao') {
+            alert('카카오 로그인 사용자는 정보를 수정할 수 없습니다.');
+            return;
+        }
+
+        const formData = new FormData(this);
+        const updateData = {
+            name: formData.get('name'),
+            email: formData.get('email'),
+            phone: formData.get('phone'),
+            password: formData.get('password')
+        };
+        // 수정 요청
+        const response = await fetch('/mypage/my-info', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify(profileData)
+            body: JSON.stringify(updateData)
         });
 
         const result = await response.json();
@@ -66,7 +88,12 @@ document.getElementById('profile-edit-form').addEventListener('submit', async fu
             alert('프로필이 성공적으로 수정되었습니다.');
             location.reload();
         } else {
-            alert('프로필 수정에 실패했습니다.');
+            // 서버에서 받은 에러 메시지 표시
+            if (result.message.includes("이메일이 이미 존재합니다")) {
+                alert("이미 사용 중인 이메일입니다.");
+            } else {
+                alert(result.message || '프로필 수정에 실패했습니다.');
+            }
         }
     } catch (error) {
         console.error('Error updating profile:', error);
@@ -75,35 +102,61 @@ document.getElementById('profile-edit-form').addEventListener('submit', async fu
 });
 
 // 페이지 로드 시 프로필 정보 가져오기
-window.onload = function() {
+window.onload = function () {
     fetchAndDisplayProfile();
 };
 
-// 탈퇴하기 버튼 클릭 시 확인 후 처리
-document.getElementById('delete-account-button').addEventListener('click', function () {
-    const confirmDelete = confirm("정말로 계정을 탈퇴하시겠습니까?");
-    if (confirmDelete) {
-        // 계정 삭제 로직 구현
-        const accessToken = sessionStorage.getItem('accessToken');
-        fetch('/mypage/delete-account', {
-            method: 'DELETE',
-            headers: {
-                'Authorization': `Bearer ${accessToken}`,
-                'Accept': 'application/json'
-            }
-        })
-            .then(response => {
-                if (response.ok) {
-                    alert("계정이 성공적으로 삭제되었습니다.");
-                    window.location.reload();
-                } else {
-                    alert("계정 삭제에 실패했습니다.");
+// 1. 이벤트 리스너 등록
+document.getElementById('delete-account-button').addEventListener('click', async function () {
+    try {
+        // 2. 사용자 정보 조회
+        const profileResponse = await fetch('/api/user/profile');
+        const profileData = await profileResponse.json();
+        // 카카오 사용자 여부 확인
+        const isKakaoUser = profileData.data.provider === 'kakao';
+
+        // 3. 사용자 유형에 따른 확인 메시지 설정
+        const confirmMessage = isKakaoUser
+            ? "카카오 계정 연동이 해제되며, 모든 데이터가 삭제됩니다. 정말 탈퇴하시겠습니까?"
+            : "정말로 계정을 탈퇴하시겠습니까? 탈퇴 시 모든 데이터가 삭제됩니다.";
+
+        // 4. 사용자 확인
+        if (confirm(confirmMessage)) {
+            // 5. 탈퇴 요청 전송
+            const accessToken = sessionStorage.getItem('accessToken');
+            const response = await fetch('/mypage/delete-account', {
+                method: 'DELETE',
+                headers: {
+                    'Authorization': `Bearer ${accessToken}`,
+                    'Accept': 'application/json'
                 }
-            })
-            .catch(error => {
-                console.error("계정 삭제 오류:", error);
-                alert("계정 삭제에 실패했습니다. 에러: " + error.message);
             });
+
+            // 6. 응답 확인
+            if (!response.ok) {
+                throw new Error("계정 탈퇴 처리 중 오류가 발생했습니다.");
+            }
+
+            // 7. 탈퇴 성공 처리
+            sessionStorage.removeItem('accessToken');  // 토큰 제거
+
+            // 8. 사용자 유형에 따른 성공 메시지
+            alert(isKakaoUser
+                ? "카카오 계정 연동이 해제되었으며, 계정이 성공적으로 삭제되었습니다."
+                : "계정이 성공적으로 삭제되었습니다.");
+
+            // 9. 카카오 사용자 추가 처리
+            if (isKakaoUser && window.Kakao && window.Kakao.isInitialized()) {
+                await window.Kakao.Auth.logout();  // 카카오 로그아웃
+            }
+
+            // 10. 로그인 페이지로 이동
+            window.location.href = "/login.html";
+        }
+    } catch (error) {
+        // 11. 에러 처리
+        console.error("계정 탈퇴 오류:", error);
+        alert("계정 탈퇴 처리 중 오류가 발생했습니다.");
     }
 });
 
@@ -292,7 +345,7 @@ function selectGender(gender) {
 }
 
 // 생년월일 입력 형식
-document.getElementById("birthdate").addEventListener("input", function(e) {
+document.getElementById("birthdate").addEventListener("input", function (e) {
     let input = e.target.value.replace(/[^0-9]/g, "");
     if (input.length >= 4) input = input.slice(0, 4) + "." + input.slice(4);
     if (input.length >= 7) input = input.slice(0, 7) + "." + input.slice(7, 9);
@@ -359,14 +412,13 @@ function registerChild() {
         body: JSON.stringify(childData)
     })
         .then(response => {
-            if (response.status === 201) {
+            if (response.ok) {
                 return response.json();
-            } else {
-                throw new Error("자녀 등록에 실패하였습니다.");
             }
+            throw new Error("자녀 등록에 실패하였습니다.");
         })
         .then(data => {
-            alert(data.message);
+            alert("자녀가 성공적으로 등록되었습니다.");
             window.location.href = `/childTestInfo.html?childName=${encodeURIComponent(childData.name)}`;
         })
         .catch(error => {
@@ -374,7 +426,75 @@ function registerChild() {
             alert("자녀 등록 중 오류가 발생했습니다.");
         });
 }
+// 자녀 프로필 모달 관련 코드
+let childProfileModal = null;
+let imageModal = null;
 
+document.addEventListener('DOMContentLoaded', function() {
+    // 모달 초기화
+    childProfileModal = new bootstrap.Modal(document.getElementById('childProfileModal'));
+    imageModal = new bootstrap.Modal(document.getElementById('imageModal'));
+});
+
+// 모달 관련 함수들
+function openChildModal() {
+    document.getElementById('childProfileModal').style.display = 'flex';
+}
+
+function closeChildModal() {
+    document.getElementById('childProfileModal').style.display = 'none';
+}
+// 이미지 선택 모달 열기
+function openModal() {
+    // 이미지 옵션 초기화
+    const imageOptions = document.getElementById("image-options");
+    imageOptions.innerHTML = ''; // 기존 이미지 삭제
+    images.forEach(image => {
+        const img = document.createElement("img");
+        img.src = `/image/${image}`;
+        img.alt = image;
+        img.onclick = () => selectImage(img, image);
+        imageOptions.appendChild(img);
+    });
+    imageModal.show();
+}
+
+// 이미지 선택 모달 닫기
+function closeImageModal() {
+    imageModal.hide();
+}
+
+// 이미지 선택 확인
+function confirmImageSelection() {
+    document.getElementById("profile-img").src = `/image/${selectedImage}`;
+    closeImageModal();
+}
+// 생년월일 입력 형식화
+function formatBirthDate(input) {
+    let value = input.value.replace(/\D/g, '');
+    if (value.length >= 4) {
+        value = value.slice(0, 4) + '.' + value.slice(4);
+    }
+    if (value.length >= 7) {
+        value = value.slice(0, 7) + '.' + value.slice(7, 9);
+    }
+    input.value = value;
+}
+
+// 등록하기 버튼 활성화/비활성화
+function updateRegisterButton() {
+    const childName = document.getElementById('child-name').value;
+    const birthDate = document.getElementById('birthdate').value;
+    const registerBtn = document.querySelector('.register-btn');
+
+    if (childName && birthDate && selectedGender) {
+        registerBtn.disabled = false;
+        registerBtn.style.opacity = '1';
+    } else {
+        registerBtn.disabled = true;
+        registerBtn.style.opacity = '0.5';
+    }
+}
 function calculateAge(birthDate) {
     const birth = new Date(birthDate);
     const today = new Date();
