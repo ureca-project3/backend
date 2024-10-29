@@ -2,6 +2,7 @@ package com.triple.backend.event.entity;
 
 import com.triple.backend.member.entity.Member;
 import jakarta.persistence.*;
+import lombok.Builder;
 import lombok.Getter;
 
 import java.time.LocalDateTime;
@@ -24,5 +25,12 @@ public class EventPart {
 
     private LocalDateTime createdAt;
 
-    private String comment;
+    @Builder
+    public EventPart(Long eventPartId, Member member, Event event, LocalDateTime createdAt) {
+        this.eventPartId = eventPartId;
+        this.member = member;
+        this.event = event;
+        this.createdAt = createdAt;
+    }
+
 }
