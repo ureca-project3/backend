@@ -80,7 +80,6 @@ public class MemberServiceImpl implements MemberService, UserDetailsService {
                 .map(ChildDto::from)  // ChildDto의 정적 메서드를 사용하여 변환
                 .collect(Collectors.toList());
     }
-}
 
     // 이메일 중복 확인 메서드
     @Override
