@@ -10,6 +10,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import com.triple.backend.member.entity.Member;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @AllArgsConstructor
@@ -20,6 +21,7 @@ public class AuthServiceImpl implements AuthService{
     private final CommonCodeRepository commonCodeRepository; // 공통코드 정보 찾기위한 기능
     private final JWTUtil jwtUtil; // JWTUtil 사용
 
+    @Transactional
     @Override
     public void joinProcess(JoinDto joinDto) {
         String memberName = joinDto.getMemberName();

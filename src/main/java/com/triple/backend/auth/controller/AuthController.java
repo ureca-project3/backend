@@ -11,6 +11,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -26,10 +27,13 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Slf4j
-@Controller
+@RestController
 @RequestMapping("/auth")
 @RequiredArgsConstructor
 public class AuthController {
+
+    @Value("${spring.security.oauth2.client.registration.kakao.client-id}")
+    private String kakao_client_id;
 
     private final JWTUtil jwtUtil;
     private final RefreshTokenRepository refreshTokenRepository;
@@ -37,14 +41,12 @@ public class AuthController {
 
     // 실제 로그인 처리를 위한 엔드포인트 추가
     @PostMapping("/login")
-    @ResponseBody
     public ResponseEntity<CommonResponse<Void>> login(HttpServletRequest request) {
         // 실제 인증은 LoginFilter에서 처리
         return CommonResponse.ok("로그인이 성공적으로 완료되었습니다.");
     }
 
     @PostMapping("/signup")
-    @ResponseBody  // REST API 응답을 위해 추가
     public ResponseEntity<?> joinProcess(@RequestBody JoinDto joinDto) {  // @RequestBody 추가
         try {
             authService.joinProcess(joinDto);
@@ -94,7 +96,7 @@ public class AuthController {
             SecurityContextHolder.clearContext();
 
             // 5. 카카오 서비스 로그아웃
-            String clientId = "ecbe8197ad00125d1d59da0fb88f4b3c";
+            String clientId = kakao_client_id;
             String logoutRedirectUri = "http://localhost:8080/auth/kakao-logout-callback";
             String kakaoLogoutUrl = String.format(
                     "https://kauth.kakao.com/oauth/logout?client_id=%s&logout_redirect_uri=%s",
