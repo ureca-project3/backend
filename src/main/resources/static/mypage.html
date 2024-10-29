@@ -4,86 +4,155 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>마이페이지</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="/css/index.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/css/header.css">
+    <link rel="stylesheet" href="/css/mypage.css">
 </head>
 <body>
-<!-- Decorative Elements -->
-<div class="decoration">🌟</div>
-<div class="decoration">🎨</div>
-<div class="decoration">✨</div>
-<div class="decoration">🌈</div>
+<!-- 헤더 컨테이너 -->
+<div id="header-container"></div>
 
-<header class="header">
-    <a href="/index.html" class="banner-link">
-        <img src="/image/1.jpg" alt="사이트 배너" class="banner-image">
-    </a>
+<div class="container">
+    <div class="row">
 
-    <nav class="nav-buttons">
-        <!-- 로그인 상태일 때 보이는 버튼들 -->
-        <div class="auth-buttons logged-in" style="display: none;">
-            <a href="/mypage.html" class="nav-button">마이페이지</a>
-            <button id="logout-button" class="nav-button">로그아웃</button>
+        <!-- 프로필 정보 영역 -->
+        <div class="col-md-6">
+            <div class="profile-container bg-light p-4 rounded shadow-sm position-relative">
+                <div class="profile-header mb-3">
+                    <h2 id="user-name" class="text-primary">이름: </h2>
+                </div>
+                <div class="profile-info mb-4">
+                    <p class="mb-1">이메일: <span id="user-email" class="text-muted"></span></p>
+                    <p class="mb-1">전화번호: <span id="user-phone" class="text-muted"></span></p>
+                </div>
+
+                <!-- 버튼을 배치할 div 추가 -->
+                <div class="button-container">
+                    <button class="edit-button btn btn-outline-secondary me-2" id="edit-button" onclick="toggleEditProfile()">수정</button>
+                    <button type="button" id="delete-account-button" class="btn btn-danger">탈퇴하기</button>
+                </div>
+
+                <div class="edit-profile" id="edit-profile" style="display: none;">
+                    <h4 class="mb-3">프로필 수정</h4>
+                    <form id="profile-edit-form">
+                        <div class="mb-3">
+                            <label for="edit-name" class="form-label">이름</label>
+                            <input type="text" class="form-control" id="edit-name" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="edit-email" class="form-label">이메일</label>
+                            <input type="email" class="form-control" id="edit-email" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="edit-phone" class="form-label">전화번호</label>
+                            <input type="text" class="form-control" id="edit-phone" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="edit-password" class="form-label">비밀번호</label>
+                            <input type="password" class="form-control" id="edit-password">
+                        </div>
+
+                        <button type="submit" class="btn btn-success">저장</button>
+                    </form>
+                </div>
+            </div>
         </div>
 
-        <!-- 비로그인 상태일 때 보이는 버튼들 -->
-        <div class="auth-buttons logged-out">
-            <a href="/login.html" id="login-link" class="nav-button">로그인</a>
-            <a href="/signup.html" id="signup-link" class="nav-button">회원가입</a>
+
+
+        <!-- 옆에 추가할 새로운 div -->
+        <div class="col-md-6">
+            <div class="additional-info bg-light">
+                <img src="image/고양잉.png" width="500" height=auto>
+            </div>
         </div>
-    </nav>
-</header>
-
-<!-- Profile Section -->
-<div class="profile-container bg-light p-4">
-    <div class="profile-header">
-        <h2 id="user-name">이름: </h2>
-    </div>
-    <div class="profile-info">
-        <p><span>이메일:</span> <span id="user-email">example@example.com</span></p>
-        <p><span>전화번호:</span> <span id="user-phone">010-0000-0000</span></p>
     </div>
 
-    <button class="btn btn-primary" id="edit-profile-button">수정</button>
-    <button class="btn btn-danger" id="delete-account-button" >탈퇴하기</button>
-
-    <div class="edit-profile" id="edit-profile" style="display: none;">
-        <h4>프로필 수정</h4>
-        <form id="profile-edit-form">
-            <div class="mb-3">
-                <label for="edit-name" class="form-label">이름</label>
-                <input type="text" class="form-control" id="edit-name" required>
+    <!-- 아래 추가할 새로운 div -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="bottom-info bg-light p-4 rounded shadow-sm position-relative">
+                <div class="child-profile">
+                    <h4>자녀 프로필</h4>
+                    <div class="children-list"></div>
+                    <!-- 자녀 프로필 등록 버튼 추가 -->
+                    <button type="button" class="edit-button btn btn-outline-secondary" id="add-child-profile-button" style="position: absolute; bottom: 20px; right: 20px; padding: 5px 10px;" data-bs-toggle="modal" data-bs-target="#childProfileModal">
+                        자녀 프로필 등록
+                    </button>
+                </div>
             </div>
-            <div class="mb-3">
-                <label for="edit-email" class="form-label">이메일</label>
-                <input type="email" class="form-control" id="edit-email" required>
-            </div>
-            <div class="mb-3">
-                <label for="edit-phone" class="form-label">전화번호</label>
-                <input type="text" class="form-control" id="edit-phone" required>
-            </div>
-            <div class="mb-3">
-                <label for="edit-password" class="form-label">비밀번호</label>
-                <input type="password" class="form-control" id="edit-password">
-            </div>
-
-            <button type="submit" class="btn btn-success">저장</button>
-        </form>
-    </div>
-
-    <!-- Child Profile Section -->
-    <div class="child-profile">
-        <h4>자녀 프로필</h4>
-        <ul class="list-group" id="child-profiles">
-            <!-- 자녀 프로필 정보가 동적으로 추가될 예정 -->
-        </ul>
+        </div>
     </div>
 </div>
 
-<footer class="footer">
-    © 2024 트리플민수. Even하게 익히다.
-</footer>
 
-<script src="/js/mypage.js"></script>
+<!-- 자녀 프로필 등록 모달 -->
+<div class="modal fade" id="childProfileModal" tabindex="-1" aria-labelledby="childProfileModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="childProfileModalLabel">자녀 프로필 등록</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+
+                <!-- 프로필 이미지 -->
+                <div class="profile-circle">
+                    <img id="profile-img" src="/image/profileDefault.png" alt="프로필 이미지">
+                </div>
+                <button type="button" class="btn btn-link" onclick="openModal()">프로필 사진 선택하기</button>
+
+                <!-- 이름 입력 -->
+                <div class="form-group">
+                    <label for="child-name" class="form-label">이름</label>
+                    <input type="text" id="child-name" class="form-control">
+                </div>
+
+                <!-- 생년월일 입력 -->
+                <div class="form-group">
+                    <label for="birthdate" class="form-label">생년월일</label>
+                    <input type="text" id="birthdate" class="form-control birthdate-input" placeholder="yyyy.mm.dd">
+                </div>
+
+                <!-- 성별 선택 -->
+                <div class="form-group">
+                    <label class="form-label">성별</label>
+                    <div class="gender-selection">
+                        <button type="button" class="btn btn-outline-dark" id="gender-male" onclick="selectGender('남')">남</button>
+                        <button type="button" class="btn btn-outline-dark" id="gender-female" onclick="selectGender('여')">여</button>
+                    </div>
+                </div>
+
+                <!-- 등록하기 버튼 -->
+                <button type="button" class="register-button" onclick="registerChild()">등록하기</button>
+                <div class="later-button">나중에 등록하기</div>
+            </div>
+
+            <!-- Modal -->
+            <div id="imageModal" class="modal">
+                <div class="modal-content">
+                    <h5>프로필 사진 선택</h5>
+                    <div id="image-options">
+                        <!-- 이미지 선택 버튼 -->
+                    </div>
+                    <button type="button" class="btn btn-primary" onclick="confirmImageSelection()">확인</button>
+                </div>
+            </div>
+
+
+                <div id="modalContent"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">닫기</button>
+                <button type="button" class="btn btn-primary">저장</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+        <script src="/js/mypage.js"></script>
+        <script src="/js/api.js"></script>
+        <script src="/js/header.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

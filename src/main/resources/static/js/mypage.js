@@ -1,139 +1,83 @@
-// 로그아웃 버튼 기능
-document.getElementById('logout-button').addEventListener('click', function () {
-    sessionStorage.removeItem('accessToken');
-    alert("로그아웃 되었습니다.");
-    console.log("로그아웃 처리 완료.");
-    window.location.href = "/login.html";
-});
+// 프로필 정보 가져오기 및 표시
+async function fetchAndDisplayProfile() {
+    try {
+        const response = await fetch('/api/user/profile');
+        const data = await response.json();
+        const profileData = data.data;
 
-// 페이지 로드 시 사용자 정보 로드
-window.onload = function () {
-    const accessToken = sessionStorage.getItem('accessToken');
-    if (!accessToken) {
-        alert("로그인 상태가 아닙니다.");
-        console.log("로그인 상태 아님: 액세스 토큰 없음.");
-        window.location.href = "/login.html";
-        return;
-    }
+        if (profileData) {
+            // 기본 프로필 정보 표시
+            document.getElementById('user-name').textContent = `이름: ${profileData.name || ''}`;
+            document.getElementById('user-email').textContent = profileData.email || '';
+            document.getElementById('user-phone').textContent = profileData.phone || '';
 
-    // 사용자 정보 요청
-    fetch('/api/user/profile', {
-        method: 'GET',
-        headers: {
-            'Authorization': `Bearer ${accessToken}`
+            // 수정 폼 초기값 설정
+            document.getElementById('edit-name').value = profileData.name || '';
+            document.getElementById('edit-email').value = profileData.email || '';
+            document.getElementById('edit-phone').value = profileData.phone || '';
+
+            // 자녀 프로필 표시
+            const childrenList = document.querySelector('.children-list');
+            if (childrenList && profileData.children && Array.isArray(profileData.children)) {
+                childrenList.innerHTML = profileData.children.map(child => `
+                            <div class="child-item">
+                                <img src="/image/${child.imageUrl || 'profileDefault.png'}"
+                                     alt="${child.name}의 프로필"
+                                     onerror="this.src='/image/profileDefault.png'">
+                                <div class="child-info">
+                                    <div class="child-name">${child.name}</div>
+                                    <div class="child-age">${child.age}세</div>
+                                </div>
+                            </div>
+                        `).join('');
+            }
         }
-    })
-        .then(response => {
-            if (!response.ok) {
-                throw new Error("사용자 정보 요청 실패");
-            }
-            return response.json();
-        })
-        .then(data => {
-            console.log("사용자 정보 로드 성공:", data);
+    } catch (error) {
+        console.error("사용자 정보 로드 오류:", error);
+        alert("사용자 정보를 불러올 수 없습니다.");
+    }
+}
 
-            // 사용자 정보 표시
-            document.getElementById('user-name').textContent += data.name;
-            document.getElementById('user-email').textContent = data.email;
-            document.getElementById('user-phone').textContent = data.phone;
 
-            // provider 값에 따라 버튼 표시 설정
-            if (data.provider === 'kakao') {
-                document.getElementById('edit-profile-button').style.display = 'none';
-                document.getElementById('delete-account-button').style.display = 'block';
-            } else if (data.provider === 'email') {
-                document.getElementById('edit-profile-button').style.display = 'block';
-                document.getElementById('delete-account-button').style.display = 'block';
-            }
+// 수정 폼 토글
+function toggleEditProfile() {
+    const editProfile = document.getElementById('edit-profile');
+    editProfile.style.display = editProfile.style.display === 'none' ? 'block' : 'none';
+}
 
-            // 수정 폼 초기 값 설정
-            document.getElementById('edit-name').value = data.name;
-            document.getElementById('edit-email').value = data.email;
-            document.getElementById('edit-phone').value = data.phone;
+// 프로필 수정 폼 제출 처리
+document.getElementById('profile-edit-form').addEventListener('submit', async function(e) {
+    e.preventDefault();
 
-            // 자녀 프로필 추가
-            const childProfiles = document.getElementById('child-profiles');
-            data.children.forEach(child => {
-                const listItem = document.createElement('li');
-                listItem.classList.add('list-group-item');
-                listItem.innerHTML = `
-                이름: ${child.name}, 나이: ${child.age}, 성별: ${child.gender}
-                <button class="btn btn-warning btn-sm float-end edit-child" data-id="${child.id}">수정</button>
-                <button class="btn btn-danger btn-sm float-end me-2 delete-child" data-id="${child.id}">삭제</button>
-            `;
-                childProfiles.appendChild(listItem);
-            });
-        })
-        .catch(error => {
-            console.error("사용자 정보 로드 오류:", error);
-            alert("사용자 정보를 불러올 수 없습니다.");
+    const formData = new FormData(this);
+    const profileData = Object.fromEntries(formData);
+
+    try {
+        const response = await fetch('/api/user/profile/update', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(profileData)
         });
+
+        const result = await response.json();
+        if (result.message === "Update Profile Success") {
+            alert('프로필이 성공적으로 수정되었습니다.');
+            location.reload();
+        } else {
+            alert('프로필 수정에 실패했습니다.');
+        }
+    } catch (error) {
+        console.error('Error updating profile:', error);
+        alert('프로필 수정 중 오류가 발생했습니다.');
+    }
+});
+
+// 페이지 로드 시 프로필 정보 가져오기
+window.onload = function() {
+    fetchAndDisplayProfile();
 };
-
-
-// 프로필 수정 버튼 클릭 시 폼 토글
-document.getElementById('edit-profile-button').addEventListener('click', function () {
-    const editProfileDiv = document.getElementById('edit-profile');
-    editProfileDiv.style.display = editProfileDiv.style.display === 'none' || editProfileDiv.style.display === '' ? 'block' : 'none';
-    console.log("프로필 수정 폼 토글:", editProfileDiv.style.display);
-});
-
-// 프로필 수정 폼 제출
-document.getElementById('profile-edit-form').addEventListener('submit', function (event) {
-    event.preventDefault();
-    const accessToken = sessionStorage.getItem('accessToken');
-
-    // 수정된 사용자 정보
-    const updatedData = {
-        name: document.getElementById('edit-name').value,
-        email: document.getElementById('edit-email').value,
-        phone: document.getElementById('edit-phone').value,
-        password: document.getElementById('edit-password').value // 비밀번호 추가
-    };
-
-    console.log("프로필 수정 요청 데이터:", updatedData);
-
-    // 사용자 정보 수정 요청
-    fetch('/mypage/my-info', {
-        method: 'Post',
-        headers: {
-            'Authorization': `Bearer ${accessToken}`,
-            'Content-Type': 'application/json',
-            'Accept': 'application/json'
-        },
-        body: JSON.stringify(updatedData)
-    })
-        .then(response => {
-            if (!response.ok) {
-                throw new Error("프로필 수정 실패");
-            }
-            return response.json();
-        })
-        .then(data => {
-            console.log("프로필 수정 성공:", data);
-            if (data.message === "Update MyInfo Success") {
-                alert("프로필이 수정되었습니다.");
-                window.location.reload();
-            } else if (data.message === "Email already exists") { // 이메일 중복 처리
-                alert("이미 사용 중인 이메일입니다.");
-            } else {
-                alert("프로필 수정에 실패했습니다.");
-            }
-        })
-        .catch(error => {
-            console.error("프로필 수정 오류:", error);
-            alert("프로필 수정에 실패했습니다. 에러: " + error.message);
-        });
-});
-
-// 수정 버튼 클릭 시 수정 폼 표시
-document.getElementById('edit-profile-button').addEventListener('click', function () {
-    document.getElementById('edit-profile').style.display = 'block';
-    document.getElementById('edit-name').value = document.getElementById('user-name').textContent.split(": ")[1]; // 기존 이름 설정
-    document.getElementById('edit-email').value = document.getElementById('user-email').textContent; // 기존 이메일 설정
-    document.getElementById('edit-phone').value = document.getElementById('user-phone').textContent; // 기존 전화번호 설정
-});
-
 
 // 탈퇴하기 버튼 클릭 시 확인 후 처리
 document.getElementById('delete-account-button').addEventListener('click', function () {
@@ -304,3 +248,140 @@ document.getElementById('delete-account-button').addEventListener('click', funct
             });
     }
 });
+
+
+// 자녀 등록
+const images = ['profile1.png', 'profile2.png', 'profile3.png', 'profile4.png', 'profile5.png', 'profile6.png', 'profile7.png'];
+let selectedImage = 'profileDefault.png';
+let selectedGender = null;
+
+// 프로필 이미지 선택 모달 열기
+function openModal() {
+    const imageOptions = document.getElementById("image-options");
+    imageOptions.innerHTML = ''; // 기존 이미지 삭제
+    images.forEach(image => {
+        const img = document.createElement("img");
+        img.src = `/image/${image}`;
+        img.alt = image;
+        img.onclick = () => selectImage(img, image);
+        imageOptions.appendChild(img);
+    });
+    document.getElementById("imageModal").style.display = "flex";
+}
+
+// 이미지 선택
+function selectImage(imgElement, image) {
+    document.querySelectorAll("#image-options img").forEach(img => img.classList.remove("selected"));
+    imgElement.classList.add("selected");
+    selectedImage = image;
+}
+
+// 선택된 이미지 확인 및 설정
+function confirmImageSelection() {
+    document.getElementById("profile-img").src = `/image/${selectedImage}`;
+    document.getElementById("imageModal").style.display = "none";
+}
+
+// 성별 선택 기능
+function selectGender(gender) {
+    selectedGender = gender;
+    document.getElementById("gender-male").classList.toggle("btn-dark", gender === "남");
+    document.getElementById("gender-male").classList.toggle("btn-outline-dark", gender !== "남");
+    document.getElementById("gender-female").classList.toggle("btn-dark", gender === "여");
+    document.getElementById("gender-female").classList.toggle("btn-outline-dark", gender !== "여");
+}
+
+// 생년월일 입력 형식
+document.getElementById("birthdate").addEventListener("input", function(e) {
+    let input = e.target.value.replace(/[^0-9]/g, "");
+    if (input.length >= 4) input = input.slice(0, 4) + "." + input.slice(4);
+    if (input.length >= 7) input = input.slice(0, 7) + "." + input.slice(7, 9);
+    e.target.value = input;
+});
+
+// 자녀 등록 API 호출
+function registerChild() {
+    const childName = document.getElementById('child-name').value;
+    const birthDate = document.getElementById('birthdate').value;
+
+    // 입력값 검증
+    let isValid = true;
+    if (!childName) {
+        document.getElementById('child-name').classList.add('highlight');
+        isValid = false;
+    } else {
+        document.getElementById('child-name').classList.remove('highlight');
+    }
+
+    if (!birthDate) {
+        document.getElementById('birthdate').classList.add('highlight');
+        isValid = false;
+    } else {
+        document.getElementById('birthdate').classList.remove('highlight');
+    }
+
+    if (!selectedGender) {
+        document.querySelector('.gender-selection').classList.add('highlight');
+        isValid = false;
+    } else {
+        document.querySelector('.gender-selection').classList.remove('highlight');
+    }
+
+    if (!isValid) {
+        alert("모든 필드를 작성해 주세요.");
+        return;
+    }
+
+    const accessToken = sessionStorage.getItem('accessToken');
+    if (!accessToken) {
+        alert("로그인이 필요합니다.");
+        window.location.href = "/login.html";
+        return;
+    }
+
+    // 입력된 자녀 정보 가져오기
+    const childData = {
+        name: childName,
+        age: calculateAge(birthDate),
+        birthDate: birthDate,
+        gender: selectedGender === "남" ? "M" : "F",
+        profileImage: selectedImage
+    };
+
+    // API 호출
+    fetch('/mypage/child-info', {
+        method: 'POST',
+        headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${accessToken}`
+        },
+        body: JSON.stringify(childData)
+    })
+        .then(response => {
+            if (response.status === 201) {
+                return response.json();
+            } else {
+                throw new Error("자녀 등록에 실패하였습니다.");
+            }
+        })
+        .then(data => {
+            alert(data.message);
+            window.location.href = `/childTestInfo.html?childName=${encodeURIComponent(childData.name)}`;
+        })
+        .catch(error => {
+            console.error("Error:", error);
+            alert("자녀 등록 중 오류가 발생했습니다.");
+        });
+}
+
+function calculateAge(birthDate) {
+    const birth = new Date(birthDate);
+    const today = new Date();
+    let age = today.getFullYear() - birth.getFullYear();
+    const m = today.getMonth() - birth.getMonth();
+    if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) {
+        age--;
+    }
+    return age;
+}
