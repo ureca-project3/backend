@@ -53,7 +53,6 @@ public class EventServiceImpl implements EventService {
     private final EventPartRepository eventPartRepository;
     private final WinningRepository winningRepository;
     private final RedisTemplate<String, String> redisTemplate;
-    private final EventRepository eventRepository;
 
     private static final String EVENT_PARTICIPANT_KEY = "eventParticipant:";
     private static final String EVENT_COUNTER_KEY = "eventCounter:";

@@ -23,16 +23,19 @@ public class EventController {
 
     private final EventService eventService;
 
+    // 이벤트 결과 페이지 접속 api
     @GetMapping("/result/{eventId}")
-    public ResponseEntity<?> getEvent(@PathVariable(name = "eventId") Long eventId) {
+    public ResponseEntity<?> getEventWinner(@PathVariable(name = "eventId") Long eventId) {
         return CommonResponse.ok("Get eventWinner Success", eventService.getEventWinner(eventId));
     }
 
+    // 이벤트 페이지 접속 api
     @GetMapping("/{eventId}")
     public ResponseEntity<?> getEvent(@PathVariable(name = "eventId") Long eventId) {
         return CommonResponse.ok("Get event Success", eventService.getEvent(eventId));
     }
 
+    // 이벤트 응모 제출 api
     @PostMapping("/participate")
     public ResponseEntity<?> participateInEvent(
             @RequestParam Long eventId,
