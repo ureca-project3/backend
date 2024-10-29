@@ -50,21 +50,14 @@ class Header {
 
     async fetchAndDisplayChildren() {
         try {
-            const response = await fetch('/api/member/children', {
-                headers: {
-                    'Authorization': `Bearer ${sessionStorage.getItem('accessToken')}`
-                }
-            });
-
-            if (!response.ok) throw new Error('Failed to fetch children');
-
+            const response = await Api.get('/api/member/children');
             const children = await response.json();
             this.renderChildrenProfiles(children);
 
             // 저장된 현재 선택된 자녀가 있다면 표시
-            const currentChildId = localStorage.getItem('currentChildId');
+            const currentChildId = sessionStorage.getItem('currentChildId');
             if (currentChildId && children.length > 0) {
-                const currentChild = children.find(child => child.id === currentChildId);
+                const currentChild = children.find(child => child.childId.toString() === currentChildId);
                 if (currentChild) {
                     this.updateCurrentProfile(currentChild);
                 } else {
@@ -72,6 +65,8 @@ class Header {
                 }
             } else if (children.length > 0) {
                 this.updateCurrentProfile(children[0]);
+                // 첫 번째 자녀를 기본값으로 저장
+                sessionStorage.setItem('currentChildId', children[0].childId.toString());
             }
         } catch (error) {
             console.error('Error fetching children:', error);
@@ -104,7 +99,7 @@ class Header {
                         this.profileDropdown.style.display = 'none';
                     }
 
-                    localStorage.setItem('currentChildId', childId);
+                    sessionStorage.setItem('currentChildId', childId);
 
                     const event = new CustomEvent('childProfileChanged', {
                         detail: { childId, childInfo: child }
@@ -114,6 +109,7 @@ class Header {
             });
         });
     }
+
 
     updateCurrentProfile(child) {
         if (!child) return;
@@ -163,12 +159,7 @@ class Header {
 
     async handleLogout() {
         try {
-            const response = await fetch('/api/member/provider', {
-                method: 'GET',
-                headers: {
-                    'Authorization': `Bearer ${sessionStorage.getItem('accessToken')}`
-                }
-            });
+            const response = await Api.get('/api/member/provider');
             const { provider } = await response.json();
 
             if (provider === 'kakao') {
@@ -183,8 +174,7 @@ class Header {
     }
 
     async performKakaoLogout() {
-        sessionStorage.removeItem('accessToken');
-        localStorage.removeItem('currentChildId');
+        sessionStorage.clear(); // 모든 sessionStorage 항목 제거
         document.cookie = 'refreshToken=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT;';
         this.showLoggedOutState();
         window.location.href = '/auth/api/member/kakao-logout';
@@ -192,14 +182,10 @@ class Header {
 
     async performGeneralLogout() {
         try {
-            const response = await fetch('/logout', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' }
-            });
+            const response = await Api.post('/logout');
 
             if (response.ok) {
-                sessionStorage.removeItem('accessToken');
-                localStorage.removeItem('currentChildId');
+                sessionStorage.clear(); // 모든 sessionStorage 항목 제거
                 document.cookie = 'refreshToken=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT;';
                 this.showLoggedOutState();
                 window.location.href = '/index.html';
