@@ -42,10 +42,8 @@ public class SecurityConfig {
     private final OAuthLoginFailureHandler oAuthLoginFailureHandler;
     private final AuthenticationConfiguration authenticationConfiguration;
     private final JWTUtil jwtUtil;
-    private final CommonCodeRepository commonCodeRepository;
     private final MemberService memberService;
     private final JWTFilter jwtFilter;
-    private final RefreshTokenRepository refreshTokenRepository;
 
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {

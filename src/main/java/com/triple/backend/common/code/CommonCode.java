@@ -16,7 +16,7 @@ public class CommonCode {
 
     @ManyToOne
     @MapsId("groupId")
-    @JoinColumn(name = "groupid", nullable = false)
+    @JoinColumn(name = "group_id", nullable = false)
     private GroupCode groupId;
 
     private String commonName;

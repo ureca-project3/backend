@@ -1,6 +1,7 @@
 package com.triple.backend.common.config;
 
 import com.triple.backend.auth.dto.CustomMemberDetails;
+import com.triple.backend.common.exception.NotFoundException;
 import com.triple.backend.common.repository.CommonCodeRepository;
 import com.triple.backend.member.entity.Member;
 import com.triple.backend.member.repository.MemberRepository;
@@ -53,7 +54,7 @@ public class JWTFilter extends OncePerRequestFilter {
             try {
                 Long memberId = jwtUtil.getMemberIdFromToken(accessToken);
                 Member member = memberRepository.findById(memberId)
-                        .orElseThrow(() -> new RuntimeException("Member not found"));
+                        .orElseThrow(() -> NotFoundException.entityNotFound("Member"));
 
                 CustomMemberDetails customMemberDetails = new CustomMemberDetails(member);
                 Authentication authToken = new UsernamePasswordAuthenticationToken(
@@ -80,7 +81,7 @@ public class JWTFilter extends OncePerRequestFilter {
                 Long memberId = jwtUtil.getMemberIdFromToken(refreshToken);
                 // 수정된 부분: DB에서 member 조회하여 role 가져오기
                 Member member = memberRepository.findById(memberId)
-                        .orElseThrow(() -> new RuntimeException("Member not found"));
+                        .orElseThrow(() -> NotFoundException.entityNotFound("Member"));
                 String memberRole = member.getRole_code();  // 실제 필드명에 따라 수정 필요
 
                 String newAccessToken = jwtUtil.createAccessToken(memberId, memberRole);
