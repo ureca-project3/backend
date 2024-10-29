@@ -63,7 +63,7 @@ public class BatchScheduler {
         LocalDateTime start = LocalDateTime.now();
         log.info("책 추천 배치 스케줄링 시작 Time: {}", start);
 
-        Job job = jobRegistry.getJob("bookRecommendationJob");
+        Job job = jobRegistry.getJob("recommendBookJob");
 
         JobParameters jobParameters = new JobParametersBuilder()
                 .addLong("time", System.currentTimeMillis())
