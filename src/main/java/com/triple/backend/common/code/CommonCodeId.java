@@ -18,12 +18,15 @@ public class CommonCodeId implements Serializable {
 
     @Column(columnDefinition = "char(3)")
     private String codeId;
+
+    @Column(name = "group_id")
     private String groupId;
 
     public CommonCodeId(String codeId, String groupId) {
         this.codeId = codeId;
         this.groupId = groupId;
     }
+
 
     @Override
     public boolean equals(Object o) {
