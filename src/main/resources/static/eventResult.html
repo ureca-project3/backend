@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>이벤트 응모 결과</title>
+    <link rel="stylesheet" href="/css/header.css">
+    <link rel="stylesheet" href="/css/eventResult.css">
+    <script src="/js/eventResult.js" defer></script>
+    <script src="/js/header.js" defer></script>
+</head>
+<body>
+<div class="decoration">🎉</div>
+<div class="decoration">🎊</div>
+<div class="decoration">✨</div>
+<div class="decoration">🎯</div>
+
+<h1 id="event-title" class="title"></h1>
+
+<div class="info-box">
+    <div class="event-info">
+        <div class="info-item">
+            <span class="info-label">이벤트 시작 시간:</span>
+            <span id="start-time" class="info-value"></span>
+        </div>
+        <div class="info-item">
+            <span class="info-label">이벤트 종료 시간:</span>
+            <span id="end-time" class="info-value"></span>
+        </div>
+        <div class="info-item">
+            <span class="info-label">결과 발표 시간:</span>
+            <span id="announce-time" class="info-value"></span>
+        </div>
+        <div class="info-item">
+            <span class="info-label">당첨자 수:</span>
+            <span id="winner-count" class="info-value"></span>
+        </div>
+    </div>
+</div>
+
+<div class="winners-container">
+    <h2 class="winners-title">🎊 당첨자 명단 🎊</h2>
+    <div id="winners-list" class="winners-list"></div>
+</div>
+</body>
+</html>

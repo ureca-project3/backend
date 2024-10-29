@@ -1,0 +1,137 @@
+@import url('https://fonts.googleapis.com/css2?family=Jua&display=swap');
+
+body {
+    font-family: 'Jua', sans-serif;
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: #FFF5E6;
+    color: #4A4A4A;
+}
+
+.title {
+    text-align: center;
+    font-size: 32px;
+    font-weight: bold;
+    margin: 20px 0;
+    color: #FF9800;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+}
+
+.info-box {
+    background-color: #FFE0B2;
+    padding: 25px;
+    border-radius: 20px;
+    margin: 20px 0;
+    line-height: 1.8;
+    font-size: 18px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    border: 3px dashed #FFB74D;
+}
+
+.event-info {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.info-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+    background-color: white;
+    border-radius: 10px;
+}
+
+.info-label {
+    color: #795548;
+    font-weight: bold;
+}
+
+.info-value {
+    color: #FF9800;
+}
+
+.winners-container {
+    background-color: white;
+    padding: 30px;
+    border-radius: 20px;
+    margin: 30px 0;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.winners-title {
+    text-align: center;
+    color: #FF9800;
+    font-size: 24px;
+    margin-bottom: 20px;
+}
+
+.winners-list {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 15px;
+    padding: 20px;
+}
+
+/* 반응형 그리드 설정 */
+@media (max-width: 1000px) {
+    .winners-list {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+@media (max-width: 768px) {
+    .winners-list {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 480px) {
+    .winners-list {
+        grid-template-columns: 1fr;
+    }
+}
+
+.winner-item {
+    background-color: #FFF3E0;
+    padding: 15px;
+    border-radius: 15px;
+    text-align: center;
+    font-size: 16px;
+    transition: transform 0.3s ease;
+}
+
+.winner-info {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.winner-name {
+    color: #FF9800;
+    font-weight: bold;
+}
+
+.winner-phone {
+    color: #795548;
+    font-size: 0.9em;
+}
+
+.winner-item:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.decoration {
+    position: fixed;
+    font-size: 40px;
+    opacity: 0.2;
+    z-index: -1;
+}
+
+.decoration:nth-child(1) { top: 10%; left: 5%; }
+.decoration:nth-child(2) { top: 30%; right: 5%; }
+.decoration:nth-child(3) { bottom: 20%; left: 8%; }
+.decoration:nth-child(4) { bottom: 10%; right: 8%; }
