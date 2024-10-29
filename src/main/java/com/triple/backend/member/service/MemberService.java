@@ -12,6 +12,9 @@ public interface MemberService {
     // 특정 이메일로 사용자 조회
     Member findByEmail(String email);
 
+    // 이메일 중복 확인 메서드 ( 마이페이지 수정작업 )
+    boolean isEmailDuplicate(String email, Long memberId);
+
     // 회원과 자녀 정보를 포함하는 UserProfileDto 조회
     MemberInfoDto getUserProfileById(Long memberId);
 

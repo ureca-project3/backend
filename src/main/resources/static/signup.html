@@ -15,6 +15,17 @@
 </header>
 
 <main class="signup-container">
+
+    <!-- 오류 메시지 표시 -->
+    <div th:if="${errorMessage}" style="color: red; margin-bottom: 10px;">
+        <p th:text="${errorMessage}"></p>
+    </div>
+
+    <!-- 성공 메시지 표시 -->
+    <div th:if="${message}" style="color: green; margin-bottom: 10px;">
+        <p th:text="${message}"></p>
+    </div>
+
     <form action="/auth/signup" method="post" class="signup-form">
         <div class="form-group">
             <label for="memberName">이름</label>

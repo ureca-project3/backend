@@ -54,6 +54,7 @@ public class MemberServiceImpl implements MemberService, UserDetailsService {
                 member.getName(),
                 member.getEmail(),
                 member.getPhone(),
+                member.getProvider(),
                 children
         );
     }
@@ -64,6 +65,13 @@ public class MemberServiceImpl implements MemberService, UserDetailsService {
                 .orElseThrow(() -> new RuntimeException("Member not found"));
         return member.getProvider(); // provider 정보 반환
     }
+
+    // 이메일 중복 확인 메서드
+    @Override
+    public boolean isEmailDuplicate(String email, Long memberId) {
+        return memberRepository.existsByEmailAndMemberIdNot(email, memberId);
+    }
+
 
     @Override
     public void updateMemberInfo(Long memberId, Member updatedMember) {

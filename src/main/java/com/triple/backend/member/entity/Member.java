@@ -42,15 +42,5 @@ public class Member extends BaseEntity {
         this.role_code = role_code;
     }
 
-    @Builder
-    public Member(String providerId, String provider, String name, String email, String phone,String role) {
-        this.providerId = providerId;
-        this.provider = provider;
-        this.name = name;
-        this.email = email;
-        this.phone = phone;
-        this.role_code = role_code; // 역할 필드 초기화
-    }
-
     public Member() {}
 }
