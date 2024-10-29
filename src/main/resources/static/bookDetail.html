@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>책 상세 정보</title>
+    <link rel="stylesheet" href="/css/bookDetail.css">
+    <link rel="stylesheet" href="/css/likeButton.css">
+    <script src="/js/bookDetail.js" defer></script>
+</head>
+<body>
+<div class="main-content">
+    <div class="book-info">
+        <img id="book-image" src="" alt="책 표지" class="book-image">
+        <div class="book-details">
+            <h1 id="book-title" class="book-title"></h1>
+            <p id="book-author" class="book-author"></p>
+            <p id="book-publisher" class="book-publisher"></p>
+            <p id="book-age" class="book-age"></p>
+            <p id="book-published-at" class="book-published-at"></p>
+            <p id="book-summary" class="book-summary"></p>
+        </div>
+    </div>
+
+    <!-- 좋아요/싫어요 버튼 추가 -->
+    <div class="like-dislike-container">
+        <button id="like-btn" class="like-btn" onclick="toggleLike()">
+            <span id="heart-icon">❤️</span> 좋아요
+        </button>
+        <button id="dislike-btn" class="dislike-btn" onclick="toggleDislike()">
+            <span id="thumbs-down-icon">👎</span> 싫어요
+        </button>
+        <!-- 책읽기 버튼 추가 -->
+        <button id="read-btn" class="read-btn" onclick="readBook()">
+            📖 책읽기
+        </button>
+    </div>
+</div>
+<!-- 오른쪽 하단 배경 이미지 추가 -->
+<img src="/img/cat_on_books.png" alt="배경 이미지" class="background-image">
+</body>
+</html>
+
+<script>
+    // '책읽기' 버튼 클릭 시 아무 동작도 하지 않도록 설정
+    function readBook() {
+        console.log("책읽기 버튼이 클릭되었습니다.");
+    }
+</script>

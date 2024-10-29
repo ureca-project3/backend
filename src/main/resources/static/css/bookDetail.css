@@ -1,0 +1,149 @@
+@import url('https://fonts.googleapis.com/css2?family=Jua&display=swap');
+
+body {
+    font-family: 'Jua', sans-serif;
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: #FFF5E6;
+    color: #4A4A4A;
+    display: flex;
+    justify-content: center;
+}
+
+.background-image {
+    position: fixed;
+    bottom: 20px;
+    right: 60px;
+    width: 400px;
+    height: auto;
+    opacity: 0.8;
+    pointer-events: none; /* 클릭을 방해하지 않음 */
+    z-index: -1; /* 다른 요소 뒤에 배치 */
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 40px;
+}
+
+.logo-button {
+    background-color: #FF7F50;
+    color: white;
+    border: none;
+    border-radius: 25px;
+    padding: 10px 20px;
+    font-size: 18px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.logo-button:hover {
+    background-color: #FF6347;
+}
+
+.main-content {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 50px;
+    background-color: #FFF;
+    box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
+    border-radius: 12px;
+    max-width: 900px;
+    margin-top: 40px;
+    gap: 20px;
+}
+
+.book-info {
+    display: flex;
+    gap: 20px;
+    width: 100%;
+}
+
+.book-image {
+    width: 250px;
+    height: auto;
+    border-radius: 10px;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+    flex-shrink: 0; /* 이미지 크기가 줄어들지 않도록 고정 */
+}
+
+.book-details {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 10px;
+    padding: 20px;
+    background-color: #FFF8F0;
+    border-radius: 10px;
+    box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+    width: 100%;
+}
+
+.book-title {
+    font-size: 28px;
+    font-weight: bold;
+    color: #333;
+    margin: 0 0 10px;
+}
+
+.book-author,
+.book-publisher,
+.book-age,
+.book-published-at {
+    font-size: 16px;
+    color: #666;
+    margin: 4px 0;
+}
+
+.book-summary {
+    font-size: 16px;
+    line-height: 1.6;
+    color: #4A4A4A;
+    text-align: justify;
+    white-space: pre-line;
+    margin-top: 10px;
+}
+
+/* 추가된 스타일로 전체 박스와 내용의 느낌을 강조 */
+.book-info-box {
+    display: flex;
+    gap: 20px;
+    align-items: flex-start;
+    width: 100%;
+}
+
+/* 좋아요/싫어요 버튼 컨테이너 */
+.like-dislike-container {
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+    width: 100%;
+    margin: 20px 0;
+}
+
+/* 좋아요/싫어요/책읽기 버튼 스타일 */
+.like-btn, .dislike-btn, .read-btn {
+    background-color: #FFDD57;
+    border: none;
+    border-radius: 50px;
+    color: #4A4A4A;
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    width: 120px;
+    text-align: center;
+}
+
+.like-button:hover {
+    background-color: #FFD700;
+}
+
+.dislike-button:hover {
+    background-color: #FFC107;
+}
+
