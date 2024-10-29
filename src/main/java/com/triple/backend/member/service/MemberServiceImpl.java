@@ -8,6 +8,8 @@ import com.triple.backend.member.entity.MemberInfoDto;
 import com.triple.backend.member.repository.MemberRepository;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -18,11 +20,10 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 @Service
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class MemberServiceImpl implements MemberService, UserDetailsService {
     private final MemberRepository memberRepository;
     private final ChildRepository childRepository;
-    @Lazy
     private final PasswordEncoder passwordEncoder; // 비밀번호 암호화를 위한 의존성
 
     // 데이터베이스에서 특정 이름 조회 , DB 로그인 기능 구현을 위함
