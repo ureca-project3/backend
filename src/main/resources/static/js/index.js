@@ -50,7 +50,49 @@ function showLoggedOutState() {
     loggedOutButtons.style.display = 'flex';
 }
 
-window.onload = async function() {
+document.addEventListener('DOMContentLoaded', async function() {
+
+    // 검색 입력 필드에 이벤트 리스너 추가
+    const searchInput = document.getElementById('searchInput'); // 검색 입력 필드 ID에 맞게 변경
+
+    if (searchInput) {
+        searchInput.addEventListener('keypress', (event) => {
+            if (event.key === 'Enter') {
+                const keyword = searchInput.value.trim(); // 입력된 값에서 공백 제거
+                if (keyword) {
+                    console.log(keyword)
+                    window.location.href = `/html/bookSearch.html?keyword=${encodeURIComponent(keyword)}`;
+                } else {
+                    alert("검색어를 입력해주세요.");
+                }
+            }
+        });
+    }
+
+    // 최신 책 목록 가져오기
+    await fetchLatestBooks();
+
+    const moreRecentBooksButton = document.getElementById('moreRecentBooks');
+    if (moreRecentBooksButton) {
+        moreRecentBooksButton.addEventListener('click', () => {
+            window.location.href = '/html/bookList.html'; // 이동할 URL
+        });
+    } else {
+        console.error('더보기 버튼을 찾을 수 없습니다.');
+    }
+
+    // 인기 책 목록 가져오기
+    await fetchTopLikedBooks();
+
+    const morePopularBooksButton = document.getElementById('morePopularBooks');
+    if (morePopularBooksButton) {
+        morePopularBooksButton.addEventListener('click', () => {
+            window.location.href = '/html/recommendedBookList.html'; // 이동할 URL
+        });
+    } else {
+        console.error('더보기 버튼을 찾을 수 없습니다.');
+    }
+
     const tempAccessTokenCookie = document.cookie
         .split('; ')
         .find(row => row.startsWith('tempAccessToken='));
@@ -72,8 +114,9 @@ window.onload = async function() {
             showLoggedOutState();
         }
     }
-};
+});
 
+// 로그아웃 기능
 logoutButton.addEventListener('click', async function() {
     try {
         const response = await fetch('/api/member/provider', {
@@ -106,4 +149,104 @@ logoutButton.addEventListener('click', async function() {
         console.error('로그아웃 중 오류 발생:', error);
         alert('로그아웃 중 오류가 발생했습니다.');
     }
+});
+
+// 최신 책 조회
+async function fetchLatestBooks(page = 0, size = 10) {
+    try {
+        const response = await fetch(`/books?size=${size}&page=${page}`);
+        const data = await response.json();
+
+        if (data.message === "Get BookList Success") {
+            displayLatestBooks(data.data); // 데이터 표시 함수 호출
+        } else {
+            console.error("Failed to fetch book list:", data.message);
+        }
+    } catch (error) {
+        console.error("Error fetching book list:", error);
+    }
+}
+
+// 도서 목록을 화면에 표시하는 함수
+function displayLatestBooks(books) {
+    const container = document.getElementById('recentBookCards');
+    container.innerHTML = ''; // 기존 내용 지우기
+
+    if (books.length === 0) {
+        console.log("No books available.");
+        return;
+    }
+
+    books.forEach(book => {
+        const card = document.createElement('div');
+        card.className = 'book-card';
+
+        // 카드 클릭 시 상세 페이지로 이동
+        card.addEventListener('click', () => {
+            const bookId = book.id; // id는 DTO에서 넘어오는 속성에 맞게 조정
+            window.location.href = `/html/bookDetail.html?bookId=${bookId}`;
+        });
+
+        card.innerHTML = `
+            <img src="${book.imageUrl}" alt="${book.title}" class="book-image" />
+            <h2 class="book-title">${book.title}</h2>
+            <p class="book-info">추천 연령: ${book.recAge}세</p>
+            <p class="book-info">출판사: ${book.publisher}</p>
+        `;
+
+        container.appendChild(card);
+    });
+}
+
+// 인기 책 조회
+async function fetchTopLikedBooks() {
+    try {
+        const response = await fetch('/books/ranking');
+        const data = await response.json();
+
+        if (data.message === "Get Top Liked Books Success") {
+            displayTopLikedBooks(data.data.slice(0, 10));
+        } else {
+            console.error("Failed to fetch top liked books:", data.message);
+        }
+    } catch (error) {
+        console.error("Error fetching top liked books:", error);
+    }
+}
+
+function displayTopLikedBooks(books) {
+    const container = document.getElementById('popularBooksCards');
+    container.innerHTML = ''; // 기존 내용 지우기
+
+    if (books.length === 0) {
+        console.log("인기 책 데이터가 없습니다.");  // 데이터 없음 로그
+    }
+
+    books.forEach(book => {
+        console.log("Rendering book:", book);
+
+        const card = document.createElement('div');
+        card.className = 'book-card';
+
+        // 카드 클릭 시 상세 페이지로 이동하도록 이벤트 추가
+        card.addEventListener('click', () => {
+            const bookId = book.bookId;
+            window.location.href = `/html/bookDetail.html?bookId=${bookId}`;
+        });
+
+        card.innerHTML = `
+            <img src="${book.imageUrl}" alt="${book.imageUrl}" class="book-image" />
+            <h2 class="book-title">${book.title}</h2>
+            <p class="book-info">추천 연령: ${book.recAge}세</p>
+            <p class="book-info">출판사: ${book.publisher}</p>
+        `;
+
+        container.appendChild(card);
+    });
+}
+
+// '더 보기' 버튼 이벤트
+document.getElementById('morePopularBooks').addEventListener('click', () => {
+    console.log("더 보기 버튼 클릭됨");
+    window.location.href = '/html/bookList.html';
 });
