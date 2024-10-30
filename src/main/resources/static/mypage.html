@@ -92,45 +92,6 @@
     </div>
 </div>
 
-<!-- 자녀 프로필 수정 폼 (예시: 모달) -->
-<div class="modal fade" id="editChildProfileModal" tabindex="-1" aria-labelledby="editChildProfileModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="editChildProfileModalLabel">자녀 프로필 수정</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <form id="edit-child-form">
-                    <input type="hidden" id="child-id" value="">
-                    <div class="form-group">
-                        <label for="edit-child-name">이름:</label>
-                        <input type="text" class="form-control" id="edit-child-name" placeholder="이름을 입력하세요.">
-                    </div>
-                    <div class="form-group">
-                        <label for="edit-child-age">나이:</label>
-                        <input type="number" class="form-control" id="edit-child-age" placeholder="나이를 입력하세요.">
-                    </div>
-                    <div class="form-group">
-                        <label for="edit-child-gender">성별:</label>
-                        <select class="form-control" id="edit-child-gender">
-                            <option value="남">남자</option>
-                            <option value="여">여자</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label for="edit-child-image">프로필 사진:</label>
-                        <input type="file" class="form-control-file" id="edit-child-image">
-                    </div>
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">닫기</button>
-                <button type="button" class="btn btn-primary" onclick="updateChildProfile()">수정</button>
-            </div>
-        </div>
-    </div>
-</div>
 
         <script src="/js/mypage.js"></script>
         <script src="/js/api.js"></script>

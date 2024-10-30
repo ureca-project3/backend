@@ -43,8 +43,8 @@ async function fetchAndDisplayProfile() {
             if (childProfiles) {
                 if (profileData.children && Array.isArray(profileData.children) && profileData.children.length > 0) {
                     childProfiles.innerHTML = profileData.children.map(child => `
-            <li class="list-group-item d-flex justify-content-between align-items-center">
-                <div class="child-info d-flex align-items-center">
+              <li class="list-group-item d-flex justify-content-between align-items-center" data-id="${child.childId}">
+                <div class="child-info d-flex align-items-center" data-id="${child.childId}">
                     <img src="/image/${child.imageUrl || 'profileDefault.png'}"
                          alt="${child.name}의 프로필"
                          onerror="this.src='/image/profileDefault.png'"
@@ -55,7 +55,7 @@ async function fetchAndDisplayProfile() {
                     </div>
                 </div>
                 <div class="child-actions">
-                    <button class="btn btn-sm btn-outline-secondary edit-child me-2" data-id="${child.childId}">수정</button>
+                     <button class="btn btn-sm btn-outline-secondary edit-child me-2" data-id="${child.childId}" onclick="goToChildDetail('${child.childId}')">정보</button>
                     <button class="btn btn-sm btn-outline-danger delete-child" data-id="${child.childId}">삭제</button>
                 </div>
             </li>
@@ -221,60 +221,41 @@ async function fetchAndDisplayProfile() {
         });
 
 
-// 자녀 프로필 삭제/수정 기능
-        document.getElementById('child-profiles').addEventListener('click', function (event) {
-            if (event.target.classList.contains('delete-child')) {
-                // 삭제 버튼 클릭 시 처리
-                const childId = event.target.getAttribute('data-id');
-                const accessToken = sessionStorage.getItem('accessToken');
+// 자녀 프로필 삭제
+document.getElementById('child-profiles').addEventListener('click', function (event) {
+    if (event.target.classList.contains('delete-child')) {
+        // 삭제 버튼 클릭 시 처리
+        const childId = event.target.getAttribute('data-id');
+        const accessToken = sessionStorage.getItem('accessToken');
 
-                if (confirm("정말로 자녀 프로필을 삭제하시겠습니까?")) {
-                    fetch(`/api/user/children/${childId}`, {
-                        method: 'DELETE',
-                        headers: {
-                            'Authorization': `Bearer ${accessToken}`
-                        }
-                    })
-                        .then(response => {
-                            if (response.ok) {
-                                alert("자녀 프로필이 삭제되었습니다.");
-                                fetchAndDisplayProfile(); // 자녀 프로필 정보 새로고침
-                            } else {
-                                throw new Error("자녀 프로필 삭제 실패");
-                            }
-                        })
-                        .catch(error => {
-                            console.error("자녀 프로필 삭제 오류:", error);
-                            alert("자녀 프로필 삭제에 실패했습니다.");
-                        });
+        if (confirm("정말로 자녀 프로필을 삭제하시겠습니까?")) {
+            fetch(`/mypage/child-child-info/${childId}`, {
+                method: 'DELETE',
+                headers: {
+                    'Authorization': `Bearer ${accessToken}`,
+                    'Accept': 'application/json'
                 }
-            } else if (event.target.classList.contains('edit-child')) {
-                // 수정 버튼 클릭 시 처리
-                const childId = event.target.getAttribute('data-id');
-                const accessToken = sessionStorage.getItem('accessToken');
-
-                fetch(`/api/user/children/${childId}`, {
-                    method: 'GET',
-                    headers: {
-                        'Authorization': `Bearer ${accessToken}`
+            })
+                .then(response => {
+                    if (response.ok) {
+                        alert("자녀 프로필이 삭제되었습니다.");
+                        location.reload(); // 페이지 새로고침으로 변경
+                    } else {
+                        throw new Error("자녀 프로필 삭제 실패");
                     }
                 })
-                    .then(response => {
-                        if (response.ok) {
-                            return response.json();
-                        }
-                        throw new Error("자녀 정보 요청 실패");
-                    })
-                    .then(child => {
-                        // 수정 폼에 자녀 정보 설정 (모달이나 다른 폼을 사용해야 함)
-                        // ...
-                    })
-                    .catch(error => {
-                        console.error("자녀 정보 로드 오류:", error);
-                        alert("자녀 정보를 불러올 수 없습니다.");
-                    });
-            }
-        });
+                .catch(error => {
+                    console.error("자녀 프로필 삭제 오류:", error);
+                    alert("자녀 프로필 삭제에 실패했습니다.");
+                });
+        }
+    } else if (event.target.classList.contains('child-info')) { // 클래스 이름 변경
+        // 자녀 정보 버튼 클릭 시 처리
+        const childId = event.target.closest('li').getAttribute('data-id'); // li 요소의 data-id 가져오기
+        window.location.href = `/childDetail.html?id=${childId}`; // 페이지 이동
+    }
+});
+
 // 자녀 등록 버튼 클릭 이벤트
         document.querySelector('.bottom-info button').addEventListener('click', function () {
             window.location.href = '/childRegister.html';
@@ -352,3 +333,7 @@ async function fetchAndDisplayProfile() {
         document.getElementById('add-child-profile-button').addEventListener('click', function () {
             window.location.href = '/childRegister.html'; // 자녀 등록 페이지로 이동
         });
+// 자녀 상세 페이지로 이동하는 함수
+function goToChildDetail(childId) {
+    window.location.href = `/childDetail.html?id=${childId}`;
+}

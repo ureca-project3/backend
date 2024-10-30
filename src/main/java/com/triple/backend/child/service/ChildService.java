@@ -19,5 +19,6 @@ public interface ChildService {
 
     void registerChild(ChildRegisterRequestDto request, String accessToken);
 
-    boolean deleteMyChild(String accessToken);
+    // 아이디를 기반으로 하는 삭제
+    boolean deleteChildById(Long childId, String accessToken);
 }

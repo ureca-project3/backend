@@ -61,16 +61,16 @@ public class ChildServiceImpl implements ChildService {
         childRepository.save(child);
     }
 
-    // 자녀 정보 등록 후 테스트 완료x시 자녀 정보 삭제
+    // 사용자를 찾아서 자녀삭제
     @Override
-    public boolean deleteMyChild(String accessToken) {
+    @Transactional
+    public boolean deleteChildById(Long childId, String accessToken) {
         Long memberId = extractMemberIdFromToken(accessToken);
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new EntityNotFoundException("사용자를 찾을 수 없습니다."));
 
-        // 자녀 프로필 정보를 삭제
-        if (childRepository.existsByMember(member)) {
-            childRepository.deleteByMember(member);
+        if (childRepository.existsByChildIdAndMember(childId, member)) {
+            childRepository.deleteByChildIdAndMember(childId, member);
             return true;
         }
         return false;

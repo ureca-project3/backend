@@ -73,13 +73,14 @@ public class ChildController {
 
     // 자녀 삭제
     @DeleteMapping("/child-child-info/{childId}")
-    public ResponseEntity<String> deleteChildProfile(HttpServletRequest request) {
-        // 액세스 토큰에서 사용자 ID(memberId) 추출
+    public ResponseEntity<String> deleteChildProfile(
+            @PathVariable Long childId,
+            HttpServletRequest request) {
         String accessToken = request.getHeader("Authorization").substring(7);
-        boolean isDeleted = childService.deleteMyChild(accessToken);
+        boolean isDeleted = childService.deleteChildById(childId, accessToken);
 
         if (isDeleted) {
-            return ResponseEntity.status(HttpStatus.NO_CONTENT).body("자녀 프로필 정보가 삭제되었습니다.");
+            return ResponseEntity.ok("자녀 프로필 정보가 삭제되었습니다.");
         } else {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("자녀 프로필 정보를 찾을 수 없습니다.");
         }
