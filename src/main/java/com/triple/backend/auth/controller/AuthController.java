@@ -3,6 +3,8 @@ package com.triple.backend.auth.controller;
 import com.triple.backend.auth.dto.JoinDto;
 import com.triple.backend.auth.repository.RefreshTokenRepository;
 import com.triple.backend.auth.service.AuthService;
+import com.triple.backend.common.dto.CommonResponse;
+import com.triple.backend.common.dto.ErrorResponse;
 import com.triple.backend.member.entity.Member;
 import com.triple.backend.common.config.JWTUtil;
 import jakarta.servlet.http.HttpServletRequest;
@@ -10,15 +12,13 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import jakarta.servlet.http.Cookie;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -26,54 +26,40 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Slf4j
-@Controller
+@RestController
 @RequestMapping("/auth")
 @RequiredArgsConstructor
 public class AuthController {
+
+    @Value("${spring.security.oauth2.client.registration.kakao.client-id}")
+    private String kakao_client_id;
 
     private final JWTUtil jwtUtil;
     private final RefreshTokenRepository refreshTokenRepository;
     private final AuthService authService;
 
-    @GetMapping("/login")
-    public String loginPage() {
-        return "login"; // login.html 파일을 반환합니다. (뷰 리졸버에 따라 경로 조정 필요)
-    }
-
     // 실제 로그인 처리를 위한 엔드포인트 추가
     @PostMapping("/login")
-    @ResponseBody
-    public ResponseEntity<?> login(HttpServletRequest request) {
+    public ResponseEntity<CommonResponse<Void>> login(HttpServletRequest request) {
         // 실제 인증은 LoginFilter에서 처리
-        return ResponseEntity.ok().build();
+        return CommonResponse.ok("로그인이 성공적으로 완료되었습니다.");
     }
 
-//    @PostMapping("/signup")
-//    public String joinProcess(JoinDto joinDto, RedirectAttributes redirectAttributes) {
-//        authService.joinProcess(joinDto);
-//
-//        // 회원가입 성공 메시지 추가 (필요에 따라 수정 가능)
-//        redirectAttributes.addFlashAttribute("message", "회원가입이 완료되었습니다!");
-//
-//        // index.html로 리다이렉트
-//        return "redirect:/index.html";
-//    }
-
     @PostMapping("/signup")
-    @ResponseBody  // REST API 응답을 위해 추가
     public ResponseEntity<?> joinProcess(@RequestBody JoinDto joinDto) {  // @RequestBody 추가
         try {
             authService.joinProcess(joinDto);
-            return ResponseEntity.ok().build();
+            return CommonResponse.ok("회원가입이 성공적으로 완료되었습니다.");
         } catch (IllegalStateException e) {
             Map<String, String> error = new HashMap<>();
             error.put("message", e.getMessage());
-            return ResponseEntity.badRequest().body(error);
+            return ResponseEntity.badRequest()
+                    .body(ErrorResponse.error(HttpStatus.BAD_REQUEST, e.getMessage()));
         }
     }
 
     @GetMapping("/api/member/kakao-logout")
-    public void kakaoLogoutRedirect(
+    public ResponseEntity<?> kakaoLogoutRedirect(
             HttpServletRequest request,
             HttpServletResponse response,
             @CookieValue(value = "refreshToken", required = false) String refreshToken,
@@ -110,7 +96,7 @@ public class AuthController {
             SecurityContextHolder.clearContext();
 
             // 5. 카카오 서비스 로그아웃
-            String clientId = "ecbe8197ad00125d1d59da0fb88f4b3c";
+            String clientId = kakao_client_id;
             String logoutRedirectUri = "http://localhost:8080/auth/kakao-logout-callback";
             String kakaoLogoutUrl = String.format(
                     "https://kauth.kakao.com/oauth/logout?client_id=%s&logout_redirect_uri=%s",
@@ -120,22 +106,25 @@ public class AuthController {
 
             // 6. 카카오 로그아웃 페이지로 리다이렉트
             response.sendRedirect(kakaoLogoutUrl);
+            return CommonResponse.ok("카카오 서버에서 로그아웃이 성공적으로 처리되었습니다.");
+
         } catch (Exception e) {
             log.error("Kakao logout error", e);
             response.sendRedirect("/index.html?error=logout_failed");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(ErrorResponse.error(HttpStatus.INTERNAL_SERVER_ERROR, "로그아웃 처리 중 오류가 발생했습니다."));
         }
     }
 
     @GetMapping("/kakao-logout-callback")
-    public void kakaoLogoutCallback(HttpServletResponse response) throws IOException {
+    public ResponseEntity<?> kakaoLogoutCallback(HttpServletResponse response) throws IOException {
         // 카카오 로그아웃 후 최종적으로 우리 서비스의 index.html로 리다이렉트
         response.sendRedirect("/index.html");
+        return CommonResponse.ok("카카오 로그아웃 처리가 완료되었습니다.");
     }
 
     @GetMapping("/token/access")
-    public ResponseEntity<Map<String, String>> getAccessToken(HttpServletRequest request) {
-        System.out.println("/token/access 에 들어옴");
-
+    public ResponseEntity<CommonResponse<Map<String, String>>> getAccessToken(HttpServletRequest request) {
         // 쿠키가 null인지 먼저 확인
         Cookie[] cookies = request.getCookies();
         if (cookies == null) {
@@ -158,18 +147,10 @@ public class AuthController {
             // 액세스 토큰을 JSON 형태로 반환
             Map<String, String> response = new HashMap<>();
             response.put("accessToken", newAccessToken);
-            return ResponseEntity.ok(response);
+            return CommonResponse.ok("새로운 액세스 토큰이 발급되었습니다.", response);
         } else {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+            throw new RuntimeException("Invalid refresh token");
         }
-    }
 
-    @GetMapping("/success")
-    public String authSuccess(@RequestParam String accessToken, Model model) {
-        // 토큰을 모델에 추가
-        model.addAttribute("accessToken", accessToken);
-        // auth-success.html 템플릿을 반환
-        return "auth-success";
     }
-
 }

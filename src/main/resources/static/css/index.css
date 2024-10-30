@@ -24,52 +24,6 @@ body {
 .decoration:nth-child(3) { bottom: 20%; left: 8%; }
 .decoration:nth-child(4) { bottom: 10%; right: 8%; }
 
-.header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 20px 0;
-    margin-bottom: 40px;
-}
-
-.banner-link {
-    display: block;
-    max-width: 200px;
-}
-
-.banner-image {
-    width: 100%;
-    height: auto;
-    border-radius: 10px;
-}
-
-.nav-buttons {
-    display: flex;
-    align-items: center;
-}
-
-.auth-buttons {
-    display: flex;
-    gap: 10px;
-}
-
-.nav-button {
-    background-color: #FF7F50;
-    color: white;
-    border: none;
-    border-radius: 25px;
-    padding: 10px 20px;
-    font-size: 16px;
-    text-decoration: none;
-    cursor: pointer;
-    transition: background-color 0.3s;
-    font-family: inherit;
-}
-
-.nav-button:hover {
-    background-color: #FF6B3D;
-}
-
 .footer {
     margin-top: auto;
     text-align: center;
