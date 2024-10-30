@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>자녀 프로필 등록</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/css/childRegister.css">
+</head>
+<body>
+<div class="container">
+    <!-- 프로필 이미지 -->
+    <div class="profile-circle">
+        <img id="profile-img" src="/image/profileDefault.png" alt="프로필 이미지" onclick="openModal()">
+    </div>
+<!--    <button type="button" class="btn btn-link" onclick="openModal()">프로필 사진 선택하기</button>-->
+
+    <!-- 이름 입력 -->
+    <div class="form-group">
+        <label for="child-name" class="form-label">이름</label>
+        <input type="text" id="child-name" class="form-control">
+    </div>
+
+    <!-- 생년월일 입력 -->
+    <div class="form-group">
+        <label for="birthdate" class="form-label">생년월일</label>
+        <input type="text" id="birthdate" class="form-control birthdate-input" placeholder="yyyy.mm.dd">
+    </div>
+
+    <!-- 성별 선택 -->
+    <div class="form-group">
+        <label class="form-label">성별</label>
+        <div class="gender-selection">
+            <button type="button" class="gender-btn" id="gender-male" onclick="selectGender('남')">남자</button>
+            <button type="button" class="gender-btn" id="gender-female" onclick="selectGender('여')">여자</button>
+        </div>
+    </div>
+
+    <!-- 등록하기 버튼 -->
+    <button type="button" class="register-btn" onclick="registerChild()">등록하기</button>
+    <div class="later-button" onclick="handleLaterButton()">나중에 등록하기</div>
+</div>
+
+<!-- Modal -->
+<div id="imageModal" class="modal">
+    <div class="modal-content">
+        <h5>프로필 사진 선택</h5>
+        <div id="image-options">
+            <!-- 이미지 선택 버튼 -->
+        </div>
+        <button type="button" class="btn btn-primary" onclick="confirmImageSelection()">확인</button>
+    </div>
+</div>
+
+<script src="/js/childRegister.js"></script>
+</body>
+</html>

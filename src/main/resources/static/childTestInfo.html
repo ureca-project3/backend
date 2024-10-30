@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>성향 진단 시작</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f8f9fa;
+            text-align: center;
+            margin: 0;
+            font-family: Arial, sans-serif;
+        }
+        .container {
+            max-width: 600px;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            background-color: white;
+        }
+        .start-button {
+            margin-top: 20px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 10px 20px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1 id="child-name"></h1>
+    <p>아이북조아 서비스에서는 소중한 자녀 한명한명의 성향을 파악하여 맞춤형으로 도서를 추천해드리고 있습니다. 해당 진단은 MBTI 기준으로 진행되며, 아이의 독서 성격과 흥미를 고려해서 성향 테스트를 진행한다면 효과적인 독서를 도와드릴 수 있습니다.</p>
+    <button class="start-button" onclick="startTest()">성향 진단 시작하기</button>
+</div>
+
+<script>
+    let testStarted = false;
+
+    // URL에서 자녀 이름 가져오기
+    const urlParams = new URLSearchParams(window.location.search);
+    const childName = urlParams.get('childName');
+    document.getElementById("child-name").textContent = `자녀, ${childName}님의 성향진단을 시작해볼까요?`;
+
+    // 테스트 시작 함수
+    function startTest() {
+        testStarted = true;
+        window.location.href = "/test.html";
+    }
+
+    // beforeunload 이벤트 처리
+    window.addEventListener('beforeunload', function (event) {
+        if (!testStarted) {
+            event.preventDefault();
+            event.returnValue = '작성한 자녀 데이터가 사라질 수 있습니다. 페이지를 나가시겠습니까?';
+            return event.returnValue;
+        }
+    });
+
+    // 실제로 페이지를 떠날 때 프로필 삭제
+    window.addEventListener('unload', function () {
+        if (!testStarted) {
+            const xhr = new XMLHttpRequest();
+            xhr.open('DELETE', '/mypage/child-info', false); // 동기 요청
+            xhr.setRequestHeader('Authorization', `Bearer ${sessionStorage.getItem('accessToken')}`);
+            xhr.send();
+        }
+    });
+</script>
+</body>
+</html>

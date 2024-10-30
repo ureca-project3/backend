@@ -26,11 +26,11 @@ public class MbtiProcessor implements ItemProcessor<List<MbtiWithTraitScoreDto>,
         String newMbti = MbtiCalculator.calculateNewMbti(items);
 
         // MBTI가 변경된 경우에만 MbtiDto 생성
-        if (!newMbti.equals(currentMbti)) {
+        if (!newMbti.equalsIgnoreCase(currentMbti)) {
             MbtiDto mbtiDto = new MbtiDto();
             mbtiDto.setChildId(childId);
             mbtiDto.setCurrentMbti(newMbti);
-            mbtiDto.setChangeReason("020");
+            mbtiDto.setChangeReason("030");
             mbtiDto.setChangeReasonId(items.stream()
                     .max(Comparator.comparing(MbtiWithTraitScoreDto::getCreatedAt))
                     .get().getHistoryId()); // 변경원인에는 바뀌기 직전 history_id를 넣는다

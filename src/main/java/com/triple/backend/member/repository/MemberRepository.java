@@ -21,4 +21,7 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
     // email이 이미 존재하는지 확인(중복체크)
     Boolean existsByEmail(String email);
 
+    // 특정 memberId를 제외한 동일 email 존재 여부 확인
+    Boolean existsByEmailAndMemberIdNot(String email, Long memberId);
+
 }

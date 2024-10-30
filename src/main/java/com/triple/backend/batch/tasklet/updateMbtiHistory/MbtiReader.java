@@ -7,6 +7,7 @@ import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Component;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -41,30 +42,34 @@ public class MbtiReader implements ItemReader<List<MbtiWithTraitScoreDto>> {
     }
 
     private List<List<MbtiWithTraitScoreDto>> fetchGroupedData() {
-        /*
-        오늘 날짜에 새롭게 추가된 child_traits 데이터를 가져오며, childId별로 trait_score의 최신 상태를 조회하는 쿼리
-        Step1 : 오늘 생성된 child_traits에서 history_id만 그룹화하여 recent_history 뷰를 만든다
-        Step2 : child_traits 테이블을 recent_history와 inner join하여 오늘 날짜에 추가된 history_id를 가진 레코드만 선택한다
-        Step3 : 각 history_id, trait_id 조합에서 가장 최근(MAX(created_at))의 trait 기록을 선택하여 latest 뷰를 만든다
-        Step4 : child_traits와 latest 뷰를 inner join하여 최신 trait 데이터를 가져온다
-        Step5 : mbti_history 테이블을 left join하여 history_id를 기준으로 각 자녀의 MBTI 정보를 결합한다 (ex.ESTP)
-                즉, 각 childId별로 trait_score의 최신 상태와 MBTI(current_mbti) 정보를 함께 가져온다
-        Step6 : child_id와 trait_id별로 정렬한다
-         */
-        String sql = """
-            SELECT 
+        // Step 1: 오늘 생성된 child_traits의 각 historyId 조회
+        String recentHistorySql = """
+                SELECT history_id AS recent_history_id
+                FROM child_traits
+                WHERE DATE(created_at) = CURDATE()
+                GROUP BY history_id
+                """;
+
+        List<Long> recentHistoryIds = namedParameterJdbcTemplate.query(
+                recentHistorySql,
+                new MapSqlParameterSource(),
+                (rs, rowNum) -> rs.getLong("recent_history_id")
+        );
+
+        // Step 2: 최신 historyId에 대한 traitId별 최신 trait_score 조회
+        if (recentHistoryIds.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        String traitScoreSql = """
+            SELECT
                 mh.child_id, ct.trait_id, ct.trait_score, ct.created_at, 
                 mh.current_mbti, mh.history_id
             FROM child_traits ct
             INNER JOIN (
-                SELECT history_id
-                FROM child_traits
-                WHERE DATE(created_at) = CURDATE()
-                GROUP BY history_id
-            ) recent_history ON ct.history_id = recent_history.history_id
-            INNER JOIN (
                 SELECT history_id, trait_id, MAX(created_at) AS max_created_at
                 FROM child_traits
+                WHERE history_id IN (:historyIds)
                 GROUP BY history_id, trait_id
             ) latest ON ct.history_id = latest.history_id 
                      AND ct.trait_id = latest.trait_id 
@@ -73,7 +78,10 @@ public class MbtiReader implements ItemReader<List<MbtiWithTraitScoreDto>> {
             ORDER BY mh.child_id, ct.trait_id
         """;
 
-        List<MbtiWithTraitScoreDto> allData = namedParameterJdbcTemplate.query(sql, new MapSqlParameterSource(), (rs, rowNum) -> {
+        MapSqlParameterSource params = new MapSqlParameterSource();
+        params.addValue("historyIds", recentHistoryIds);
+
+        List<MbtiWithTraitScoreDto> allData = namedParameterJdbcTemplate.query(traitScoreSql, params, (rs, rowNum) -> {
             MbtiWithTraitScoreDto data = new MbtiWithTraitScoreDto();
             data.setChildId(rs.getLong("child_id"));
             data.setTraitId(rs.getLong("trait_id"));
