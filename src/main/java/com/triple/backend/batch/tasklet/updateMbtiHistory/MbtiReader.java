@@ -7,6 +7,7 @@ import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Component;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -56,6 +57,10 @@ public class MbtiReader implements ItemReader<List<MbtiWithTraitScoreDto>> {
         );
 
         // Step 2: 최신 historyId에 대한 traitId별 최신 trait_score 조회
+        if (recentHistoryIds.isEmpty()) {
+            return Collections.emptyList();
+        }
+
         String traitScoreSql = """
             SELECT
                 mh.child_id, ct.trait_id, ct.trait_score, ct.created_at, 
