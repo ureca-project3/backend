@@ -121,7 +121,7 @@ public class FeedbackServiceImpl implements FeedbackService {
         if (likedBooks != null && likedBooks.contains(bookId)) {
             likedBooks.remove(bookId);
             if (likedBooks.isEmpty()) {
-                hashOperations.delete(LIKE_HASH_KEY, childId);
+                hashOperations.delete(LIKE_HASH_KEY, String.valueOf(childId));
             }
             hashOperations.put(LIKE_HASH_KEY, String.valueOf(childId), likedBooks);
         } else {

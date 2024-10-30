@@ -74,6 +74,7 @@ public class RedisFeedbackReader implements ItemReader<FeedbackDto> {
             // 모든 데이터를 다 읽으면 null을 반환하여 데이터 처리가 완료되었음을 알린다
             // 다음 배치 작업을 위해 isProcessingLikes를 true로 설정해 다시 좋아요 데이터부터 읽도록 하고, 모든 Iterator와 자녀 ID도 초기화한다
             log.debug("모든 데이터 처리 완료");
+            clearRedisData();
             reset();
             return null;
         }
@@ -102,5 +103,14 @@ public class RedisFeedbackReader implements ItemReader<FeedbackDto> {
         currentBookIterator = null;
         currentChildId = null;
         log.debug("RedisFeedbackReader 리셋 완료");
+    }
+
+    /*
+     * 모든 데이터 처리가 완료된 후 Redis의 좋아요/싫어요 데이터를 삭제하는 메서드
+     */
+    private void clearRedisData() {
+        hashOperations.getOperations().delete(LIKE_HASH_KEY);
+        hashOperations.getOperations().delete(HATE_HASH_KEY);
+        log.info("Redis 데이터 삭제 완료");
     }
 }
