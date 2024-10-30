@@ -140,9 +140,18 @@ public class EventServiceImpl implements EventService {
     @Transactional
     public EventApplyResponseDto applyEvent(EventApplyRequestDto request) {
         try {
-            request.setCreateAt(LocalDateTime.now());
+            LocalDateTime now = LocalDateTime.now();
+            request.setCreatedAt(now);
 
-            // Redis Lua 스크립트 실행
+            // 1. 이벤트 유효성 검증
+            Event event = validateEventAndMember(request.getEventId(), request.getMemberId());
+
+            // 2. 이벤트 시간 검증
+            if (!isEventTimeValid(event, now)) {
+                return EventApplyResponseDto.failed(getEventTimeErrorMessage(event, now));
+            }
+
+            // Redis Lua 스크립트 실행 (중복 참여 검증 + 선착순 처리)
             Long result = redisTemplate.execute(
                     eventParticipationScript,
                     List.of(
@@ -165,6 +174,8 @@ public class EventServiceImpl implements EventService {
                 default -> EventApplyResponseDto.success(result);
             };
 
+        } catch (NotFoundException e) {
+            throw e;
         } catch (Exception e) {
             log.error("이벤트 참여 처리 실패", e);
             throw new EventProcessingException("이벤트 참여 처리 중 오류가 발생했습니다.");

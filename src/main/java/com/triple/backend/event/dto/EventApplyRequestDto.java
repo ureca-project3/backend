@@ -26,10 +26,8 @@ public class EventApplyRequestDto {
     @NotBlank(message = "전화번호는 필수입니다.")
     private String phone;
 
-    private LocalDateTime createAt;
+    private LocalDateTime createdAt;
 
     @NotNull(message = "설문 응답은 필수입니다.")
     private Map<Long, String> answerList = new LinkedHashMap<>();
-
-
 }

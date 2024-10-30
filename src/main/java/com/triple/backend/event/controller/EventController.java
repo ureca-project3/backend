@@ -41,6 +41,8 @@ public class EventController {
         Long memberId = userDetails.getMemberId();
         request.setMemberId(memberId);
 
+        System.out.println(memberId);
+
         EventApplyResponseDto response = eventService.applyEvent(request);
 
         if (!response.isSuccess()) {
