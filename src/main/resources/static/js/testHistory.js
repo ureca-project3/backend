@@ -1,7 +1,7 @@
 // 페이지 로드 시 데이터 가져오기
 document.addEventListener('DOMContentLoaded', function() {
 
-    const childId = 1;
+    const childId = sessionStorage.getItem('currentChildId');
 
     if (childId) {
         fetchChildInfo(childId);
@@ -119,7 +119,7 @@ function setActiveDate(clickedDate) {
 
 // 특정 날짜의 히스토리 데이터 로드
 async function loadHistoryData(date) {
-    const childId = 1;
+    const childId = sessionStorage.getItem('currentChildId');
     try {
         const response = await fetch(`/mypage/child-info/history/${childId}?date=${date}`);
         if (!response.ok) throw new Error('Network response was not ok');
