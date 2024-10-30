@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+</head>
+<body>
+<header class="header">
+    <a href="/index.html" class="banner-link">
+        <img src="/image/1.jpg" alt="사이트 배너" class="banner-image">
+    </a>
+
+    <div class="nav-buttons">
+        <!-- 로그인 시 보이는 프로필 선택기 -->
+        <div class="profile-selector logged-in" style="display: none;">
+            <div class="profile-button">
+                <div class="profile-button-content">
+                    <img id="current-profile-image" src="/image/profileDefault.png"
+                         alt="현재 프로필" class="profile-image">
+                    <span id="current-child-name">자녀 선택</span>
+                    <span class="arrow-down">▼</span>
+                </div>
+            </div>
+
+            <div class="profile-dropdown" style="display: none;">
+                <div class="profile-list">
+                    <!-- 자녀 프로필 목록이 여기에 동적으로 추가됨 -->
+                </div>
+            </div>
+        </div>
+
+        <!-- 로그인된 상태의 버튼들 -->
+        <div class="auth-buttons logged-in" style="display: none;">
+            <a href="/mypage.html" class="nav-button">마이페이지</a>
+            <button id="logout-button" class="nav-button">로그아웃</button>
+        </div>
+
+        <!-- 로그아웃된 상태의 버튼들 -->
+        <div class="auth-buttons logged-out">
+            <a href="/login.html" class="nav-button">로그인</a>
+            <a href="/signup.html" class="nav-button">회원가입</a>
+        </div>
+    </div>
+</header>
+</body>
+</html>

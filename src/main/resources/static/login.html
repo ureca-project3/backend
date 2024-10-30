@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>로그인 - 트리플민수</title>
+    <link rel="stylesheet" href="/css/login.css">
+</head>
+<body>
+<div class="decoration">🌟</div>
+<div class="decoration">🎨</div>
+<div class="decoration">✨</div>
+<div class="decoration">🌈</div>
+
+<header class="header">
+    <a href="/index.html" class="banner-link">
+        <img src="/image/1.jpg" alt="사이트 배너" class="banner-image">
+    </a>
+</header>
+
+<main class="login-container">
+    <h1>로그인</h1>
+
+    <form id="loginForm">
+        <div class="form-group">
+            <div class="input-group">
+                <label for="email">이메일 주소</label>
+                <input type="email" id="email" name="email" required>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <div class="input-group">
+                <label for="password">비밀번호</label>
+                <input type="password" id="password" name="password" required>
+            </div>
+        </div>
+
+        <button type="submit" class="login-button">로그인</button>
+    </form>
+
+    <div class="social-login">
+        <h2>카카오 로그인</h2>
+        <a href="/oauth2/authorization/kakao" class="kakao-login">
+            <img src="/image/kakao_login_medium_narrow.png" alt="카카오 로그인">
+        </a>
+    </div>
+
+    <div class="register-link">
+        <p>아직 계정이 없으신가요? <a href="/signup.html">회원가입하기</a></p>
+    </div>
+</main>
+
+
+<footer>
+    <p>© 2024 트리플민수. Even하게 익히다.</p>
+</footer>
+
+<script src="/js/login.js"></script>
+</body>
+</html>
