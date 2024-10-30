@@ -1,7 +1,9 @@
 package com.triple.backend.event.service.impl;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.triple.backend.common.exception.NotFoundException;
-import com.triple.backend.event.dto.EventApplyResponse;
+import com.triple.backend.event.dto.EventApplyRequestDto;
+import com.triple.backend.event.dto.EventApplyResponseDto;
 import com.triple.backend.event.dto.EventResultResponseDto;
 import com.triple.backend.event.dto.WinnerResponseDto;
 import com.triple.backend.event.entity.Event;
@@ -16,7 +18,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.data.redis.core.script.DefaultRedisScript;
+import com.triple.backend.event.exception.EventProcessingException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -34,9 +37,15 @@ public class EventServiceImpl implements EventService {
     private final WinningRepository winningRepository;
     private final RedisTemplate<String, String> redisTemplate;
     private final EventRepository eventRepository;
+    private final DefaultRedisScript<Long> eventParticipationScript;  // 추가
+    private final ObjectMapper objectMapper;  // 추가
 
-    private static final String EVENT_PARTICIPANT_KEY = "eventParticipant:";
-    private static final String EVENT_COUNTER_KEY = "eventCounter:";
+//    private static final String EVENT_PARTICIPANT_KEY = "eventParticipant:";
+//    private static final String EVENT_COUNTER_KEY = "eventCounter:";
+
+    private static final String EVENT_PARTICIPANT_KEY = "event:participant:";
+    private static final String EVENT_DATA_KEY = "event:data:";
+    private static final String EVENT_COUNTER_KEY = "event:counter:";
 
     @Value("${event.max-participants:100}")
     private int maxParticipants;
@@ -49,7 +58,7 @@ public class EventServiceImpl implements EventService {
 
     @Override
     @Transactional
-    public EventApplyResponse insertEventParticipate(Long eventId, Long memberId) {
+    public EventApplyResponseDto insertEventParticipate(Long eventId, Long memberId) {
         try {
             LocalDateTime now = LocalDateTime.now();
 
@@ -59,7 +68,7 @@ public class EventServiceImpl implements EventService {
 
             if (currentParticipants > maxParticipants) {
                 redisTemplate.opsForValue().decrement(counterKey);
-                return EventApplyResponse.failed("이벤트 마감되었습니다");
+                return EventApplyResponseDto.failed("이벤트 마감되었습니다");
             }
 
             // 2. 이벤트 유효성 검증
@@ -68,17 +77,17 @@ public class EventServiceImpl implements EventService {
             // 3. 이벤트 시간 검증
             if (!isEventTimeValid(event, now)) {
                 redisTemplate.opsForValue().decrement(counterKey);
-                return EventApplyResponse.failed(getEventTimeErrorMessage(event, now));
+                return EventApplyResponseDto.failed(getEventTimeErrorMessage(event, now));
             }
 
             // 4. 중복 참여 검증
             if (isAlreadyParticipated(eventId, memberId)) {
                 redisTemplate.opsForValue().decrement(counterKey);
-                return EventApplyResponse.failed("이미 참여하셨습니다");
+                return EventApplyResponseDto.failed("이미 참여하셨습니다");
             }
             saveEventParticipation(event, memberId);
 
-            return EventApplyResponse.success(currentParticipants);
+            return EventApplyResponseDto.success(currentParticipants);
 
         } catch (NotFoundException e) {
             throw e;
@@ -125,5 +134,40 @@ public class EventServiceImpl implements EventService {
                 .build();
 
         eventPartRepository.save(eventPart);
+    }
+
+    @Override
+    @Transactional
+    public EventApplyResponseDto applyEvent(EventApplyRequestDto request) {
+        try {
+            request.setCreateAt(LocalDateTime.now());
+
+            // Redis Lua 스크립트 실행
+            Long result = redisTemplate.execute(
+                    eventParticipationScript,
+                    List.of(
+                            EVENT_PARTICIPANT_KEY + request.getEventId(),
+                            EVENT_COUNTER_KEY + request.getEventId(),
+                            EVENT_DATA_KEY + request.getEventId() + ":" + request.getMemberId()
+                    ),
+                    request.getMemberId().toString(),
+                    String.valueOf(maxParticipants),
+                    objectMapper.writeValueAsString(request)
+            );
+
+            if (result == null) {
+                return EventApplyResponseDto.failed("시스템 오류가 발생했습니다.");
+            }
+
+            return switch (result.intValue()) {
+                case -1 -> EventApplyResponseDto.failed("이미 참여하셨습니다.");
+                case -2 -> EventApplyResponseDto.failed("이벤트가 마감되었습니다.");
+                default -> EventApplyResponseDto.success(result);
+            };
+
+        } catch (Exception e) {
+            log.error("이벤트 참여 처리 실패", e);
+            throw new EventProcessingException("이벤트 참여 처리 중 오류가 발생했습니다.");
+        }
     }
 }
