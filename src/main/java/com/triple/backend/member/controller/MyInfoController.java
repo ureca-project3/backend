@@ -20,18 +20,23 @@ public class MyInfoController {
 
     private final MemberService memberService;
 
+    // 사용자 등록
     @GetMapping("/my-info")
     public ResponseEntity<Map<String, Object>> getMemberInfo(Authentication authentication) {
         CustomMemberDetails memberDetails = (CustomMemberDetails) authentication.getPrincipal();
         Member member = memberDetails.getMember();
 
+        // MemberInfoDto를 사용하여 자녀 정보를 포함한 응답 생성
+        MemberInfoDto memberInfo = memberService.getUserProfileById(member.getMemberId());
+
         Map<String, Object> response = new HashMap<>();
-        response.put("member", member);
+        response.put("member", memberInfo);
         response.put("isKakaoUser", "kakao".equalsIgnoreCase(member.getProvider()));
 
         return ResponseEntity.ok(response);
     }
 
+    // 사용자 개인정보 수정
     @PostMapping("/my-info")
     public ResponseEntity<Map<String, String>> updateMemberInfo(
             @RequestBody Member member,
@@ -66,6 +71,7 @@ public class MyInfoController {
         }
     }
 
+    // 사용자 삭제 
     @DeleteMapping("/delete-account")
     public ResponseEntity<Map<String, String>> deleteMember(Authentication authentication) {
         CustomMemberDetails memberDetails = (CustomMemberDetails) authentication.getPrincipal();

@@ -64,7 +64,7 @@ public class ChildController {
 
         // 응답 생성
         ChildRegisterResponseDto response = new ChildRegisterResponseDto();
-        response.setMessage("Insert MyChild Success");
+        response.setMessage("자녀를 등록하였습니다!");
         response.setData(new ChildRegisterResponseDto.ChildData(request.getName())); // request.getName() 사용
         response.setTimestamp(LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
 
@@ -72,7 +72,7 @@ public class ChildController {
     }
 
     // 자녀 삭제
-    @DeleteMapping("/child-info")
+    @DeleteMapping("/child-child-info/{childId}")
     public ResponseEntity<String> deleteChildProfile(HttpServletRequest request) {
         // 액세스 토큰에서 사용자 ID(memberId) 추출
         String accessToken = request.getHeader("Authorization").substring(7);
