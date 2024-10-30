@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>아이북조아</title>
+    <link rel="stylesheet" href="/css/header.css">
+    <link rel="stylesheet" href="/css/index.css">
+    <link rel="stylesheet" href="/css/footer.css">
+</head>
+<body>
+    <div id="header-container"></div>
+
+    <div class="hero-banner">
+        <img src="/image/hero.png" alt="Hero Image" class="hero-image" />
+    </div>
+
+    <div class="content">
+        <section class="search-section">
+            <h2>오늘은 무슨 책을 읽어 볼까요?</h2>
+            <input type="text" id="searchInput" placeholder="책 제목을 입력하세요..." class="search-input" />
+        </section>
+    </div>
+
+    <div class="content">
+        <section class="recent-books-section">
+            <div class="section-header">
+                <h2>빠르게 만나보는 따끈한 신작</h2>
+                <div class="more-button">
+                    <button id="moreRecentBooks">더보기</button>
+                </div>
+            </div>
+            <div class="card-container" id="recentBookCards">
+            </div>
+        </section>
+
+        <section class="popular-books-section">
+            <div class="section-header">
+                <h2 id>👀 친구들이 Pick!한 책 엿보기</h2>
+                <div class="more-button">
+                    <button id="morePopularBooks">더보기</button>
+                </div>
+            </div>
+            <div class="card-container" id="popularBooksCards">
+            </div>
+        </section>
+    </div>
+
+    <div id="footer-container"></div>
+
+    <script type="module" src="/js/api.js"></script>
+    <script type="module" src="/js/header.js"></script>
+    <script type="module" src="/js/index.js"></script>
+    <script type="module" src="/js/footer.js"></script>
+
+</body>
+</html>
