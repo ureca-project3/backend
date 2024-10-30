@@ -6,6 +6,7 @@ import com.triple.backend.common.dto.ErrorResponse;
 import com.triple.backend.event.dto.EventApplyRequestDto;
 import com.triple.backend.event.dto.EventApplyResponseDto;
 import com.triple.backend.event.service.EventService;
+import com.triple.backend.event.service.impl.ScheduledDataTransferService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -20,6 +21,7 @@ import org.springframework.web.bind.annotation.*;
 public class EventController {
 
     private final EventService eventService;
+    private final ScheduledDataTransferService scheduledDataTransferService;
 
     @GetMapping("/result/{eventId}")
     public ResponseEntity<?> getEvent(@PathVariable(name = "eventId") Long eventId) {
@@ -64,4 +66,12 @@ public class EventController {
         return ResponseEntity.badRequest()
                 .body(ErrorResponse.error(HttpStatus.BAD_REQUEST, errorMessage));
     }
+
+    // 당첨자 redis -> mysql 등록 컨트롤러
+//    @PostMapping("/apply/db_save")
+//    public ResponseEntity<?> insertWinner() {
+//        scheduledDataTransferService.saveEventParticipantsToDatabase();
+//        return CommonResponse.ok("insert redisWinner Success");
+//    }
+
 }
