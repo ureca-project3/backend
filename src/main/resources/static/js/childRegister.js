@@ -56,7 +56,7 @@ document.getElementById("birthdate").addEventListener("input", function(e) {
 });
 
 // 자녀 등록 API 호출
-function registerChild() {
+async function registerChild() {
     const childName = document.getElementById('child-name').value;
     const birthDate = document.getElementById('birthdate').value;
 
@@ -105,30 +105,29 @@ function registerChild() {
     };
 
     // API 호출
-    fetch('/mypage/child-info', {
-        method: 'POST',
-        headers: {
-            'Accept': 'application/json',
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${accessToken}`
-        },
-        body: JSON.stringify(childData)
-    })
-        .then(response => {
-            if (response.status === 201) {
-                return response.json();
-            } else {
-                throw new Error("자녀 등록에 실패하였습니다.");
-            }
-        })
-        .then(data => {
-            alert(data.message);
-            window.location.href = `/childTestInfo.html?childName=${encodeURIComponent(childData.name)}`;
-        })
-        .catch(error => {
-            console.error("Error:", error);
-            alert("자녀 등록 중 오류가 발생했습니다.");
+    try {
+        const response = await fetch('/mypage/child-info', {
+            method: 'POST',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${accessToken}`
+            },
+            body: JSON.stringify(childData)
         });
+
+        if (!response.ok) {
+            throw new Error("자녀 등록에 실패하였습니다.");
+        }
+
+        const data = await response.json();
+        await updateChildId();
+        alert(data.message);
+        window.location.href = `/childTestInfo.html?childName=${encodeURIComponent(childData.name)}`;
+    } catch (error) {
+        console.error("Error:", error);
+        alert("자녀 등록 중 오류가 발생했습니다.");
+    }
 }
 // 나중에 등록하기
 function handleLaterButton() {
@@ -145,4 +144,36 @@ function calculateAge(birthDate) {
         age--;
     }
     return age;
+}
+
+// 자녀 등록시, sessionStorage의 CurrentChildId 변경
+async function updateChildId() {
+    try {
+        console.log("updateChildId 들어옴");
+        const response = await fetch('/api/member/children', {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${sessionStorage.getItem('accessToken')}`,
+                'Accept': 'application/json'
+            }
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const result = await response.json();
+        const children = result.data;
+
+        if (children && Array.isArray(children) && children.length > 0) {
+            const latestChildId = children[children.length - 1].childId;
+            sessionStorage.setItem('currentChildId', latestChildId.toString());
+            console.log('Updated currentChildId:', latestChildId);
+        } else {
+            console.log("등록한 자녀의 childId를 가져오지 못했습니다.");
+        }
+    } catch (error) {
+        console.error('Error fetching children:', error);
+        throw error;
+    }
 }
