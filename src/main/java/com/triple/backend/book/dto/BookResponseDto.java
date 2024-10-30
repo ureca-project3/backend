@@ -10,11 +10,13 @@ import lombok.NoArgsConstructor;
 public class BookResponseDto {
 	private String title;
 	private String recAge;
+	private String publisher;
 	private String imageUrl;
 
 	public BookResponseDto(Book book) {
 		this.title = book.getTitle();
 		this.recAge = book.getRecAge();
+		this.publisher = book.getPublisher();
 		this.imageUrl = book.getImageUrl();
 	}
 }
