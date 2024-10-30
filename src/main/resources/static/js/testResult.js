@@ -1,3 +1,4 @@
+const childId = sessionStorage.getItem('currentChildId');
 function setIndicatorPosition(score) {
     return `${score}%`;
 }
@@ -45,7 +46,7 @@ async function fetchTestResult() {
     try {
         const response = await fetch('/test/result', {
             headers: {
-                'Child-Id': '1'
+                'Child-Id': childId
             }
         });
         const data = await response.json();

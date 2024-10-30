@@ -3,7 +3,7 @@ const pageSize = 10;
 const totalQuestions = 20;
 const answers = {};
 let allQuestions = {};
-
+const childId = sessionStorage.getItem('currentChildId');
 // 점수값과 인덱스 매핑을 위한 상수
 const SCORE_VALUES = [-3, -2, -1, 1, 2, 3];
 
@@ -125,12 +125,11 @@ document.getElementById('next-button').addEventListener('click', () => {
         const answerList = Object.entries(answers).map(([questionId, score]) => ({
             [questionId]: score
         }));
-
         fetch('/test/1', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'Child-Id': 1
+                'Child-Id': childId
             }
         }).catch(error => {
             console.error('Error:', error);
@@ -141,7 +140,7 @@ document.getElementById('next-button').addEventListener('click', () => {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'Child-Id': 1
+                'Child-Id': childId
             },
             body: JSON.stringify({ answerList })
         })
