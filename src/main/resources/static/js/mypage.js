@@ -36,18 +36,23 @@ async function fetchAndDisplayProfile() {
             if (editPhoneInput) editPhoneInput.value = profileData.phone || '';
 
             // 자녀 프로필 표시
-            const childrenList = document.querySelector('.children-list');
+            const childrenList = document.getElementById('child-profiles'); // child-profiles ul 요소 가져오기
             if (childrenList && profileData.children && Array.isArray(profileData.children)) {
                 childrenList.innerHTML = profileData.children.map(child => `
-                            <div class="child-item">
-                                <img src="/image/${child.imageUrl || 'profileDefault.png'}"
-                                     alt="${child.name}의 프로필"
-                                     onerror="this.src='/image/profileDefault.png'">
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
                                 <div class="child-info">
-                                    <div class="child-name">${child.name}</div>
-                                    <div class="child-age">${child.age}세</div>
+                                    <img src="/image/${child.imageUrl || 'profileDefault.png'}"
+                                         alt="${child.name}의 프로필"
+                                         onerror="this.src='/image/profileDefault.png'"
+                                         style="width: 40px; height: 40px; border-radius: 50%; margin-right: 10px;">
+                                    <span class="child-name">${child.name}</span>
+                                    <span class="child-age">${child.age}세</span>
                                 </div>
-                            </div>
+                                <div class="child-actions">
+                                    <button class="btn btn-sm btn-outline-danger delete-child" data-id="${child.id}">삭제</button>
+                                    <button class="btn btn-sm btn-outline-secondary edit-child" data-id="${child.id}">수정</button>
+                                </div>
+                            </li>
                         `).join('');
             }
         }
@@ -205,44 +210,38 @@ document.getElementById('delete-account-button').addEventListener('click', async
 });
 
 
-// 자녀 프로필 삭제 기능
-document.getElementById('child-profiles').addEventListener('click', function (event) {
+// 자녀 프로필 삭제/수정 기능
+document.getElementById('child-profiles').addEventListener('click', function(event) {
     if (event.target.classList.contains('delete-child')) {
+        // 삭제 버튼 클릭 시 처리
         const childId = event.target.getAttribute('data-id');
         const accessToken = sessionStorage.getItem('accessToken');
 
-        console.log("자녀 삭제 요청 ID:", childId);
-
-        // 자녀 삭제 요청
-        fetch(`/api/user/children/${childId}`, {
-            method: 'DELETE',
-            headers: {
-                'Authorization': `Bearer ${accessToken}`
-            }
-        })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error("자녀 삭제 실패");
+        if (confirm("정말로 자녀 프로필을 삭제하시겠습니까?")) {
+            fetch(`/api/user/children/${childId}`, {
+                method: 'DELETE',
+                headers: {
+                    'Authorization': `Bearer ${accessToken}`
                 }
-                alert("자녀 프로필이 삭제되었습니다.");
-                window.location.reload(); // 페이지 새로 고침
             })
-            .catch(error => {
-                console.error("자녀 삭제 오류:", error);
-                alert("자녀 삭제에 실패했습니다.");
-            });
-    }
-});
-
-// 자녀 프로필 수정 기능
-document.getElementById('child-profiles').addEventListener('click', function (event) {
-    if (event.target.classList.contains('edit-child')) {
+                .then(response => {
+                    if (response.ok) {
+                        alert("자녀 프로필이 삭제되었습니다.");
+                        fetchAndDisplayProfile(); // 자녀 프로필 정보 새로고침
+                    } else {
+                        throw new Error("자녀 프로필 삭제 실패");
+                    }
+                })
+                .catch(error => {
+                    console.error("자녀 프로필 삭제 오류:", error);
+                    alert("자녀 프로필 삭제에 실패했습니다.");
+                });
+        }
+    } else if (event.target.classList.contains('edit-child')) {
+        // 수정 버튼 클릭 시 처리
         const childId = event.target.getAttribute('data-id');
         const accessToken = sessionStorage.getItem('accessToken');
 
-        console.log("자녀 수정 요청 ID:", childId);
-
-        // 자녀 정보 요청
         fetch(`/api/user/children/${childId}`, {
             method: 'GET',
             headers: {
@@ -250,29 +249,14 @@ document.getElementById('child-profiles').addEventListener('click', function (ev
             }
         })
             .then(response => {
-                if (!response.ok) {
-                    throw new Error("자녀 정보 요청 실패");
+                if (response.ok) {
+                    return response.json();
                 }
-                return response.json();
+                throw new Error("자녀 정보 요청 실패");
             })
             .then(child => {
-                console.log("자녀 정보 로드 성공:", child);
-
-                // 수정 폼에 자녀 정보 설정
-                const childNameInput = document.getElementById('edit-child-name');
-                const childAgeInput = document.getElementById('edit-child-age');
-                const childGenderInput = document.getElementById('edit-child-gender');
-
-                // 한 번에 DOM 업데이트
-                childNameInput.value = child.name;
-                childAgeInput.value = child.age;
-                childGenderInput.value = child.gender;
-
-                // 수정 버튼 클릭 시 자녀 ID 저장
-                document.getElementById('child-id').value = childId;
-
-                // 수정 폼 표시
-                document.getElementById('edit-child-profile').style.display = 'block';
+                // 수정 폼에 자녀 정보 설정 (모달이나 다른 폼을 사용해야 함)
+                // ...
             })
             .catch(error => {
                 console.error("자녀 정보 로드 오류:", error);
@@ -280,41 +264,48 @@ document.getElementById('child-profiles').addEventListener('click', function (ev
             });
     }
 });
+// 자녀 등록 버튼 클릭 이벤트
+document.querySelector('.bottom-info button').addEventListener('click', function() {
+    window.location.href = '/childRegister.html';
+});
 
-// 자녀 프로필 수정 폼 제출
-document.getElementById('child-edit-form').addEventListener('submit', function (event) {
-    event.preventDefault();
-    const accessToken = sessionStorage.getItem('accessToken');
-    const childId = document.getElementById('child-id').value;
+// 자녀 프로필 등록 폼 제출
+const childRegistrationForm = document.getElementById('child-registration-form'); // 폼 요소 가져오기
 
-    // 수정된 자녀 정보
-    const updatedChildData = {
-        name: document.getElementById('edit-child-name').value,
-        age: document.getElementById('edit-child-age').value,
-        gender: document.getElementById('edit-child-gender').value
-    };
+childRegistrationForm.addEventListener('submit', function(event) {
+    event.preventDefault(); // 기본 폼 제출 방지
 
-    console.log("자녀 수정 요청 데이터:", updatedChildData);
+    // 폼 데이터 가져오기
+    const childName = document.getElementById('child-name').value;
+    const birthDate = document.getElementById('birthdate').value;
+    const gender = document.querySelector('input[name="gender"]:checked').value;
+    const profileImage = document.getElementById('profile-img').src; // 이미지 URL 가져오기
 
-    // 자녀 정보 수정 요청
-    fetch(`/api/user/children/${childId}`, {
-        method: 'PUT', // Assuming the API uses PUT for updates
+    // API 요청
+    fetch('/mypage/child-info', {
+        method: 'POST',
         headers: {
-            'Authorization': `Bearer ${accessToken}`,
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${sessionStorage.getItem('accessToken')}`
         },
-        body: JSON.stringify(updatedChildData)
+        body: JSON.stringify({
+            name: childName,
+            birthDate: birthDate,
+            gender: gender,
+            profileImage: profileImage // 이미지 URL을 API로 전송
+        })
     })
         .then(response => {
-            if (!response.ok) {
-                throw new Error("자녀 프로필 수정 실패");
+            if (response.ok) {
+                alert("자녀 프로필이 등록되었습니다.");
+                window.location.href = '/mypage.html'; // 마이페이지로 리디렉션
+            } else {
+                throw new Error("자녀 프로필 등록 실패");
             }
-            alert("자녀 프로필이 수정되었습니다.");
-            window.location.reload(); // 페이지 새로 고침
         })
         .catch(error => {
-            console.error("자녀 프로필 수정 오류:", error);
-            alert("자녀 프로필 수정에 실패했습니다.");
+            console.error("자녀 프로필 등록 오류:", error);
+            alert("자녀 프로필 등록에 실패했습니다.");
         });
 });
 
@@ -346,206 +337,7 @@ document.getElementById('delete-account-button').addEventListener('click', funct
     }
 });
 
-
-// 자녀 등록
-const images = ['profile1.png', 'profile2.png', 'profile3.png', 'profile4.png', 'profile5.png', 'profile6.png', 'profile7.png'];
-let selectedImage = 'profileDefault.png';
-let selectedGender = null;
-
-// 프로필 이미지 선택 모달 열기
-function openModal() {
-    const imageOptions = document.getElementById("image-options");
-    imageOptions.innerHTML = ''; // 기존 이미지 삭제
-    images.forEach(image => {
-        const img = document.createElement("img");
-        img.src = `/image/${image}`;
-        img.alt = image;
-        img.onclick = () => selectImage(img, image);
-        imageOptions.appendChild(img);
-    });
-    document.getElementById("imageModal").style.display = "flex";
-}
-
-// 이미지 선택
-function selectImage(imgElement, image) {
-    document.querySelectorAll("#image-options img").forEach(img => img.classList.remove("selected"));
-    imgElement.classList.add("selected");
-    selectedImage = image;
-}
-
-// 선택된 이미지 확인 및 설정
-function confirmImageSelection() {
-    document.getElementById("profile-img").src = `/image/${selectedImage}`;
-    document.getElementById("imageModal").style.display = "none";
-}
-
-// 성별 선택 기능
-function selectGender(gender) {
-    selectedGender = gender;
-    document.getElementById("gender-male").classList.toggle("btn-dark", gender === "남");
-    document.getElementById("gender-male").classList.toggle("btn-outline-dark", gender !== "남");
-    document.getElementById("gender-female").classList.toggle("btn-dark", gender === "여");
-    document.getElementById("gender-female").classList.toggle("btn-outline-dark", gender !== "여");
-}
-
-// 생년월일 입력 형식
-document.getElementById("birthdate").addEventListener("input", function (e) {
-    let input = e.target.value.replace(/[^0-9]/g, "");
-    if (input.length >= 4) input = input.slice(0, 4) + "." + input.slice(4);
-    if (input.length >= 7) input = input.slice(0, 7) + "." + input.slice(7, 9);
-    e.target.value = input;
+// 자녀 등록 버튼 클릭 이벤트
+document.getElementById('add-child-profile-button').addEventListener('click', function() {
+    window.location.href = '/childRegister.html'; // 자녀 등록 페이지로 이동
 });
-
-// 자녀 등록 API 호출
-function registerChild() {
-    const childName = document.getElementById('child-name').value;
-    const birthDate = document.getElementById('birthdate').value;
-
-    // 입력값 검증
-    let isValid = true;
-    if (!childName) {
-        document.getElementById('child-name').classList.add('highlight');
-        isValid = false;
-    } else {
-        document.getElementById('child-name').classList.remove('highlight');
-    }
-
-    if (!birthDate) {
-        document.getElementById('birthdate').classList.add('highlight');
-        isValid = false;
-    } else {
-        document.getElementById('birthdate').classList.remove('highlight');
-    }
-
-    if (!selectedGender) {
-        document.querySelector('.gender-selection').classList.add('highlight');
-        isValid = false;
-    } else {
-        document.querySelector('.gender-selection').classList.remove('highlight');
-    }
-
-    if (!isValid) {
-        alert("모든 필드를 작성해 주세요.");
-        return;
-    }
-
-    const accessToken = sessionStorage.getItem('accessToken');
-    if (!accessToken) {
-        alert("로그인이 필요합니다.");
-        window.location.href = "/login.html";
-        return;
-    }
-
-    // 입력된 자녀 정보 가져오기
-    const childData = {
-        name: childName,
-        age: calculateAge(birthDate),
-        birthDate: birthDate,
-        gender: selectedGender === "남" ? "M" : "F",
-        profileImage: selectedImage
-    };
-
-    // API 호출
-    fetch('/mypage/child-info', {
-        method: 'POST',
-        headers: {
-            'Accept': 'application/json',
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${accessToken}`
-        },
-        body: JSON.stringify(childData)
-    })
-        .then(response => {
-            if (response.ok) {
-                return response.json();
-            }
-            throw new Error("자녀 등록에 실패하였습니다.");
-        })
-        .then(data => {
-            alert("자녀가 성공적으로 등록되었습니다.");
-            window.location.href = `/childTestInfo.html?childName=${encodeURIComponent(childData.name)}`;
-        })
-        .catch(error => {
-            console.error("Error:", error);
-            alert("자녀 등록 중 오류가 발생했습니다.");
-        });
-}
-// 자녀 프로필 모달 관련 코드
-let childProfileModal = null;
-let imageModal = null;
-
-document.addEventListener('DOMContentLoaded', function() {
-    // 모달 초기화
-    childProfileModal = new bootstrap.Modal(document.getElementById('childProfileModal'));
-    imageModal = new bootstrap.Modal(document.getElementById('imageModal'));
-});
-
-// 모달 관련 함수들
-function openChildModal() {
-    document.getElementById('childProfileModal').style.display = 'flex';
-}
-
-function closeChildModal() {
-    document.getElementById('childProfileModal').style.display = 'none';
-}
-// 이미지 선택 모달 열기
-function openModal() {
-    // 이미지 옵션 초기화
-    const imageOptions = document.getElementById("image-options");
-    imageOptions.innerHTML = ''; // 기존 이미지 삭제
-    images.forEach(image => {
-        const img = document.createElement("img");
-        img.src = `/image/${image}`;
-        img.alt = image;
-        img.onclick = () => selectImage(img, image);
-        imageOptions.appendChild(img);
-    });
-    imageModal.show();
-}
-
-// 이미지 선택 모달 닫기
-function closeImageModal() {
-    imageModal.hide();
-}
-
-// 이미지 선택 확인
-function confirmImageSelection() {
-    document.getElementById("profile-img").src = `/image/${selectedImage}`;
-    closeImageModal();
-}
-// 생년월일 입력 형식화
-function formatBirthDate(input) {
-    let value = input.value.replace(/\D/g, '');
-    if (value.length >= 4) {
-        value = value.slice(0, 4) + '.' + value.slice(4);
-    }
-    if (value.length >= 7) {
-        value = value.slice(0, 7) + '.' + value.slice(7, 9);
-    }
-    input.value = value;
-}
-
-// 등록하기 버튼 활성화/비활성화
-function updateRegisterButton() {
-    const childName = document.getElementById('child-name').value;
-    const birthDate = document.getElementById('birthdate').value;
-    const registerBtn = document.querySelector('.register-btn');
-
-    if (childName && birthDate && selectedGender) {
-        registerBtn.disabled = false;
-        registerBtn.style.opacity = '1';
-    } else {
-        registerBtn.disabled = true;
-        registerBtn.style.opacity = '0.5';
-    }
-}
-function calculateAge(birthDate) {
-    const birth = new Date(birthDate);
-    const today = new Date();
-    let age = today.getFullYear() - birth.getFullYear();
-    const m = today.getMonth() - birth.getMonth();
-    if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) {
-        age--;
-    }
-    return age;
-}

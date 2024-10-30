@@ -134,7 +134,7 @@
 
     <!-- 등록하기 버튼 -->
     <button type="button" class="register-button" onclick="registerChild()">등록하기</button>
-    <div class="later-button">나중에 등록하기</div>
+    <div class="later-button" onclick="handleLaterButton()">나중에 등록하기</div>
 </div>
 
 <!-- Modal -->
@@ -282,6 +282,10 @@
             age--;
         }
         return age;
+    }
+
+    function handleLaterButton() {
+        window.location.href = '/mypage.html'; // mypage.html로 이동
     }
 </script>
 </body>
