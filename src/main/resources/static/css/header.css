@@ -1,48 +1,31 @@
-@import url('https://fonts.googleapis.com/css2?family=Jua&display=swap');
 .header {
     display: flex;
     justify-content: space-between;
     align-items: center;
     padding: 20px 0;
-    margin-bottom: 40px;
 }
+
+.decoration {
+    position: fixed;
+    font-size: 40px;
+    opacity: 0.2;
+    z-index: -1;
+}
+
+.decoration:nth-child(1) { top: 10%; left: 5%; }
+.decoration:nth-child(2) { top: 30%; right: 5%; }
+.decoration:nth-child(3) { bottom: 20%; left: 8%; }
+.decoration:nth-child(4) { bottom: 10%; right: 8%; }
 
 .banner-link {
     display: block;
-    max-width: 200px;
+    max-width: 100px;
 }
 
 .banner-image {
-    width: 100%;
+    width: 200%;
     height: auto;
     border-radius: 10px;
-}
-
-.nav-buttons {
-    display: flex;
-    align-items: center;
-}
-
-.auth-buttons {
-    display: flex;
-    gap: 10px;
-}
-
-.nav-button {
-    background-color: #FF7F50;
-    color: white;
-    border: none;
-    border-radius: 25px;
-    padding: 10px 20px;
-    font-size: 16px;
-    text-decoration: none;
-    cursor: pointer;
-    transition: background-color 0.3s;
-    font-family: inherit;
-}
-
-.nav-button:hover {
-    background-color: #FF6B3D;
 }
 
 .profile-selector {

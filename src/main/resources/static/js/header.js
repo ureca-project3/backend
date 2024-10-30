@@ -213,7 +213,7 @@ class Header {
 
 // DOM이 완전히 로드된 후에 헤더를 초기화
 document.addEventListener('DOMContentLoaded', () => {
-    fetch('/header.html')
+    fetch('/html/header.html')
         .then(response => response.text())
         .then(html => {
             document.getElementById('header-container').innerHTML = html;
