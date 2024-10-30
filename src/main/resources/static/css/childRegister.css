@@ -317,3 +317,22 @@ body {
     25% { transform: translateX(-5px); }
     75% { transform: translateX(5px); }
 }
+
+.start-button {
+    background-color: #4CAF50; /* 녹색 배경 */
+    color: white; /* 흰색 글자 */
+    border: none;
+    padding: 10px 20px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    margin: 4px 2px;
+    border-radius: 10px; /* 둥글게 */
+    cursor: pointer; /* 마우스 커서 변경 */
+    transition: background-color 0.3s ease; /* 마우스 호버 시 색상 변화 */
+}
+
+.start-button:hover {
+    background-color: #3e8e41; /* 마우스 호버 시 배경 색상 변경 */
+}
