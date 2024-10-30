@@ -2,7 +2,6 @@ package com.triple.backend.member.controller;
 
 import com.triple.backend.auth.dto.CustomMemberDetails;
 import com.triple.backend.child.dto.ChildDto;
-import com.triple.backend.child.entity.Child;
 import com.triple.backend.common.dto.CommonResponse;
 import com.triple.backend.member.entity.Member;
 import com.triple.backend.member.entity.MemberInfoDto;
@@ -18,7 +17,6 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api")

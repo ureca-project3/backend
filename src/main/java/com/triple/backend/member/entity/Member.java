@@ -1,6 +1,5 @@
 package com.triple.backend.member.entity;
 
-import com.triple.backend.common.code.CommonCode;
 import com.triple.backend.common.entity.BaseEntity;
 import jakarta.persistence.*;
 import lombok.Builder;
