@@ -21,6 +21,7 @@ public class ChildController {
 
     private final ChildService childService;
     private final MbtiHistoryService mbtiHistoryService;
+
     // 자녀 정보, 최신 히스토리 조회
     @GetMapping("/child-info/{childId}")
     public ResponseEntity<?> getChildInfo(@PathVariable(name = "childId") Long childId) {
@@ -58,31 +59,23 @@ public class ChildController {
 
     // 자녀 등록
     @PostMapping("/child-info")
-    public ResponseEntity<ChildRegisterResponseDto> registerChild(@RequestBody ChildRegisterRequestDto request, HttpServletRequest httpRequest) {
-        String accessToken = httpRequest.getHeader("Authorization").substring(7);
-        childService.registerChild(request, accessToken);
-
-        // 응답 생성
+    public ResponseEntity<?> registerChild(
+            @RequestBody ChildRegisterRequestDto request,
+            @RequestHeader(name = "Authorization") String accessToken
+    ) {
+        childService.registerChild(request, accessToken.substring(7));
         ChildRegisterResponseDto response = new ChildRegisterResponseDto();
-        response.setMessage("자녀를 등록하였습니다!");
-        response.setData(new ChildRegisterResponseDto.ChildData(request.getName())); // request.getName() 사용
-        response.setTimestamp(LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
-
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        response.setData(new ChildRegisterResponseDto.ChildData(request.getName()));
+        return CommonResponse.ok("자녀등록을 성공했습니다.", response);
     }
 
     // 자녀 삭제
     @DeleteMapping("/child-child-info/{childId}")
-    public ResponseEntity<String> deleteChildProfile(
-            @PathVariable Long childId,
-            HttpServletRequest request) {
-        String accessToken = request.getHeader("Authorization").substring(7);
-        boolean isDeleted = childService.deleteChildById(childId, accessToken);
-
-        if (isDeleted) {
-            return ResponseEntity.ok("자녀 프로필 정보가 삭제되었습니다.");
-        } else {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("자녀 프로필 정보를 찾을 수 없습니다.");
-        }
+    public ResponseEntity<?> deleteChildProfile(
+            @PathVariable(name = "childId") Long childId,
+            @RequestHeader(name = "Authorization") String accessToken
+    ) {
+        childService.deleteChildById(childId, accessToken.substring(7));
+        return CommonResponse.ok("Delete Child Success", null);
     }
 }
