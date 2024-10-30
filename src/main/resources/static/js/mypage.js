@@ -43,22 +43,24 @@ async function fetchAndDisplayProfile() {
             if (childProfiles) {
                 if (profileData.children && Array.isArray(profileData.children) && profileData.children.length > 0) {
                     childProfiles.innerHTML = profileData.children.map(child => `
-              <li class="list-group-item d-flex justify-content-between align-items-center" data-id="${child.childId}">
-                <div class="child-info d-flex align-items-center" data-id="${child.childId}">
-                    <img src="/image/${child.imageUrl || 'profileDefault.png'}"
-                         alt="${child.name}의 프로필"
-                         onerror="this.src='/image/profileDefault.png'"
-                         style="width: 40px; height: 40px; border-radius: 50%; margin-right: 10px;">
-                    <div>
-                        <span class="child-name fw-bold">${child.name}</span>
-                        <span class="child-age ms-2">${child.age}세</span>
-                    </div>
-                </div>
-                <div class="child-actions">
-                     <button class="btn btn-sm btn-outline-secondary edit-child me-2" data-id="${child.childId}" onclick="goToChildDetail('${child.childId}')">정보</button>
-                    <button class="btn btn-sm btn-outline-danger delete-child" data-id="${child.childId}">삭제</button>
-                </div>
-            </li>
+          <li class="list-group-item d-flex justify-content-between align-items-center" data-id="${child.childId}">
+        <div class="child-info d-flex align-items-center" 
+             onclick="goToChildDetail('${child.childId}')" 
+             data-id="${child.childId}">
+            <img src="/image/${child.imageUrl || 'profileDefault.png'}"
+                 alt="${child.name}의 프로필"
+                 onerror="this.src='/image/profileDefault.png'"
+                 style="width: 40px; height: 40px; border-radius: 50%; margin-right: 10px;">
+            <div>
+                <span class="child-name fw-bold">${child.name}</span>
+                <span class="child-age ms-2">${child.age}세</span>
+            </div>
+        </div>
+        <div class="child-actions">
+            <button class="btn btn-sm btn-outline-secondary edit-child me-2" data-id="${child.childId}" onclick="goToChildDetail('${child.childId}')">정보</button>
+            <button class="btn btn-sm btn-outline-danger delete-child" data-id="${child.childId}">삭제</button>
+        </div>
+    </li>
         `).join('');
                 } else {
                     childProfiles.innerHTML = '<li class="list-group-item text-center">등록된 자녀가 없습니다.</li>';
@@ -335,5 +337,5 @@ document.getElementById('child-profiles').addEventListener('click', function (ev
         });
 // 자녀 상세 페이지로 이동하는 함수
 function goToChildDetail(childId) {
-    window.location.href = `/childDetail.html?id=${childId}`;
+    window.location.href = `/testHistory.html?id=${childId}`;
 }
