@@ -12,5 +12,6 @@ public class MemberInfoDto {
     private String name;
     private String email;
     private String phone;
+    private String provider;
     private List<Child> children; // 자녀 정보 목록
 }

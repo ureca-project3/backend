@@ -3,9 +3,11 @@ package com.triple.backend.child.entity;
 import com.triple.backend.member.entity.Member;
 import jakarta.persistence.*;
 import lombok.Getter;
+import lombok.Setter;
 
 @Entity
 @Getter
+@Setter
 public class Child {
 
     @Id

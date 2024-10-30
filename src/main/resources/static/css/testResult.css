@@ -2,13 +2,11 @@
 
 body {
     font-family: 'Jua', sans-serif;
-    max-width: 800px;
+    max-width: 1000px;
     margin: 0 auto;
     padding: 20px;
     background-color: #FFF5E6;
     color: #4A4A4A;
-    text-align: center;
-    position: relative;
 }
 
 .decoration {
@@ -28,6 +26,7 @@ body {
     font-weight: bold;
     margin: 40px 0;
     color: #333;
+    text-align: center;
 }
 
 .result-container {
