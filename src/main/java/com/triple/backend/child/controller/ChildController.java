@@ -59,10 +59,7 @@ public class ChildController {
 
     // 자녀 등록
     @PostMapping("/child-info")
-    public ResponseEntity<?> registerChild(
-            @RequestBody ChildRegisterRequestDto request,
-            @RequestHeader(name = "Authorization") String accessToken
-    ) {
+    public ResponseEntity<?> registerChild(@RequestBody ChildRegisterRequestDto request, @RequestHeader(name = "Authorization") String accessToken) {
         childService.registerChild(request, accessToken.substring(7));
         ChildRegisterResponseDto response = new ChildRegisterResponseDto();
         response.setData(new ChildRegisterResponseDto.ChildData(request.getName()));
@@ -71,10 +68,7 @@ public class ChildController {
 
     // 자녀 삭제
     @DeleteMapping("/child-child-info/{childId}")
-    public ResponseEntity<?> deleteChildProfile(
-            @PathVariable(name = "childId") Long childId,
-            @RequestHeader(name = "Authorization") String accessToken
-    ) {
+    public ResponseEntity<?> deleteChildProfile(@PathVariable(name = "childId") Long childId, @RequestHeader(name = "Authorization") String accessToken) {
         childService.deleteChildById(childId, accessToken.substring(7));
         return CommonResponse.ok("Delete Child Success", null);
     }
