@@ -1,12 +1,10 @@
-// 헤더에서 'Child-Id' 값을 가져오는 함수
-function getChildIdFromHeader() {
-    const childIdElement = document.getElementById("current-child-id"); // HTML 요소의 ID로 설정
-    return childIdElement ? childIdElement.value : null; // value 속성을 통해 Child-Id 가져오기
+function getChildIdFromSession() {
+    return sessionStorage.getItem("Child-Id");
 }
 
 // 페이지 로드 시 좋아요 상태를 확인하여 버튼 스타일 설정
 async function fetchRecommendedBooks() {
-    const childId = getChildIdFromHeader();
+    const childId = getChildIdFromSession();
     if (!childId) {
         console.error("Child-Id를 찾을 수 없습니다.");
         return;
@@ -16,8 +14,9 @@ async function fetchRecommendedBooks() {
         const response = await fetch("/recommends", {
             method: 'GET',
             headers: {
-                'Child-Id': 1 // 실제 환경에 맞게 설정
-                // 'Child-Id': childId // 가져온 Child-Id 사용
+                'Child-Id': childId,
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${sessionStorage.getItem('accessToken')}`
             }
         });
         const data = await response.json();
@@ -65,8 +64,9 @@ async function checkRecBookLikeStatus(bookId, childId) {
         const response = await fetch(`/recommends/likes/${bookId}`, {
             method: 'GET',
             headers: {
-                'Child-Id': 1 // 실제 환경에 맞게 설정
-            // 'Child-Id': childId // 가져온 Child-Id 사용
+                'Child-Id': childId,
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${sessionStorage.getItem('accessToken')}`
             }
         });
 
@@ -87,7 +87,7 @@ async function checkRecBookLikeStatus(bookId, childId) {
 
 // 좋아요 토글 기능
 async function toggleRecBookLike(bookId) {
-    const childId = getChildIdFromHeader();
+    const childId = getChildIdFromSession();
     if (!childId) {
         console.error("Child-Id를 찾을 수 없습니다.");
         return;
@@ -101,8 +101,9 @@ async function toggleRecBookLike(bookId) {
             await fetch(`/recommends/likes/${bookId}`, {
                 method: 'DELETE',
                 headers: {
-                    'Child-Id': 1 // 실제 환경에 맞게 설정
-                    // 'Child-Id': childId // 가져온 Child-Id 사용
+                    'Child-Id': childId,
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${sessionStorage.getItem('accessToken')}`
                 }
             });
             likeBtn.classList.remove("liked");
@@ -110,8 +111,9 @@ async function toggleRecBookLike(bookId) {
             await fetch(`/recommends/likes/${bookId}`, {
                 method: 'POST',
                 headers: {
-                    'Child-Id': 1 // 실제 환경에 맞게 설정
-                    // 'Child-Id': childId // 가져온 Child-Id 사용
+                    'Child-Id': childId,
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${sessionStorage.getItem('accessToken')}`
                 }
             });
             likeBtn.classList.add("liked");

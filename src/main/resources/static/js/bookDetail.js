@@ -6,7 +6,6 @@ window.onload = function () {
 document.addEventListener("DOMContentLoaded", async () => {
     const urlParams = new URLSearchParams(window.location.search);
     const bookId = urlParams.get('bookId');
-    const childId = 1; // 예시로 childId를 하드코딩합니다. 실제 환경에서는 적절하게 가져와야 합니다.
 
     if (!bookId) {
         console.error("bookId가 없습니다");
@@ -38,14 +37,14 @@ document.addEventListener("DOMContentLoaded", async () => {
 async function checkLikeHateState() {
     const urlParams = new URLSearchParams(window.location.search);
     const bookId = urlParams.get('bookId');
-    const childId = 1; // 예시로 childId를 하드코딩합니다. 실제 환경에서는 적절하게 가져와야 합니다.
 
     try {
         // 좋아요 상태 확인
         const likeResponse = await fetch(`/likes/${bookId}`, {
             method: 'GET',
             headers: {
-                'Child-Id': childId
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${sessionStorage.getItem('accessToken')}`
             }
         });
 
@@ -87,14 +86,14 @@ async function toggleLike() {
     const dislikeBtn = document.getElementById("dislike-btn");
     const urlParams = new URLSearchParams(window.location.search);
     const bookId = urlParams.get('bookId');
-    const childId = 1; // 예시로 childId를 하드코딩합니다. 실제 환경에서는 적절하게 가져와야 합니다.
 
     try {
         if (likeBtn.classList.contains("liked")) {
             const response = await fetch(`/likes/${bookId}`, {
                 method: 'DELETE',
                 headers: {
-                    'Child-Id': childId
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${sessionStorage.getItem('accessToken')}`
                 }
             });
             if (response.ok) {
@@ -123,14 +122,14 @@ async function toggleDislike() {
     const dislikeBtn = document.getElementById("dislike-btn");
     const urlParams = new URLSearchParams(window.location.search);
     const bookId = urlParams.get('bookId');
-    const childId = 1; // 예시로 childId를 하드코딩합니다. 실제 환경에서는 적절하게 가져와야 합니다.
 
     try {
         if (dislikeBtn.classList.contains("disliked")) {
             const response = await fetch(`/hates/${bookId}`, {
                 method: 'DELETE',
                 headers: {
-                    'Child-Id': childId
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${sessionStorage.getItem('accessToken')}`
                 }
             });
             if (response.ok) {

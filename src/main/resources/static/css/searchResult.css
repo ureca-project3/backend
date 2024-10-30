@@ -9,7 +9,7 @@ body {
     color: #4A4A4A;
     display: flex;
     flex-direction: column;
-    align-items: flex-start;
+    /*align-items: flex-start;*/
 }
 
 h1 {
