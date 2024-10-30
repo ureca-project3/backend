@@ -115,11 +115,12 @@ public class BatchConfig extends DefaultBatchConfiguration {
     public JdbcCursorItemReader<FeedbackAndTraitsDto> mySQLFeedbackReader() {
         JdbcCursorItemReader<FeedbackAndTraitsDto> reader = new JdbcCursorItemReader<>();
         reader.setDataSource(dataSource);
+        reader.setFetchSize(10);
         reader.setSql("""
-        SELECT f.child_id, f.book_id, f.like_status, f.hate_status
-        FROM feedback f
-        WHERE DATE(f.created_at) = CURDATE()
-        """);
+                SELECT f.child_id, f.book_id, f.like_status, f.hate_status
+                FROM feedback f
+                WHERE DATE(f.created_at) = CURDATE()
+                """);
         reader.setRowMapper(new FeedbackAndTraitsRowMapper(namedParameterJdbcTemplate));
         return reader;
     }
@@ -179,10 +180,10 @@ public class BatchConfig extends DefaultBatchConfiguration {
             public void write(Chunk<? extends List<TraitsChangeDto>> chunk) throws Exception {
                 // 아이의 성향 4개가 담긴 List<TraitsChangeDto>를 청크 크기만큼 받아 일괄 업데이트한다
                 String updateSql = """
-                UPDATE traits_change
-                SET change_amount = change_amount + :changeAmount
-                WHERE child_id = :childId AND trait_id = :traitId
-                """;
+                        UPDATE traits_change
+                        SET change_amount = change_amount + :changeAmount
+                        WHERE child_id = :childId AND trait_id = :traitId
+                        """;
 
                 List<Map<String, Object>> batchValues = new ArrayList<>();
                 for (List<TraitsChangeDto> traitsChangeDtos : chunk) {
@@ -209,11 +210,12 @@ public class BatchConfig extends DefaultBatchConfiguration {
         // traits_change 테이블에서 누적 변화량이 5 이상인 데이터들을 읽어온다
         JdbcCursorItemReader<TraitsChangeDto> reader = new JdbcCursorItemReader<>();
         reader.setDataSource(dataSource);
+        reader.setFetchSize(10);
         reader.setSql("""
-        SELECT tc.trait_change_id, tc.child_id, tc.trait_id, tc.change_amount
-        FROM traits_change tc
-        WHERE change_amount >= 5
-        """);
+                SELECT tc.trait_change_id, tc.child_id, tc.trait_id, tc.change_amount
+                FROM traits_change tc
+                WHERE change_amount >= 5
+                """);
         reader.setRowMapper(new TraitsChangeRowMapper());
         return reader;
     }
@@ -230,30 +232,34 @@ public class BatchConfig extends DefaultBatchConfiguration {
                 step1: child_id에 걸린 history 중 가장 최근 history_id 찾는다
                 step2: 1에서 찾은 history_id와 파라미터로 받은 trait_id를 가진 가장 최근 데이터를 찾는다
                 step3: 2에서 찾은 데이터의 trait_score에 changeAmound 값을 더해 새로운 값으로 갱신한다
+                추가사항: 최종 쿼리 결과가 음수면 0, 100을 넘어가면 100으로 저장한다
                 */
                 String insertChildTraitsSql = """
-                INSERT INTO child_traits (history_id, trait_id, trait_score, created_at)
-                SELECT
-                    (SELECT history_id
-                     FROM mbti_history
-                     WHERE child_id = :childId
-                     ORDER BY created_at DESC
-                     LIMIT 1) AS history_id,
-                    :traitId AS trait_id,
-                    (SELECT trait_score
-                     FROM (SELECT trait_score 
-                           FROM child_traits
-                           WHERE history_id = (SELECT history_id
-                                               FROM mbti_history
-                                               WHERE child_id = :childId
-                                               ORDER BY created_at DESC
-                                               LIMIT 1)
-                             AND trait_id = :traitId
-                           ORDER BY created_at DESC
-                           LIMIT 1) AS score_subquery
-                    ) + :changeAmount AS trait_score,
-                    :createdAt AS created_at
-            """;
+                            INSERT INTO child_traits (history_id, trait_id, trait_score, created_at)
+                            SELECT
+                                (SELECT history_id
+                                 FROM mbti_history
+                                 WHERE child_id = :childId
+                                 ORDER BY created_at DESC
+                                 LIMIT 1) AS history_id,
+                                :traitId AS trait_id,
+                                LEAST(100, GREATEST(0, 
+                                    (SELECT trait_score
+                                     FROM (SELECT trait_score 
+                                           FROM child_traits
+                                           WHERE history_id = (SELECT history_id
+                                                               FROM mbti_history
+                                                               WHERE child_id = :childId
+                                                               ORDER BY created_at DESC
+                                                               LIMIT 1)
+                                             AND trait_id = :traitId
+                                           ORDER BY created_at DESC
+                                           LIMIT 1) AS score_subquery
+                                    ) + :changeAmount
+                                )) AS trait_score,
+                                :createdAt AS created_at
+                        """;
+
 
                 List<Map<String, Object>> insertChildTraitsParams = new ArrayList<>();
                 for (TraitsChangeDto dto : chunk) {
@@ -276,10 +282,10 @@ public class BatchConfig extends DefaultBatchConfiguration {
 
                 // 2. TraitsChange 초기화 : 반영이 완료된 누적변화량은 0으로 초기화한다
                 String resetTraitsChangeSql = """
-                UPDATE traits_change
-                SET change_amount = 0
-                WHERE trait_change_id = :traitChangeId
-                """;
+                        UPDATE traits_change
+                        SET change_amount = 0
+                        WHERE trait_change_id = :traitChangeId
+                        """;
 
                 List<Map<String, Object>> resetTraitsChangeParams = new ArrayList<>();
                 for (TraitsChangeDto dto : chunk) {
@@ -300,9 +306,9 @@ public class BatchConfig extends DefaultBatchConfiguration {
             }
 
             String sql = """
-            INSERT INTO mbti_history (child_id, current_mbti, reason, reason_id, is_deleted, created_at, modified_at)
-            VALUES (:childId, :currentMbti, :changeReason, :changeReasonId, :isDeleted, :createdAt, :modifiedAt)
-        """;
+                        INSERT INTO mbti_history (child_id, current_mbti, reason, reason_id, is_deleted, created_at, modified_at)
+                        VALUES (:childId, :currentMbti, :changeReason, :changeReasonId, :isDeleted, :createdAt, :modifiedAt)
+                    """;
 
             List<Map<String, Object>> batchValues = new ArrayList<>();
             for (MbtiDto mbtiDto : items.getItems()) {
