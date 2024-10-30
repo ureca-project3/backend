@@ -18,7 +18,6 @@ async function fetchAndDisplayProfile() {
             document.getElementById('user-name').textContent = `이름: ${profileData.name || ''}`;
             document.getElementById('user-email').textContent = profileData.email || '';
             document.getElementById('user-phone').textContent = profileData.phone || '';
-            document.getElementById('user-provider').textContent = profileData.provider || '';
 
             // provider 확인하여 수정 버튼 표시/숨김 처리
             const editButton = document.querySelector('.button-container button:first-child');
@@ -34,6 +33,7 @@ async function fetchAndDisplayProfile() {
             const editNameInput = document.getElementById('edit-name');
             const editEmailInput = document.getElementById('edit-email');
             const editPhoneInput = document.getElementById('edit-phone');
+
             if (editNameInput) editNameInput.value = profileData.name || '';
             if (editEmailInput) editEmailInput.value = profileData.email || '';
             if (editPhoneInput) editPhoneInput.value = profileData.phone || '';
@@ -98,71 +98,77 @@ async function fetchAndDisplayProfile() {
         }
 
 // 프로필 수정 폼
-        document.getElementById('profile-edit-form').addEventListener('submit', async function (e) {
-            e.preventDefault();
+document.getElementById('profile-edit-form').addEventListener('submit', async function (e) {
+    e.preventDefault();
 
-            try {
-                // accessToken 가져오기
-                const accessToken = sessionStorage.getItem('accessToken');
+    try {
+        // accessToken 가져오기
+        const accessToken = sessionStorage.getItem('accessToken');
 
-                // 현재 사용자의 provider 정보 확인
-                const profileResponse = await fetch('/mypage/my-info', {
-                    headers: {
-                        'Authorization': `Bearer ${accessToken}`
-                    }
-                });
-                const profileData = await profileResponse.json();
-
-                if (profileData.member.provider === 'kakao') {  // member 객체에서 provider 확인
-                    alert('카카오 로그인 사용자는 정보를 수정할 수 없습니다.');
-                    return;
-                }
-
-                const formData = new FormData(this);
-                const updateData = {
-                    name: formData.get('name'),
-                    email: formData.get('email'),
-                    phone: formData.get('phone'),
-                    password: formData.get('password')
-                };
-
-                // 수정 요청 - Authorization 헤더 추가
-                const response = await fetch('/mypage/my-info', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${accessToken}`
-                    },
-                    body: JSON.stringify(updateData)
-                });
-
-                const result = await response.json();
-
-                if (!response.ok) {
-                    if (result.message && result.message.includes("이메일이 이미 존재합니다")) {
-                        alert("이미 사용 중인 이메일입니다.");
-                    } else {
-                        alert(result.message || '프로필 수정에 실패했습니다.');
-                    }
-                    return;
-                }
-
-                if (result.message === "Update MyInfo Success") {
-                    alert('프로필이 성공적으로 수정되었습니다.');
-                    // 수정 폼 숨기기 및 프로필 정보 다시 표시
-                    toggleEditProfile();
-                    // 프로필 정보 새로고침
-                    fetchAndDisplayProfile();
-                    location.reload();
-                } else {
-                    alert(result.message || '프로필 수정에 실패했습니다.');
-                }
-            } catch (error) {
-                console.error('Error updating profile:', error);
-                alert('프로필 수정 중 오류가 발생했습니다.');
+        // 현재 사용자의 provider 정보 확인
+        const profileResponse = await fetch('/mypage/my-info', {
+            headers: {
+                'Authorization': `Bearer ${accessToken}`
             }
         });
+        const profileData = await profileResponse.json();
 
+        if (profileData.member.provider === 'kakao') {  // member 객체에서 provider 확인
+            alert('카카오 로그인 사용자는 정보를 수정할 수 없습니다.');
+            return;
+        }
+
+        const formData = new FormData(this);
+        const updateData = {
+            name: formData.get('name'),
+            email: formData.get('email'),
+            phone: formData.get('phone'),
+            password: formData.get('password')
+        };
+
+        // 수정 요청 - Authorization 헤더 추가
+        const response = await fetch('/mypage/my-info', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${accessToken}`
+            },
+            body: JSON.stringify(updateData)
+        });
+
+        const result = await response.json();
+
+        if (!response.ok) {
+            if (result.message && result.message.includes("이메일이 이미 존재합니다")) {
+                alert("이미 사용 중인 이메일입니다.");
+            } else {
+                alert(result.message || '프로필 수정에 실패했습니다.');
+            }
+            return;
+        }
+
+        if (result.message === "Update MyInfo Success") {
+            alert('프로필이 성공적으로 수정되었습니다.');
+            // 수정 폼 숨기기 및 프로필 정보 다시 표시
+            toggleEditProfile();
+            // 프로필 정보 새로고침
+            fetchAndDisplayProfile();
+            location.reload();
+        } else {
+            alert(result.message || '프로필 수정에 실패했습니다.');
+        }
+    } catch (error) {
+        console.error('Error updating profile:', error);
+        alert('프로필 수정 중 오류가 발생했습니다.');
+    }
+});
+
+// 수정 폼 초기값 설정
+const editPasswordInput = document.getElementById('edit-password');
+if (editPasswordInput) {
+    // 현재 비밀번호를 마스킹하여 초기값으로 표시
+    editPasswordInput.value = '****';
+}
 // 페이지 로드 시 프로필 정보 가져오기
         window.onload = function () {
             fetchAndDisplayProfile();
