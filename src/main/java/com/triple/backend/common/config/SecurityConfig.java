@@ -88,10 +88,10 @@ public class SecurityConfig {
                                 "/public/**",
                                 "/login",
                                 "/index.html",
-                                "/signup.html",
-                                "/login.html",
-                                "/header.html",
-                                "/auth-success.html",
+                                "/html/signup.html",
+                                "/html/login.html",
+                                "/html/header.html",
+                                "/html/auth-success.html",
                                 "/css/**",
                                 "/js/**",
                                 "/image/**"
@@ -100,7 +100,7 @@ public class SecurityConfig {
                         .anyRequest().authenticated()
                 )
                 .oauth2Login(oauth -> oauth
-                        .loginPage("/login.html")
+                        .loginPage("/html/login.html")
                         .successHandler(oAuthLoginSuccessHandler)
                         .failureHandler(oAuthLoginFailureHandler)
                         .authorizationEndpoint(authorization ->
