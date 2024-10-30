@@ -69,6 +69,16 @@ document.addEventListener('DOMContentLoaded', async function() {
         });
     }
 
+    // 이벤트 응모하기로 이동
+    const eventButton = document.querySelector('.event-button');
+    if (eventButton) {
+        eventButton.addEventListener('click', () => {
+            window.location.href = '/html/event.html'; // 이동할 URL
+        });
+    } else {
+        console.error('이벤트 페이지 이동 중 에러가 발생했습니다.');
+    }
+
     // 최신 책 목록 가져오기
     await fetchLatestBooks();
 
