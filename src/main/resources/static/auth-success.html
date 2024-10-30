@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Login Success</title>
+    <script>
+        window.onload = function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const accessToken = urlParams.get('accessToken');
+
+            if (accessToken) {
+                // 세션 스토리지에 토큰 저장
+                window.sessionStorage.setItem('accessToken', accessToken);
+
+                // index.html로 리다이렉트
+                window.location.replace('/index.html');
+            } else {
+                console.error('No access token found');
+                window.location.replace('/index.html');
+            }
+        };
+    </script>
+</head>
+<body>
+<p>Login successful. Redirecting...</p>
+</body>
+</html>

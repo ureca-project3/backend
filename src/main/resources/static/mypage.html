@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>마이페이지</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/css/header.css">
+    <style>
+        .profile-container {
+            max-width: 800px;
+            margin: 30px auto;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+
+        .profile-header {
+            margin-bottom: 20px;
+        }
+
+        .profile-info {
+            margin-bottom: 30px;
+        }
+
+        .edit-profile {
+            display: none;
+            margin-top: 20px;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+
+        .child-profile {
+            margin-top: 30px;
+        }
+
+        .children-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .child-item {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+
+        .child-item img {
+            width: 50px;
+            height: 50px;
+            border-radius: 25px;
+            margin-right: 10px;
+        }
+
+        .child-info {
+            flex-grow: 1;
+        }
+
+        .child-name {
+            font-weight: bold;
+        }
+
+        .child-age {
+            color: #666;
+            font-size: 0.9em;
+        }
+
+        .edit-button {
+            padding: 5px 15px;
+            border: none;
+            background-color: #007bff;
+            color: white;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .edit-button:hover {
+            background-color: #0056b3;
+        }
+
+        .save-button {
+            padding: 8px 20px;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .save-button:hover {
+            background-color: #218838;
+        }
+    </style>
+</head>
+<body>
+<!-- 헤더 컨테이너 -->
+<div id="header-container"></div>
+
+<div class="profile-container bg-light">
+    <div class="profile-header">
+        <h2 id="user-name">이름: </h2>
+    </div>
+
+    <div class="profile-info">
+        <p>이메일: <span id="user-email"></span></p>
+        <p>전화번호: <span id="user-phone"></span></p>
+        <button class="edit-button" onclick="toggleEditProfile()">수정</button>
+    </div>
+
+    <div id="edit-profile" class="edit-profile">
+        <h4>프로필 수정</h4>
+        <form id="profile-edit-form">
+            <div class="mb-3">
+                <label for="name" class="form-label">이름</label>
+                <input type="text" class="form-control" id="edit-name" name="name">
+            </div>
+            <div class="mb-3">
+                <label for="email" class="form-label">이메일</label>
+                <input type="email" class="form-control" id="edit-email" name="email">
+            </div>
+            <div class="mb-3">
+                <label for="phone" class="form-label">전화번호</label>
+                <input type="tel" class="form-control" id="edit-phone" name="phoneNumber">
+            </div>
+            <button type="submit" class="save-button">저장</button>
+        </form>
+    </div>
+
+    <div class="child-profile">
+        <h4>자녀 프로필</h4>
+        <div class="children-list"></div>
+    </div>
+</div>
+
+<script>
+    // 프로필 정보 가져오기 및 표시
+    async function fetchAndDisplayProfile() {
+        try {
+            const response = await fetch('/api/user/profile');
+            const data = await response.json();
+            const profileData = data.data;
+
+            if (profileData) {
+                // 기본 프로필 정보 표시
+                document.getElementById('user-name').textContent = `이름: ${profileData.name || ''}`;
+                document.getElementById('user-email').textContent = profileData.email || '';
+                document.getElementById('user-phone').textContent = profileData.phoneNumber || '';
+
+                // 수정 폼 초기값 설정
+                document.getElementById('edit-name').value = profileData.name || '';
+                document.getElementById('edit-email').value = profileData.email || '';
+                document.getElementById('edit-phone').value = profileData.phoneNumber || '';
+
+                // 자녀 프로필 표시
+                const childrenList = document.querySelector('.children-list');
+                if (childrenList && profileData.children && Array.isArray(profileData.children)) {
+                    childrenList.innerHTML = profileData.children.map(child => `
+                            <div class="child-item">
+                                <img src="/image/${child.imageUrl || 'profileDefault.png'}"
+                                     alt="${child.name}의 프로필"
+                                     onerror="this.src='/image/profileDefault.png'">
+                                <div class="child-info">
+                                    <div class="child-name">${child.name}</div>
+                                    <div class="child-age">${child.age}세</div>
+                                </div>
+                            </div>
+                        `).join('');
+                }
+            }
+        } catch (error) {
+            console.error('Error fetching profile:', error);
+        }
+    }
+
+    // 수정 폼 토글
+    function toggleEditProfile() {
+        const editProfile = document.getElementById('edit-profile');
+        editProfile.style.display = editProfile.style.display === 'none' ? 'block' : 'none';
+    }
+
+    // 프로필 수정 폼 제출 처리
+    document.getElementById('profile-edit-form').addEventListener('submit', async function(e) {
+        e.preventDefault();
+
+        const formData = new FormData(this);
+        const profileData = Object.fromEntries(formData);
+
+        try {
+            const response = await fetch('/api/user/profile/update', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(profileData)
+            });
+
+            const result = await response.json();
+            if (result.message === "Update Profile Success") {
+                alert('프로필이 성공적으로 수정되었습니다.');
+                location.reload();
+            } else {
+                alert('프로필 수정에 실패했습니다.');
+            }
+        } catch (error) {
+            console.error('Error updating profile:', error);
+            alert('프로필 수정 중 오류가 발생했습니다.');
+        }
+    });
+
+    // 페이지 로드 시 프로필 정보 가져오기
+    window.onload = function() {
+        fetchAndDisplayProfile();
+    };
+</script>
+
+<script src="/js/api.js"></script>
+<script src="/js/header.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
