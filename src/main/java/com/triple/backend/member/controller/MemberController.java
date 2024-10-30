@@ -3,6 +3,7 @@ package com.triple.backend.member.controller;
 import com.triple.backend.auth.dto.CustomMemberDetails;
 import com.triple.backend.child.dto.ChildDto;
 import com.triple.backend.child.entity.Child;
+import com.triple.backend.common.dto.CommonResponse;
 import com.triple.backend.member.entity.Member;
 import com.triple.backend.member.entity.MemberInfoDto;
 import com.triple.backend.member.service.MemberService;
@@ -26,44 +27,34 @@ public class MemberController {
 
     private final MemberService memberService;
     @GetMapping("/user/profile")
-    public ResponseEntity<MemberInfoDto> getUserProfile(Authentication authentication) {
+    public ResponseEntity<CommonResponse<MemberInfoDto>> getUserProfile(Authentication authentication) {
         CustomMemberDetails memberDetails = (CustomMemberDetails) authentication.getPrincipal();
         Long memberId = memberDetails.getMember().getMemberId();
-
-        // 회원 정보와 자녀 프로필을 함께 반환하는 서비스 호출
         MemberInfoDto userProfile = memberService.getUserProfileById(memberId);
-
-        return ResponseEntity.ok(userProfile);
+        return CommonResponse.ok("Get User Profile Success", userProfile);
     }
 
     @GetMapping("/member/provider")
-    public ResponseEntity<Map<String, String>> getProvider(Authentication authentication) {
+    public ResponseEntity<CommonResponse<Map<String, String>>> getProvider(Authentication authentication) {
         CustomMemberDetails memberDetails = (CustomMemberDetails) authentication.getPrincipal();
         Long memberId = memberDetails.getMember().getMemberId();
-
-        // memberId를 통해 provider 정보 조회
         String provider = memberService.getProviderByMemberId(memberId);
-
         Map<String, String> response = new HashMap<>();
         response.put("provider", provider);
-        return ResponseEntity.ok(response);
+        return CommonResponse.ok("Get Provider Success", response);
     }
 
-    // 헤더에 사용자 access Token 담기
     @GetMapping("/user")
-    public ResponseEntity<Member> getUser(@AuthenticationPrincipal CustomMemberDetails userDetails) { // @AuthenticationPrincipal: 컨트롤러 메서드에서 CustomMemberDetails 객체를 주입받음
-        // CustomMemberDetails에서 Member 객체를 가져와 반환
+    public ResponseEntity<CommonResponse<Member>> getUser(@AuthenticationPrincipal CustomMemberDetails userDetails) {
         Member member = userDetails.getMember();
-        return ResponseEntity.ok(member);
+        return CommonResponse.ok("Get User Success", member);
     }
 
-    // 자녀 프로필 선택시 자녀 데이터 제공
     @GetMapping("/member/children")
-    public ResponseEntity<List<ChildDto>> getChildren(Authentication authentication) {
+    public ResponseEntity<CommonResponse<List<ChildDto>>> getChildren(Authentication authentication) {
         CustomMemberDetails memberDetails = (CustomMemberDetails) authentication.getPrincipal();
         Long memberId = memberDetails.getMember().getMemberId();
-
         List<ChildDto> children = memberService.getChildrenByMemberId(memberId);
-        return ResponseEntity.ok(children);
+        return CommonResponse.ok("Get Children Success", children);
     }
 }

@@ -19,25 +19,31 @@ document.getElementById('signupForm').addEventListener('submit', async function(
 
         if (response.ok) {
             // 회원가입 성공 시 모달 창에 성공 메시지 표시
-            showModal('회원가입에 성공했습니다!');
-            // 일정 시간 후에 리다이렉트
-            setTimeout(() => {
-                window.location.href = '/index.html';
-            }, 5000); // 5초 후에 리다이렉트
+            showModal('회원가입에 성공했습니다!', true);
         } else {
             const errorData = await response.json();
-            showModal(errorData.message || '회원가입에 실패했습니다.');
+            showModal(errorData.message || '회원가입에 실패했습니다.', false);
         }
     } catch (error) {
-        showModal('서버와의 통신 중 오류가 발생했습니다.');
+        showModal('서버와의 통신 중 오류가 발생했습니다.', false);
     }
 });
 
-function showModal(message) {
+function showModal(message, isSuccess) {
     const modal = document.getElementById('errorModal');
     const modalMessage = document.getElementById('modalMessage');
     modalMessage.textContent = message;
     modal.style.display = 'flex';
+
+    // 성공 메시지인 경우 확인 버튼 클릭 시 리다이렉트
+    const confirmButton = modal.querySelector('.modal-button');
+    confirmButton.onclick = function() {
+        if (isSuccess) {
+            window.location.href = '/index.html'; // 리다이렉트할 URL
+        } else {
+            modal.style.display = 'none'; // 모달 닫기
+        }
+    };
 }
 
 function closeModal() {

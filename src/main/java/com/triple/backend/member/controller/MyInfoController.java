@@ -20,44 +20,71 @@ public class MyInfoController {
 
     private final MemberService memberService;
 
+    // 사용자 등록
+    @GetMapping("/my-info")
+    public ResponseEntity<Map<String, Object>> getMemberInfo(Authentication authentication) {
+        CustomMemberDetails memberDetails = (CustomMemberDetails) authentication.getPrincipal();
+        Member member = memberDetails.getMember();
 
-    // 사용자 정보 수정 엔드포인트
+        // MemberInfoDto를 사용하여 자녀 정보를 포함한 응답 생성
+        MemberInfoDto memberInfo = memberService.getUserProfileById(member.getMemberId());
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("member", memberInfo);
+        response.put("isKakaoUser", "kakao".equalsIgnoreCase(member.getProvider()));
+
+        return ResponseEntity.ok(response);
+    }
+
+    // 사용자 개인정보 수정
     @PostMapping("/my-info")
     public ResponseEntity<Map<String, String>> updateMemberInfo(
             @RequestBody Member member,
             Authentication authentication) {
 
-        // 인증된 사용자의 ID 가져오기
         CustomMemberDetails memberDetails = (CustomMemberDetails) authentication.getPrincipal();
-        Long memberId = memberDetails.getMember().getMemberId();
+        Member currentMember = memberDetails.getMember();
 
-        // 이메일 중복 확인
-        if (memberService.isEmailDuplicate(member.getEmail(), memberId)) {
+        // 카카오 로그인 사용자 체크
+        if ("kakao".equalsIgnoreCase(currentMember.getProvider())) {
             Map<String, String> response = new HashMap<>();
-            response.put("message", "이메일이 이미 존재합니다.");
-            return ResponseEntity.badRequest().body(response); // 400 Bad Request 응답
+            response.put("message", "카카오 로그인 사용자는 정보를 수정할 수 없습니다.");
+            return ResponseEntity.badRequest().body(response);
         }
 
-        // 서비스에서 정보 업데이트 실행
-        memberService.updateMemberInfo(memberId, member);
+        // 이메일 중복 확인
+        if (memberService.isEmailDuplicate(member.getEmail(), currentMember.getMemberId())) {
+            Map<String, String> response = new HashMap<>();
+            response.put("message", "이메일이 이미 존재합니다.");
+            return ResponseEntity.badRequest().body(response);
+        }
 
-        // 응답 메시지 생성
-        Map<String, String> response = new HashMap<>();
-        response.put("message", "Update MyInfo Success");
-        return ResponseEntity.ok(response);
+        try {
+            memberService.updateMemberInfo(currentMember.getMemberId(), member);
+            Map<String, String> response = new HashMap<>();
+            response.put("message", "Update MyInfo Success");
+            return ResponseEntity.ok(response);
+        } catch (IllegalStateException e) {
+            Map<String, String> response = new HashMap<>();
+            response.put("message", e.getMessage());
+            return ResponseEntity.badRequest().body(response);
+        }
     }
 
-    // 회원 탈퇴 엔드포인트
+    // 사용자 삭제 
     @DeleteMapping("/delete-account")
     public ResponseEntity<Map<String, String>> deleteMember(Authentication authentication) {
-
         CustomMemberDetails memberDetails = (CustomMemberDetails) authentication.getPrincipal();
-        Long memberId = memberDetails.getMember().getMemberId();
-        memberService.deleteMember(memberId);
-
-        Map<String, String> response = new HashMap<>();
-        response.put("message", "Delete Member Success");
-        return ResponseEntity.ok(response);
+        Member member = memberDetails.getMember();
+        try {
+            memberService.deleteMember(member.getMemberId());
+            Map<String, String> response = new HashMap<>();
+            response.put("message", "Delete Member Success");
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            Map<String, String> response = new HashMap<>();
+            response.put("message", "Delete Member Failed: " + e.getMessage());
+            return ResponseEntity.badRequest().body(response);
+        }
     }
-
 }

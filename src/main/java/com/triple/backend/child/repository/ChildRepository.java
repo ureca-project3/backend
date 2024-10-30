@@ -14,4 +14,10 @@ public interface ChildRepository extends JpaRepository<Child, Long> {
     boolean existsByMember(Member member);
     @Transactional
     void deleteByMember(Member member);
+
+    // 특정 자녀삭제
+    @Transactional
+    void deleteByChildIdAndMember(Long childId, Member member);
+
+    boolean existsByChildIdAndMember(Long childId, Member member);
 }
