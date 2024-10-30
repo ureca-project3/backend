@@ -32,10 +32,19 @@ function confirmImageSelection() {
 // 성별 선택 기능
 function selectGender(gender) {
     selectedGender = gender;
-    document.getElementById("gender-male").classList.toggle("btn-dark", gender === "남");
-    document.getElementById("gender-male").classList.toggle("btn-outline-dark", gender !== "남");
-    document.getElementById("gender-female").classList.toggle("btn-dark", gender === "여");
-    document.getElementById("gender-female").classList.toggle("btn-outline-dark", gender !== "여");
+    const maleBtn = document.getElementById('gender-male');
+    const femaleBtn = document.getElementById('gender-female');
+
+    // 모든 버튼의 선택 상태 초기화
+    maleBtn.classList.remove('selected');
+    femaleBtn.classList.remove('selected');
+
+    // 선택된 버튼에만 selected 클래스 추가
+    if (gender === '남') {
+        maleBtn.classList.add('selected');
+    } else if (gender === '여') {
+        femaleBtn.classList.add('selected');
+    }
 }
 
 // 생년월일 입력 형식

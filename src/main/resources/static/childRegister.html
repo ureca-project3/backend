@@ -5,111 +5,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>자녀 프로필 등록</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <style>
-        body {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            background-color: #f8f9fa;
-        }
-        .container {
-            max-width: 600px;
-            text-align: center;
-        }
-        .profile-circle {
-            width: 200px;
-            height: 200px;
-            border-radius: 50%;
-            border: 5px solid #FFD700;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 auto 20px;
-            position: relative;
-        }
-        .profile-circle img {
-            width: 100%;
-            height: 100%;
-            border-radius: 50%;
-            object-fit: cover;
-        }
-        .form-group {
-            margin-bottom: 15px;
-            text-align: left;
-        }
-        .gender-selection {
-            display: flex;
-            justify-content: space-between;
-            max-width: 200px;
-            margin: 0 auto;
-        }
-        .gender-selection .btn {
-            width: 80px;
-            font-weight: bold;
-        }
-        .birthdate-input {
-            text-align: center;
-        }
-        .register-button {
-            width: 100%;
-            padding: 10px;
-            font-size: 1.2rem;
-            font-weight: bold;
-            background-color: #FFD700;
-            border: none;
-            border-radius: 30px;
-            color: #333;
-        }
-        .later-button {
-            margin-top: 10px;
-            font-size: 0.9rem;
-            color: #aaa;
-            cursor: pointer;
-        }
-        /* Modal styles */
-        .modal {
-            display: none;
-            position: fixed;
-            z-index: 1000;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.5);
-            justify-content: center;
-            align-items: center;
-        }
-        .modal-content {
-            background-color: white;
-            padding: 20px;
-            border-radius: 8px;
-            text-align: center;
-        }
-        .modal-content img {
-            width: 80px;
-            height: 80px;
-            margin: 10px;
-            cursor: pointer;
-            border-radius: 50%;
-            border: 2px solid transparent;
-        }
-        .modal-content img.selected {
-            border-color: #FFD700;
-        }
-        /* 강조 스타일 */
-        .highlight {
-            border: 2px solid red !important;
-        }
-    </style>
+    <link rel="stylesheet" href="/css/childRegister.css">
 </head>
 <body>
 <div class="container">
     <!-- 프로필 이미지 -->
     <div class="profile-circle">
-        <img id="profile-img" src="/image/profileDefault.png" alt="프로필 이미지">
+        <img id="profile-img" src="/image/profileDefault.png" alt="프로필 이미지" onclick="openModal()">
     </div>
-    <button type="button" class="btn btn-link" onclick="openModal()">프로필 사진 선택하기</button>
+<!--    <button type="button" class="btn btn-link" onclick="openModal()">프로필 사진 선택하기</button>-->
 
     <!-- 이름 입력 -->
     <div class="form-group">
@@ -127,13 +31,13 @@
     <div class="form-group">
         <label class="form-label">성별</label>
         <div class="gender-selection">
-            <button type="button" class="btn btn-outline-dark" id="gender-male" onclick="selectGender('남')">남</button>
-            <button type="button" class="btn btn-outline-dark" id="gender-female" onclick="selectGender('여')">여</button>
+            <button type="button" class="gender-btn" id="gender-male" onclick="selectGender('남')">남자</button>
+            <button type="button" class="gender-btn" id="gender-female" onclick="selectGender('여')">여자</button>
         </div>
     </div>
 
     <!-- 등록하기 버튼 -->
-    <button type="button" class="register-button" onclick="registerChild()">등록하기</button>
+    <button type="button" class="register-btn" onclick="registerChild()">등록하기</button>
     <div class="later-button" onclick="handleLaterButton()">나중에 등록하기</div>
 </div>
 

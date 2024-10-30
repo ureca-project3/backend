@@ -327,3 +327,186 @@ img_cat {
     height: 100%;
 
 }
+
+/* 프로필 컨테이너 스타일 개선 */
+.row {
+    display: flex;
+    gap: 20px;
+    margin-bottom: 20px;
+}
+
+.col-md-6 {
+    flex: 1;
+    min-width: 0;
+}
+
+.profile-container, .additional-info {
+    background-color: white !important;
+    border-radius: 20px !important;
+    box-shadow: 0 4px 15px rgba(255, 127, 80, 0.1) !important;
+    padding: 30px !important;
+    height: 100%;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.profile-container:hover, .additional-info:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 6px 20px rgba(255, 127, 80, 0.15) !important;
+}
+
+/* 자녀 프로필 섹션 스타일 개선 */
+.row.mt-4 {
+    margin-top: 2rem !important;
+}
+
+
+.bottom-info button:hover {
+    background: linear-gradient(45deg, #FFB6C1, #FFA07A);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(255, 127, 80, 0.3);
+}
+
+/* 고양잉 이미지 컨테이너 스타일 */
+.img_cat {
+    position: relative;
+    width: 100%;
+    height: 475px;
+    overflow: hidden;
+    border-radius: 15px;
+}
+
+.img_cat img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 15px;
+    transition: transform 0.3s ease;
+}
+
+.img_cat:hover img {
+    transform: scale(1.05);
+}
+
+/* 반응형 디자인 개선 */
+@media (max-width: 768px) {
+    .row {
+        flex-direction: column;
+    }
+
+    .col-md-6 {
+        width: 100%;
+    }
+
+    .profile-container, .additional-info, .bottom-info {
+        margin-bottom: 20px;
+    }
+}
+
+/* 프로필 정보 섹션 스타일 */
+.profile-header {
+    background: linear-gradient(45deg, #FFF5E6, #FFE4E1);
+    padding: 25px;
+    border-radius: 15px;
+    margin-bottom: 20px;
+    box-shadow: 0 4px 15px rgba(255, 127, 80, 0.1);
+    transition: all 0.3s ease;
+}
+
+.profile-header:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 20px rgba(255, 127, 80, 0.15);
+}
+
+.profile-header h2 {
+    color: #FF7F50 !important;
+    font-size: 1.8rem;
+    margin: 0;
+    padding-left: 15px;
+    border-left: 4px solid #FFB6C1;
+}
+
+.profile-info {
+    background: white;
+    padding: 25px;
+    border-radius: 15px;
+    box-shadow: 0 4px 15px rgba(255, 127, 80, 0.1);
+    transition: all 0.3s ease;
+}
+
+.profile-info:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 20px rgba(255, 127, 80, 0.15);
+}
+
+.profile-info p {
+    display: flex;
+    align-items: center;
+    margin-bottom: 15px;
+    padding: 12px;
+    background: #FFF5E6;
+    border-radius: 10px;
+    transition: all 0.3s ease;
+}
+
+.profile-info p:hover {
+    background: #FFE4E1;
+    transform: translateX(5px);
+}
+
+.profile-info p:before {
+    margin-right: 10px;
+    font-size: 1.2rem;
+}
+
+.profile-info p:nth-child(1):before {
+    content: '📧';
+}
+
+.profile-info p:nth-child(2):before {
+    content: '📱';
+}
+
+.profile-info .text-muted {
+    color: #FF7F50 !important;
+    font-weight: 500;
+    margin-left: 10px;
+    flex: 1;
+}
+
+/* 버튼 컨테이너 위치 조정 */
+.button-container {
+    margin-top: 20px;
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+}
+
+.button-container button {
+    padding: 8px 20px;
+    border-radius: 20px;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+}
+
+.button-container button:first-child {
+    background-color: #FFB6C1;
+    color: white;
+    border: none;
+}
+
+.button-container button:first-child:hover {
+    background-color: #FF69B4;
+    transform: translateY(-2px);
+}
+
+.button-container button:last-child {
+    background-color: #FFE4E1;
+    color: #FF4500;
+    border: none;
+}
+
+.button-container button:last-child:hover {
+    background-color: #FFB6C1;
+    color: white;
+    transform: translateY(-2px);
+}
