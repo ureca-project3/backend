@@ -510,3 +510,25 @@ img_cat {
     color: white;
     transform: translateY(-2px);
 }
+
+.input-group {
+    position: relative;
+}
+
+#toggle-password {
+    position: absolute;
+    right: 0;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    padding: 8px;
+    z-index: 10;
+}
+
+.fa-eye, .fa-eye-slash {
+    color: #6c757d;
+}
+
+#edit-password {
+    padding-right: 40px;
+}

@@ -2,22 +2,23 @@
 async function fetchAndDisplayProfile() {
     try {
         const accessToken = sessionStorage.getItem('accessToken');
-        const response = await fetch('/mypage/my-info', {  // API 엔드포인트 변경
+        const response = await fetch('/mypage/my-info', {
             headers: {
                 'Authorization': `Bearer ${accessToken}`
             }
         });
         const data = await response.json();
-        console.log('API Response:', data); // API 응답 전체 확인
-        const profileData = data.member;  // member 객체에서 데이터 가져오기
-        console.log('Profile Data:', profileData); // profileData 확인
-        console.log('Children Data:', profileData.children); // children 데이터 확인
+        console.log('API Response:', data);
+        const profileData = data.member;
+        console.log('Profile Data:', profileData);
+        console.log('Children Data:', profileData.children);
 
         if (profileData) {
             // 기본 프로필 정보 표시
             document.getElementById('user-name').textContent = `이름: ${profileData.name || ''}`;
             document.getElementById('user-email').textContent = profileData.email || '';
             document.getElementById('user-phone').textContent = profileData.phone || '';
+            document.getElementById('user-provider').textContent = profileData.provider || '';
 
             // provider 확인하여 수정 버튼 표시/숨김 처리
             const editButton = document.querySelector('.button-container button:first-child');
@@ -33,35 +34,45 @@ async function fetchAndDisplayProfile() {
             const editNameInput = document.getElementById('edit-name');
             const editEmailInput = document.getElementById('edit-email');
             const editPhoneInput = document.getElementById('edit-phone');
+            const editPasswordInput = document.getElementById('edit-password');
 
             if (editNameInput) editNameInput.value = profileData.name || '';
             if (editEmailInput) editEmailInput.value = profileData.email || '';
             if (editPhoneInput) editPhoneInput.value = profileData.phone || '';
+
+            // 비밀번호 마스킹 처리 및 원본 저장
+            if (editPasswordInput && profileData.password) {
+                const passwordLength = profileData.password.length;
+                const maskedPassword = '*'.repeat(passwordLength);
+                editPasswordInput.value = maskedPassword;
+                editPasswordInput.setAttribute('data-original-password', profileData.password);
+                editPasswordInput.setAttribute('data-password-length', passwordLength.toString());
+            }
 
             // 자녀 프로필 표시
             const childProfiles = document.getElementById('child-profiles');
             if (childProfiles) {
                 if (profileData.children && Array.isArray(profileData.children) && profileData.children.length > 0) {
                     childProfiles.innerHTML = profileData.children.map(child => `
-          <li class="list-group-item d-flex justify-content-between align-items-center" data-id="${child.childId}">
-        <div class="child-info d-flex align-items-center" 
-             onclick="goToChildDetail('${child.childId}')" 
-             data-id="${child.childId}">
-            <img src="/image/${child.imageUrl || 'profileDefault.png'}"
-                 alt="${child.name}의 프로필"
-                 onerror="this.src='/image/profileDefault.png'"
-                 style="width: 40px; height: 40px; border-radius: 50%; margin-right: 10px;">
-            <div>
-                <span class="child-name fw-bold">${child.name}</span>
-                <span class="child-age ms-2">${child.age}세</span>
-            </div>
-        </div>
-        <div class="child-actions">
-            <button class="btn btn-sm btn-outline-secondary edit-child me-2" data-id="${child.childId}" onclick="goToChildDetail('${child.childId}')">정보</button>
-            <button class="btn btn-sm btn-outline-danger delete-child" data-id="${child.childId}">삭제</button>
-        </div>
-    </li>
-        `).join('');
+                        <li class="list-group-item d-flex justify-content-between align-items-center" data-id="${child.childId}">
+                            <div class="child-info d-flex align-items-center" 
+                                onclick="goToChildDetail('${child.childId}')" 
+                                data-id="${child.childId}">
+                                <img src="/image/${child.imageUrl || 'profileDefault.png'}"
+                                    alt="${child.name}의 프로필"
+                                    onerror="this.src='/image/profileDefault.png'"
+                                    style="width: 40px; height: 40px; border-radius: 50%; margin-right: 10px;">
+                                <div>
+                                    <span class="child-name fw-bold">${child.name}</span>
+                                    <span class="child-age ms-2">${child.age}세</span>
+                                </div>
+                            </div>
+                            <div class="child-actions">
+                                <button class="btn btn-sm btn-outline-secondary edit-child me-2" data-id="${child.childId}" onclick="goToChildDetail('${child.childId}')">정보</button>
+                                <button class="btn btn-sm btn-outline-danger delete-child" data-id="${child.childId}">삭제</button>
+                            </div>
+                        </li>
+                    `).join('');
                 } else {
                     childProfiles.innerHTML = '<li class="list-group-item text-center">등록된 자녀가 없습니다.</li>';
                 }
@@ -113,18 +124,31 @@ document.getElementById('profile-edit-form').addEventListener('submit', async fu
         });
         const profileData = await profileResponse.json();
 
-        if (profileData.member.provider === 'kakao') {  // member 객체에서 provider 확인
+        if (profileData.member.provider === 'kakao') {
             alert('카카오 로그인 사용자는 정보를 수정할 수 없습니다.');
             return;
         }
 
         const formData = new FormData(this);
+        const passwordInput = document.getElementById('edit-password');
+        const currentInputValue = passwordInput.value;
+        const originalPassword = passwordInput.getAttribute('data-original-password');
+        const passwordLength = parseInt(passwordInput.getAttribute('data-password-length'));
+
         const updateData = {
             name: formData.get('name'),
             email: formData.get('email'),
-            phone: formData.get('phone'),
-            password: formData.get('password')
+            phone: formData.get('phone')
         };
+
+        // 비밀번호가 마스킹된 상태('****')와 동일한지 확인
+        if (currentInputValue !== '*'.repeat(passwordLength)) {
+            // 새로운 비밀번호가 입력된 경우
+            updateData.password = currentInputValue;
+        } else {
+            // 마스킹된 상태 그대로인 경우 기존 비밀번호 사용
+            updateData.password = originalPassword;
+        }
 
         // 수정 요청 - Authorization 헤더 추가
         const response = await fetch('/mypage/my-info', {
@@ -163,12 +187,6 @@ document.getElementById('profile-edit-form').addEventListener('submit', async fu
     }
 });
 
-// 수정 폼 초기값 설정
-const editPasswordInput = document.getElementById('edit-password');
-if (editPasswordInput) {
-    // 현재 비밀번호를 마스킹하여 초기값으로 표시
-    editPasswordInput.value = '****';
-}
 // 페이지 로드 시 프로필 정보 가져오기
         window.onload = function () {
             fetchAndDisplayProfile();
@@ -345,3 +363,19 @@ document.getElementById('child-profiles').addEventListener('click', function (ev
 function goToChildDetail(childId) {
     window.location.href = `/testHistory.html?id=${childId}`;
 }
+
+// 비밀번호 토글 버튼 이벤트
+document.getElementById('toggle-password').addEventListener('click', function() {
+    const passwordInput = document.getElementById('edit-password');
+    const icon = this.querySelector('i');
+
+    if (passwordInput.type === 'password') {
+        passwordInput.type = 'text';
+        icon.classList.remove('fa-eye');
+        icon.classList.add('fa-eye-slash');
+    } else {
+        passwordInput.type = 'password';
+        icon.classList.remove('fa-eye-slash');
+        icon.classList.add('fa-eye');
+    }
+});
