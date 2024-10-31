@@ -13,9 +13,9 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
+import java.time.LocalDateTime;
+import java.util.*;
+import java.util.concurrent.atomic.AtomicLong;
 
 @Service
 @RequiredArgsConstructor
@@ -51,6 +51,9 @@ public class ScheduledDataTransferService {
             }
         }
 
+        // createdAt을 기준으로 정렬
+        participants.sort(Comparator.comparing(EventPartRequestDto::getCreatedAt));
+
         return participants;
     }
 
@@ -61,21 +64,28 @@ public class ScheduledDataTransferService {
         Set<String> eventIds = redisTemplate.keys("event:participant:*");
         if (eventIds == null || eventIds.isEmpty()) return;
 
-        eventIds.forEach(eventKey -> {
+        for (String eventKey : eventIds) {
             Long eventId = Long.parseLong(eventKey.split(":")[2]);
+
+            // 종료된 이벤트인지 확인
+            Event event = eventRepository.findById(eventId)
+                    .orElseThrow(() -> NotFoundException.entityNotFound("이벤트"));
+            if (event.getEndTime().isAfter(LocalDateTime.now())) continue;
+
             List<EventPartRequestDto> participants = getEventParticipants(eventId);
+            AtomicLong winnerCount = new AtomicLong(Optional.ofNullable(event.getWinnerCnt()).orElse(0L));
 
             participants.forEach(dto -> {
                 // EventPart 저장
                 Member member = memberRepository.findById(dto.getMemberId())
                         .orElseThrow(() -> NotFoundException.entityNotFound("회원"));
-                Event event = eventRepository.findById(dto.getEventId())
-                        .orElseThrow(() -> NotFoundException.entityNotFound("이벤트"));
 
                 EventPart eventPart = EventPart.builder()
                         .member(member)
                         .event(event)
                         .createdAt(dto.getCreatedAt())
+                        .name(dto.getName())
+                        .phone(dto.getPhone())
                         .build();
                 eventPart = eventPartRepository.save(eventPart);
 
@@ -93,13 +103,18 @@ public class ScheduledDataTransferService {
                 });
 
                 // Winning 저장
-                Winning winning = new Winning(eventPart);
-                winningRepository.save(winning);
+                // 이름, 연락처 검증 로직 추가
+                if(winnerCount.get() > 0 && dto.getName().equals(member.getName()) && dto.getPhone().equals(member.getPhone())) {
+                    Winning winning = new Winning(eventPart);
+                    winningRepository.save(winning);
+                    winnerCount.decrementAndGet(); // winnerCount 감소
+                }
+
             });
 
             // 저장 후 Redis 데이터 삭제
             clearEventParticipants(eventId);
-        });
+        }
     }
 
     // 특정 이벤트 ID에 대한 Redis 데이터를 삭제하는 메서드
