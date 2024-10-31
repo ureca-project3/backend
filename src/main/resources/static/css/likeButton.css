@@ -1,0 +1,61 @@
+/* 공통 버튼 스타일 */
+.like-btn, .dislike-btn {
+    color: white; /* 텍스트 색상 */
+    border: none; /* 테두리 제거 */
+    border-radius: 5px; /* 둥근 모서리 */
+    padding: 10px 20px; /* 버튼 내 여백 */
+    font-size: 16px; /* 텍스트 크기 */
+    font-weight: bold; /* 굵은 텍스트 */
+    cursor: pointer; /* 포인터 커서 */
+    transition: background-color 0.3s ease; /* 배경색 변경 효과 */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* 그림자 효과 */
+    display: flex; /* 아이콘과 텍스트를 수평 정렬 */
+    align-items: center; /* 수직 정렬 */
+    gap: 8px; /* 아이콘과 텍스트 간격 */
+    width: 120px;
+    justify-content: center;
+}
+
+/* 좋아요 버튼 */
+.like-btn {
+    background-color: lightgray; /* 기본 회색 배경 */
+}
+
+/* 좋아요한 상태일 때 (붉은색 배경) */
+.like-btn.liked {
+    background-color: #ff6b6b !important; /* 좋아요한 상태에서는 붉은색 */
+}
+
+/* 좋아요 버튼 호버 시 */
+.like-btn:hover {
+    background-color: #ff4b4b;
+}
+
+/* 좋아요 버튼 클릭 시 */
+.like-btn:active {
+    background-color: #d14545;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    transform: translateY(2px);
+}
+
+/* 싫어요 버튼 */
+.dislike-btn {
+    background-color: lightgray; /* 기본 회색 배경 */
+}
+
+/* 싫어요한 상태일 때 (파란색 배경) */
+.dislike-btn.disliked {
+    background-color: #6b8cff !important; /* 싫어요한 상태에서는 파란색 */
+}
+
+/* 싫어요 버튼 호버 시 */
+.dislike-btn:hover {
+    background-color: #4b6bff;
+}
+
+/* 싫어요 버튼 클릭 시 */
+.dislike-btn:active {
+    background-color: #4545d1;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    transform: translateY(2px);
+}
