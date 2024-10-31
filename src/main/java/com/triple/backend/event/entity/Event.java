@@ -4,12 +4,15 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
 @Entity
 @Getter
+@NoArgsConstructor(access = lombok.AccessLevel.PROTECTED)
 public class Event {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -28,4 +31,15 @@ public class Event {
     private LocalDateTime announceTime;
 
     private boolean status;
+
+    @Builder
+    public Event (String eventName, LocalDateTime startTime, LocalDateTime endTime, Long winnerCnt, Long totalCnt, LocalDateTime announceTime, boolean status) {
+        this.eventName = eventName;
+        this.startTime = startTime;
+        this.endTime = endTime;
+        this.winnerCnt = winnerCnt;
+        this.totalCnt = totalCnt;
+        this.announceTime = announceTime;
+        this.status = status;
+    }
 }

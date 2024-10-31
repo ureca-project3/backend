@@ -5,6 +5,7 @@ import com.triple.backend.common.dto.CommonResponse;
 import com.triple.backend.common.dto.ErrorResponse;
 import com.triple.backend.event.dto.EventApplyRequestDto;
 import com.triple.backend.event.dto.EventApplyResponseDto;
+import com.triple.backend.event.dto.EventRequestDto;
 import com.triple.backend.event.service.EventService;
 import com.triple.backend.event.service.impl.ScheduledDataTransferService;
 import jakarta.validation.Valid;
@@ -39,8 +40,8 @@ public class EventController {
 
     // 이벤트 응모 - lua로 동시성 해결
     @PostMapping("/apply")
-    public ResponseEntity<?> applyEvent(@Valid @RequestBody EventApplyRequestDto request, @AuthenticationPrincipal CustomMemberDetails userDetails) {
-        Long memberId = userDetails.getMemberId();
+    public ResponseEntity<?> applyEvent(@Valid @RequestParam Long memberId, @RequestBody EventApplyRequestDto request, @AuthenticationPrincipal CustomMemberDetails userDetails) {
+//        Long memberId = userDetails.getMemberId();
         request.setMemberId(memberId);
 
         System.out.println(memberId);
@@ -74,4 +75,9 @@ public class EventController {
 //        return CommonResponse.ok("insert redisWinner Success");
 //    }
 
+    @PostMapping("/insert")
+    public ResponseEntity<?> insertEvent(@RequestBody EventRequestDto eventRequestDto) {
+        eventService.insertEvent(eventRequestDto);
+        return CommonResponse.ok("insert Event Success");
+    }
 }
