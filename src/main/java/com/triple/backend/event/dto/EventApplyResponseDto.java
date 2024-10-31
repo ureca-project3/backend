@@ -20,7 +20,7 @@ public class EventApplyResponseDto {
 
     public static EventApplyResponseDto failed(String message) {
         return EventApplyResponseDto.builder()
-                .success(false)
+                .success(true)
                 .message(message)
                 .build();
     }
