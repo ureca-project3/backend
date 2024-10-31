@@ -2,9 +2,15 @@ function getChildIdFromSession() {
     return sessionStorage.getItem("Child-Id");
 }
 
+function getAccessTokenFromSession() {
+    return sessionStorage.getItem("accessToken");
+}
+
 // 페이지 로드 시 좋아요 상태를 확인하여 버튼 스타일 설정
 async function fetchRecommendedBooks() {
     const childId = getChildIdFromSession();
+    const accessToken = getAccessTokenFromSession();
+    console.log("childId : " + childId);
     if (!childId) {
         console.error("Child-Id를 찾을 수 없습니다.");
         return;
@@ -16,13 +22,13 @@ async function fetchRecommendedBooks() {
             headers: {
                 'Child-Id': childId,
                 'Content-Type': 'application/json',
-                'Authorization': `Bearer ${sessionStorage.getItem('accessToken')}`
+                'Authorization': `Bearer ${accessToken}`
             }
         });
         const data = await response.json();
 
         if (data.message === "Get Recommended Books Success") {
-            displayRecommendedBooks(data.data);
+            displayRecommendedBooks(data.data, childId);
         } else {
             console.error("Failed to fetch recommended books:", data.message);
         }
@@ -31,7 +37,7 @@ async function fetchRecommendedBooks() {
     }
 }
 
-function displayRecommendedBooks(books) {
+function displayRecommendedBooks(books, childId) {
     const container = document.getElementById('recommend-container');
     container.innerHTML = '';
 
@@ -48,7 +54,7 @@ function displayRecommendedBooks(books) {
             <img src="${book.imageUrl}" alt="${book.title}" class="book-image" />
             <h2 class="book-title">${book.title}</h2>
             <p class="book-age">추천 연령: ${book.recAge}세</p>
-            <button class="like-btn" id="like-btn-${book.bookId}" onclick="toggleRecBookLike(${book.bookId}); event.stopPropagation();">
+            <button class="like-btn" id="like-btn-${book.bookId}" onclick="toggleRecBookLike(${book.bookId}, ${childId}); event.stopPropagation();">
                 ❤️ 마음에 들어요
             </button>
         `;
@@ -86,8 +92,7 @@ async function checkRecBookLikeStatus(bookId, childId) {
 }
 
 // 좋아요 토글 기능
-async function toggleRecBookLike(bookId) {
-    const childId = getChildIdFromSession();
+async function toggleRecBookLike(bookId, childId) {
     if (!childId) {
         console.error("Child-Id를 찾을 수 없습니다.");
         return;
