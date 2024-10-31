@@ -7,12 +7,14 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Getter
 public class BookRankingResponseDto {
+    private Long bookId;
     private String title;
     private String recAge;
     private String imageUrl;
     private String publisher;
 
     public BookRankingResponseDto(Book book) {
+        this.bookId = book.getBookId();
         this.title = book.getTitle();
         this.recAge = book.getRecAge();
         this.imageUrl = book.getImageUrl();

@@ -1,0 +1,103 @@
+@import url('https://fonts.googleapis.com/css2?family=Jua&display=swap');
+
+/* 공통 스타일 설정 */
+body {
+    font-family: 'Jua', sans-serif;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: #FFF5E6;
+    color: #4A4A4A;
+    display: flex;
+    flex-direction: column;
+    /*align-items: center;*/
+}
+
+/* 추천 책 제목 스타일 */
+h1 {
+    color: #333;
+    margin-bottom: 50px;
+}
+
+/* 추천 책 목록 컨테이너 */
+.results-container {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr); /* 한 줄에 4개씩 */
+    gap: 40px; /* 카드 간격 */
+    width: 100%;
+    margin-bottom: 30px;
+}
+
+/* 추천 책 카드 */
+.book-card {
+    background-color: #FFF;
+    border-radius: 15px;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+    padding: 15px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    height: 100%;
+    cursor: pointer;
+    transition: transform 0.2s ease;
+}
+
+.book-card:hover {
+    transform: translateY(-5px);
+}
+
+/* 책 이미지 스타일 */
+.book-image {
+    width: 150px;
+    height: 200px;
+    object-fit: cover;
+    border-radius: 10px;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+    margin-bottom: 4px;
+}
+
+/* 책 제목 스타일 */
+.book-title {
+    font-size: 23px;
+    font-weight: bold;
+    color: #333;
+    margin-bottom: 1px;
+}
+
+/* 추천 연령 스타일 */
+.book-age {
+    font-size: 14px;
+    color: #666;
+    margin-bottom: 6px;
+}
+
+/* 좋아요 버튼 기본 스타일 */
+.like-btn {
+    background-color: lavender;
+    color: blueviolet;
+    border: none;
+    border-radius: 25px;
+    padding: 8px 16px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    width: 60%;
+}
+
+.like-btn.liked {
+    background-color: #8A2BE2;
+    color: white;
+}
+
+.like-btn:hover {
+    background-color: #6A1BBE;
+}
+
+/* 추천 결과가 없을 때 메시지 */
+.no-results-message {
+    font-size: 18px;
+    color: #999;
+    margin-top: 20px;
+}

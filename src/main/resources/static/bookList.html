@@ -1,0 +1,30 @@
+<!-- bookList.html -->
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>책 목록</title>
+    <link rel="stylesheet" href="/css/bookList.css">
+    <link rel="stylesheet" href="/css/header.css">
+    <script src="/js/bookList.js" defer></script>
+    <script src="/js/header.js" defer></script>
+</head>
+<body>
+<div id="header-container"></div>
+<!-- 헤더 영역 -->
+<header class="header">
+    <h1>책 친구들이 모두 모였어요!📚 </h1>
+</header>
+
+<!-- 책 목록 컨테이너 -->
+<div id="book-container" class="book-container"></div>
+
+<!-- 페이지네이션 -->
+<div class="pagination">
+    <button id="prev-page" onclick="changePage(-1)">이전</button>
+    <span id="page-number">1</span>
+    <button id="next-page" onclick="changePage(1)">다음</button>
+</div>
+</body>
+</html>

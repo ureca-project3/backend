@@ -48,6 +48,14 @@ document.addEventListener('DOMContentLoaded', function() {
 
             if (data.data?.accessToken) {
                 sessionStorage.setItem('accessToken', data.data.accessToken);
+
+                // 로그인 성공 시 알림 메시지 표시
+                if (data.data.provider === 'kakao') {
+                    alert('카카오 계정으로 로그인이 되었습니다.');
+                } else {
+                    alert('로그인이 되었습니다.');
+                }
+
                 window.location.href = '/index.html';
             } else {
                 throw new Error('토큰을 받지 못했습니다.');

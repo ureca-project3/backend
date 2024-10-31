@@ -1,0 +1,338 @@
+@import url('https://fonts.googleapis.com/css2?family=Jua&display=swap');
+
+body {
+    font-family: 'Jua', sans-serif;
+    min-height: 100vh;
+    background-color: #FFF5E6;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+}
+
+.container {
+    max-width: 600px;
+    background-color: white;
+    padding: 40px;
+    border-radius: 20px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    text-align: center;
+}
+
+.profile-circle {
+    width: 180px;
+    height: 180px;
+    border-radius: 50%;
+    border: 4px solid #FF7F50;
+    margin: 0 auto 30px;
+    position: relative;
+    overflow: hidden;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.profile-circle:hover {
+    transform: scale(1.05);
+    box-shadow: 0 4px 12px rgba(255, 127, 80, 0.2);
+}
+
+.profile-circle img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 50%;
+}
+
+.profile-circle:after {
+    content: '사진 변경';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: rgba(255, 127, 80, 0.8);
+    color: white;
+    padding: 8px 0;
+    font-size: 14px;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.profile-circle:hover:after {
+    opacity: 1;
+}
+
+.form-group {
+    margin-bottom: 25px;
+    text-align: left;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    color: #4A4A4A;
+    font-size: 1.1rem;
+}
+
+.form-group input {
+    width: 100%;
+    padding: 12px 15px;
+    border: 2px solid #FFD4C2;
+    border-radius: 10px;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+}
+
+.form-group input:focus {
+    outline: none;
+    border-color: #FF7F50;
+    box-shadow: 0 0 0 3px rgba(255, 127, 80, 0.1);
+}
+
+.gender-selection {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    margin-top: 15px;
+}
+
+/* 성별 선택 버튼 기본 스타일 */
+.gender-btn {
+    padding: 12px 35px;
+    border: 3px solid #FFB6C1;
+    border-radius: 25px;
+    background-color: white;
+    color: #FF69B4;
+    font-size: 1.2rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+/* 호버 효과 (선택되지 않은 상태에서만) */
+.gender-btn:hover:not(.selected) {
+    background-color: #FFE4E1;
+    transform: scale(1.05) translateY(-3px);
+    box-shadow: 0 5px 15px rgba(255, 182, 193, 0.3);
+}
+
+/* 선택된 상태 스타일 */
+.gender-btn.selected {
+    background-color: #FFB6C1;
+    color: white;
+    transform: scale(1.05);
+    box-shadow: 0 5px 15px rgba(255, 182, 193, 0.3);
+    animation: none; /* 바운스 애니메이션 제거 */
+}
+
+/* 선택된 상태에서의 호버 효과 유지 */
+.gender-btn.selected:hover {
+    background-color: #FFB6C1;
+    transform: scale(1.05);
+    box-shadow: 0 5px 15px rgba(255, 182, 193, 0.3);
+}
+
+/* 등록하기 버튼 */
+.register-btn {
+    width: 300px;
+    height: 60px;      /* 고정 높이 설정 */
+    padding: 0 30px;   /* 상하 패딩 제거하고 좌우만 유지 */
+    background: linear-gradient(45deg, #FFA07A, #FFB6C1);
+    color: white;
+    border: none;
+    border-radius: 25px;
+    font-size: 1.2rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-top: 20px;
+    box-shadow: 0 4px 15px rgba(255, 160, 122, 0.3);
+    position: relative;
+    overflow: hidden;
+    display: flex;     /* Flexbox 사용 */
+    align-items: center;  /* 세로 중앙 정렬 */
+    justify-content: center; /* 가로 중앙 정렬 */
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.register-btn:hover {
+    transform: translateY(-3px) scale(1.02);
+    box-shadow: 0 6px 20px rgba(255, 160, 122, 0.4);
+    background: linear-gradient(45deg, #FFB6C1, #FFA07A);
+}
+
+.register-btn:active {
+    transform: translateY(-1px);
+}
+
+/* 나중에 등록하기 버튼 */
+.later-button {
+    width: 300px;
+    height: 60px;      /* 등록하기 버튼과 동일한 높이 */
+    padding: 0 30px;   /* 상하 패딩 제거하고 좌우만 유지 */
+    background-color: #F0F8FF;
+    color: #4682B4;
+    border: none;
+    border-radius: 25px;
+    font-size: 1.2rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    display: flex;     /* Flexbox 사용 */
+    align-items: center;  /* 세로 중앙 정렬 */
+    justify-content: center; /* 가로 중앙 정렬 */
+    margin: 20px auto 0;
+}
+
+.later-button:hover {
+    background-color: #E6E6FA;
+    color: #483D8B;
+    transform: translateY(-2px);
+    box-shadow: 0 3px 10px rgba(70, 130, 180, 0.2);
+}
+
+/* 모달 확인 버튼 */
+.modal-content button {
+    padding: 10px 30px;
+    background-color: #98FB98;
+    color: #2E8B57;
+    border: none;
+    border-radius: 20px;
+    font-size: 1.1rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-top: 15px;
+}
+
+.modal-content button:hover {
+    background-color: #90EE90;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(152, 251, 152, 0.3);
+}
+
+/* 애니메이션 */
+@keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-5px); }
+}
+
+/* 성별 버튼에 이모지 추가를 위한 HTML 수정 */
+.gender-btn::before {
+    margin-right: 8px;
+}
+
+#gender-male::before {
+    content: '👦';
+}
+
+#gender-female::before {
+    content: '👧';
+}
+
+/* 등록 버튼에 이모지 추가 */
+.register-btn::before {
+    content: '✨';
+    margin-right: 8px;
+}
+
+.later-button::before {
+    content: '👋';
+    margin-right: 8px;
+}
+
+.later-button {
+    margin-top: 15px;
+    color: #888;
+    text-decoration: underline;
+    cursor: pointer;
+    transition: color 0.3s ease;
+}
+
+.later-button:hover {
+    color: #666;
+}
+
+/* 모달 스타일 */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(4px);
+    justify-content: center;
+    align-items: center;
+}
+
+.modal-content {
+    background-color: white;
+    padding: 30px;
+    border-radius: 15px;
+    max-width: 500px;
+    width: 90%;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+}
+
+.modal-content h5 {
+    color: #FF7F50;
+    font-size: 1.5rem;
+    margin-bottom: 20px;
+}
+
+#image-options {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+    gap: 15px;
+    margin: 20px 0;
+}
+
+#image-options img {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    cursor: pointer;
+    border: 3px solid transparent;
+    transition: all 0.3s ease;
+}
+
+#image-options img:hover {
+    transform: scale(1.1);
+}
+
+#image-options img.selected {
+    border-color: #FF7F50;
+    box-shadow: 0 0 0 3px rgba(255, 127, 80, 0.2);
+}
+
+.highlight {
+    border-color: #ff6b6b !important;
+    animation: shake 0.5s ease-in-out;
+}
+
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-5px); }
+    75% { transform: translateX(5px); }
+}
+
+.start-button {
+    background-color: #4CAF50; /* 녹색 배경 */
+    color: white; /* 흰색 글자 */
+    border: none;
+    padding: 10px 20px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    margin: 4px 2px;
+    border-radius: 10px; /* 둥글게 */
+    cursor: pointer; /* 마우스 커서 변경 */
+    transition: background-color 0.3s ease; /* 마우스 호버 시 색상 변화 */
+}
+
+.start-button:hover {
+    background-color: #3e8e41; /* 마우스 호버 시 배경 색상 변경 */
+}

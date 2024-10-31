@@ -13,4 +13,8 @@ public interface FeedbackService {
 
     // 도서 싫어요 취소
     void deleteHate(Long childId, Long bookId);
+
+    String getLikeStatus(Long childId, Long bookId);
+
+    String getHateStatus(Long childId, Long bookId);
 }

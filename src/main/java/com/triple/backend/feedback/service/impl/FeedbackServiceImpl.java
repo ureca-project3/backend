@@ -121,7 +121,7 @@ public class FeedbackServiceImpl implements FeedbackService {
         if (likedBooks != null && likedBooks.contains(bookId)) {
             likedBooks.remove(bookId);
             if (likedBooks.isEmpty()) {
-                hashOperations.delete(LIKE_HASH_KEY, childId);
+                hashOperations.delete(LIKE_HASH_KEY, String.valueOf(childId));
             }
             hashOperations.put(LIKE_HASH_KEY, String.valueOf(childId), likedBooks);
         } else {
@@ -171,5 +171,39 @@ public class FeedbackServiceImpl implements FeedbackService {
                     .orElseThrow(() -> NotFoundException.entityNotFound("피드백"));
             feedback.updateHateStatus(false);
         }
+    }
+
+    @Override
+    public String getLikeStatus(Long childId, Long bookId) {
+        FeedbackId feedbackId = new FeedbackId(childId, bookId);
+        Set<Long> likedBooks = hashOperations.get(LIKE_HASH_KEY, String.valueOf(childId));
+
+        if (likedBooks != null && likedBooks.contains(bookId)) {
+            return "좋아요한 책입니다.";
+        }
+
+        boolean likeExists = feedbackRepository.findLikeStatusByFeedbackId(feedbackId);
+        if (likeExists) {
+            return "좋아요한 책입니다.";
+        }
+
+        return "좋아요하지 않은 책입니다.";
+    }
+
+    @Override
+    public String getHateStatus(Long childId, Long bookId) {
+        FeedbackId feedbackId = new FeedbackId(childId, bookId);
+        Set<Long> hatedBooks = hashOperations.get(HATE_HASH_KEY, String.valueOf(childId));
+
+        if (hatedBooks != null && hatedBooks.contains(bookId)) {
+            return "싫어요한 책입니다.";
+        }
+
+        boolean hateExists = feedbackRepository.findHateStatusByFeedbackId(feedbackId);
+        if (hateExists) {
+            return "싫어요한 책입니다.";
+        }
+
+        return "싫어요하지 않은 책입니다.";
     }
 }

@@ -1,6 +1,5 @@
 package com.triple.backend.member.entity;
 
-import com.triple.backend.common.code.CommonCode;
 import com.triple.backend.common.entity.BaseEntity;
 import jakarta.persistence.*;
 import lombok.Builder;
@@ -40,16 +39,6 @@ public class Member extends BaseEntity {
         this.provider = provider;
         this.providerId = providerId;
         this.role_code = role_code;
-    }
-
-    @Builder
-    public Member(String providerId, String provider, String name, String email, String phone,String role) {
-        this.providerId = providerId;
-        this.provider = provider;
-        this.name = name;
-        this.email = email;
-        this.phone = phone;
-        this.role_code = role_code; // 역할 필드 초기화
     }
 
     public Member() {}

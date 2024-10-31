@@ -1,67 +1,70 @@
 package com.triple.backend.member.service;
 
 import com.triple.backend.auth.dto.CustomMemberDetails;
+import com.triple.backend.auth.repository.RefreshTokenRepository;
 import com.triple.backend.child.dto.ChildDto;
 import com.triple.backend.child.entity.Child;
 import com.triple.backend.child.repository.ChildRepository;
 import com.triple.backend.member.entity.Member;
 import com.triple.backend.member.entity.MemberInfoDto;
 import com.triple.backend.member.repository.MemberRepository;
+import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class MemberServiceImpl implements MemberService, UserDetailsService {
     private final MemberRepository memberRepository;
     private final ChildRepository childRepository;
+    private final PasswordEncoder passwordEncoder;
+    private final RefreshTokenRepository refreshTokenRepository;
 
-    // 데이터베이스에서 특정 이름 조회 , DB 로그인 기능 구현을 위함
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         Member member = memberRepository.findByEmail(username);
 
-        if(member != null){
+        if (member != null) {
             return new CustomMemberDetails(member);
         }
-        throw new UsernameNotFoundException("사용자를 찾을 수 없습니다: " + username); // 사용자 없을 경우 예외 처리
+        throw new UsernameNotFoundException("사용자를 찾을 수 없습니다: " + username);
     }
 
-    // 특정 이메일로 사용자 조회
     public Member findByEmail(String email) {
         return memberRepository.findByEmail(email);
     }
 
-    // 회원과 자녀 정보를 포함하는 UserProfileDto 조회
     public MemberInfoDto getUserProfileById(Long memberId) {
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new RuntimeException("Member not found"));
 
         List<Child> children = childRepository.findAllByMember(member);
 
-        // UserProfileDto로 변환하여 반환
         return new MemberInfoDto(
                 member.getName(),
                 member.getEmail(),
                 member.getPhone(),
+                member.getProvider(),
                 children
         );
     }
 
-    // memberId를 기반으로 provider 정보 조회 - 카카오 계정 로그아웃 시 사용
     public String getProviderByMemberId(Long memberId) {
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new RuntimeException("Member not found"));
-        return member.getProvider(); // provider 정보 반환
+        return member.getProvider();
     }
 
-    // 자녀 프로필 선택시 자녀 데이터 제공
     @Override
     public List<ChildDto> getChildrenByMemberId(Long memberId) {
         Member member = memberRepository.findById(memberId)
@@ -70,7 +73,64 @@ public class MemberServiceImpl implements MemberService, UserDetailsService {
         List<Child> children = childRepository.findAllByMember(member);
 
         return children.stream()
-                .map(ChildDto::from)  // ChildDto의 정적 메서드를 사용하여 변환
+                .map(ChildDto::from)
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public boolean isEmailDuplicate(String email, Long memberId) {
+        return memberRepository.existsByEmailAndMemberIdNot(email, memberId);
+    }
+
+    @Override
+    public void updateMemberInfo(Long memberId, Member updatedMember) {
+        // 기존 회원 정보 조회
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new IllegalArgumentException("Member not found"));
+
+        // 카카오 로그인 사용자 체크
+        if ("kakao".equalsIgnoreCase(member.getProvider())) {
+            throw new IllegalStateException("카카오 로그인 사용자는 정보를 수정할 수 없습니다.");
+        }
+        // 필드 업데이트 전에 이메일 중복 체크
+        if (!member.getEmail().equals(updatedMember.getEmail()) &&
+                memberRepository.existsByEmailAndMemberIdNot(updatedMember.getEmail(), memberId)) {
+            throw new IllegalStateException("이메일이 이미 존재합니다");
+        }
+
+        // 필드 업데이트
+        member.setName(updatedMember.getName());
+        member.setEmail(updatedMember.getEmail());
+        member.setPhone(updatedMember.getPhone());
+
+        // 비밀번호 암호화하여 업데이트 (비어 있지 않은 경우에만)
+        if (updatedMember.getPassword() != null && !updatedMember.getPassword().isEmpty()) {
+            String encodedPassword = passwordEncoder.encode(updatedMember.getPassword());
+            member.setPassword(encodedPassword);
+        }
+
+        // 변경된 정보 저장
+        memberRepository.save(member);
+    }
+
+    // 회원 정보 삭제 하면거 Refresh 토큰 제거
+    @Override
+    @Transactional
+    public void deleteMember(Long memberId) {
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new IllegalArgumentException("Member not found"));
+
+        try {
+            // 1. RefreshToken 삭제
+            refreshTokenRepository.deleteByMemberId(memberId);
+
+            // 2. 자녀 정보 삭제
+            childRepository.deleteByMember(member);
+
+            // 3. 회원 삭제
+            memberRepository.delete(member);
+        } catch (Exception e) {
+            throw new RuntimeException("회원 탈퇴 처리 중 오류가 발생했습니다: " + e.getMessage());
+        }
     }
 }

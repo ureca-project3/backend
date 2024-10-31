@@ -28,7 +28,7 @@ public interface BookRepository extends JpaRepository<Book, Long> {
 
 	@Query("SELECT b FROM Book b JOIN Feedback f ON b.bookId = f.book.bookId " +
 			"WHERE f.likeStatus = true AND f.createdAt >= :startDate " +
-			"GROUP BY b.bookId ORDER BY COUNT(f) DESC")
+			"GROUP BY b.bookId ORDER BY COUNT(f) DESC LIMIT 10")
 	List<Book> findTop10BooksByLikesInLastThreeMonths(@Param("startDate") LocalDateTime startDate);
 
 	@Query("select b from Book b order by b.createdAt desc")

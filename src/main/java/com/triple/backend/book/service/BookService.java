@@ -21,5 +21,5 @@ public interface BookService {
 	List<BookRankingResponseDto> getTopLikedBooks();
 
 	// 최신순 도서 목록 조회
-	List<BookResponseDto> getBookList(Pageable pageable);
+	List<BookRankingResponseDto> getBookList(Pageable pageable);
 }

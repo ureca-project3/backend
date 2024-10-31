@@ -1,3 +1,4 @@
+const childId = sessionStorage.getItem('currentChildId');
 function setIndicatorPosition(score) {
     return `${score}%`;
 }
@@ -45,7 +46,7 @@ async function fetchTestResult() {
     try {
         const response = await fetch('/test/result', {
             headers: {
-                'Child-Id': '1'
+                'Child-Id': childId
             }
         });
         const data = await response.json();
@@ -62,7 +63,7 @@ async function initializeResult() {
         document.getElementById('resultTitle').textContent = `성향 진단 결과`;
 
         const resultCircle = document.getElementById('resultCircle');
-        resultCircle.innerHTML = `<img src="/images/${result.mbtiImage}" alt="${result.mbtiName}">`;
+        resultCircle.innerHTML = `<img src="/image/${result.mbtiImage}" alt="${result.mbtiName}">`;
 
         document.getElementById('mbtiType').textContent = result.mbtiName;
         document.getElementById('mbtiPhrase').textContent = result.mbtiPhrase;
