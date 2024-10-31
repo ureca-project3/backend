@@ -53,7 +53,7 @@ function updateProfile(data) {
     // 프로필 이미지 업데이트
     const profileImage = document.getElementById('profileImage');
     if (data.profileImage) {
-        profileImage.innerHTML = `<img src="/images/${data.profileImage}" alt="프로필 사진">`;
+        profileImage.innerHTML = `<img src="/image/${data.profileImage}" alt="프로필 사진">`;
     }
 }
 
