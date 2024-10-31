@@ -525,10 +525,3 @@ img_cat {
     z-index: 10;
 }
 
-.fa-eye, .fa-eye-slash {
-    color: #6c757d;
-}
-
-#edit-password {
-    padding-right: 40px;
-}

@@ -7,6 +7,13 @@ async function fetchAndDisplayProfile() {
                 'Authorization': `Bearer ${accessToken}`
             }
         });
+
+        // 네트워크 연결 문제 처리
+        if (!response.ok) {
+            const errorMessage = await response.text();
+            throw new Error(`Failed to fetch user profile data: ${errorMessage}`);
+        }
+
         const data = await response.json();
         console.log('API Response:', data);
         const profileData = data.member;
@@ -39,15 +46,7 @@ async function fetchAndDisplayProfile() {
             if (editNameInput) editNameInput.value = profileData.name || '';
             if (editEmailInput) editEmailInput.value = profileData.email || '';
             if (editPhoneInput) editPhoneInput.value = profileData.phone || '';
-
-            // 비밀번호 마스킹 처리 및 원본 저장
-            if (editPasswordInput && profileData.password) {
-                const passwordLength = profileData.password.length;
-                const maskedPassword = '*'.repeat(passwordLength);
-                editPasswordInput.value = maskedPassword;
-                editPasswordInput.setAttribute('data-original-password', profileData.password);
-                editPasswordInput.setAttribute('data-password-length', passwordLength.toString());
-            }
+            if (editPasswordInput) editPasswordInput.value = '';
 
             // 자녀 프로필 표시
             const childProfiles = document.getElementById('child-profiles');
@@ -56,12 +55,12 @@ async function fetchAndDisplayProfile() {
                     childProfiles.innerHTML = profileData.children.map(child => `
                         <li class="list-group-item d-flex justify-content-between align-items-center" data-id="${child.childId}">
                             <div class="child-info d-flex align-items-center" 
-                                onclick="goToChildDetail('${child.childId}')" 
-                                data-id="${child.childId}">
+                                 onclick="goToChildDetail('${child.childId}')" 
+                                 data-id="${child.childId}">
                                 <img src="/image/${child.imageUrl || 'profileDefault.png'}"
-                                    alt="${child.name}의 프로필"
-                                    onerror="this.src='/image/profileDefault.png'"
-                                    style="width: 40px; height: 40px; border-radius: 50%; margin-right: 10px;">
+                                     alt="${child.name}의 프로필"
+                                     onerror="this.src='/image/profileDefault.png'"
+                                     style="width: 40px; height: 40px; border-radius: 50%; margin-right: 10px;">
                                 <div>
                                     <span class="child-name fw-bold">${child.name}</span>
                                     <span class="child-age ms-2">${child.age}세</span>
@@ -82,31 +81,39 @@ async function fetchAndDisplayProfile() {
         }
     } catch (error) {
         console.error("사용자 정보 로드 오류:", error);
-        alert("사용자 정보를 불러올 수 없습니다.");
+        console.error("Error details:", error.stack);
+
+        // 네트워크 연결 오류 처리
+        if (error.message.includes('Failed to fetch')) {
+            const errorMessage = error.message.split(':')[1].trim();
+            alert(`네트워크 연결에 실패했습니다. 에러 메시지: ${errorMessage}`);
+        } else {
+            alert('사용자 정보를 불러올 수 없습니다. 자세한 내용은 콘솔을 확인해주세요.');
+        }
     }
 }
 
 // 수정 폼 토글
-        function toggleEditProfile() {
-            const editProfile = document.getElementById('edit-profile');
-            const profileInfo = document.querySelector('.profile-header'); // 이름 부분
-            const contactInfo = document.querySelector('.profile-info');   // 이메일, 전화번호 부분
+function toggleEditProfile() {
+    const editProfile = document.getElementById('edit-profile');
+    const profileInfo = document.querySelector('.profile-header'); // 이름 부분
+    const contactInfo = document.querySelector('.profile-info');   // 이메일, 전화번호 부분
 
-            // 수정 폼이 숨겨져 있는 상태라면
-            if (editProfile.style.display === 'none') {
-                // 수정 폼 표시
-                editProfile.style.display = 'block';
-                // 기존 정보 숨기기
-                profileInfo.style.display = 'none';
-                contactInfo.style.display = 'none';
-            } else {
-                // 수정 폼 숨기기
-                editProfile.style.display = 'none';
-                // 기존 정보 표시
-                profileInfo.style.display = 'block';
-                contactInfo.style.display = 'block';
-            }
-        }
+    // 수정 폼이 숨겨져 있는 상태라면
+    if (editProfile.style.display === 'none') {
+        // 수정 폼 표시
+        editProfile.style.display = 'block';
+        // 기존 정보 숨기기
+        profileInfo.style.display = 'none';
+        contactInfo.style.display = 'none';
+    } else {
+        // 수정 폼 숨기기
+        editProfile.style.display = 'none';
+        // 기존 정보 표시
+        profileInfo.style.display = 'block';
+        contactInfo.style.display = 'block';
+    }
+}
 
 // 프로필 수정 폼
 document.getElementById('profile-edit-form').addEventListener('submit', async function (e) {
@@ -130,25 +137,12 @@ document.getElementById('profile-edit-form').addEventListener('submit', async fu
         }
 
         const formData = new FormData(this);
-        const passwordInput = document.getElementById('edit-password');
-        const currentInputValue = passwordInput.value;
-        const originalPassword = passwordInput.getAttribute('data-original-password');
-        const passwordLength = parseInt(passwordInput.getAttribute('data-password-length'));
-
         const updateData = {
             name: formData.get('name'),
             email: formData.get('email'),
-            phone: formData.get('phone')
+            phone: formData.get('phone'),
+            password: formData.get('password')
         };
-
-        // 비밀번호가 마스킹된 상태('****')와 동일한지 확인
-        if (currentInputValue !== '*'.repeat(passwordLength)) {
-            // 새로운 비밀번호가 입력된 경우
-            updateData.password = currentInputValue;
-        } else {
-            // 마스킹된 상태 그대로인 경우 기존 비밀번호 사용
-            updateData.password = originalPassword;
-        }
 
         // 수정 요청 - Authorization 헤더 추가
         const response = await fetch('/mypage/my-info', {
@@ -165,6 +159,14 @@ document.getElementById('profile-edit-form').addEventListener('submit', async fu
         if (!response.ok) {
             if (result.message && result.message.includes("이메일이 이미 존재합니다")) {
                 alert("이미 사용 중인 이메일입니다.");
+            } else if (result.message && result.message.includes("Access token is invalid or expired")) {
+                // 토큰이 유효하지 않거나 만료된 경우
+                console.error('Access token is invalid or expired. Redirecting to login page.');
+                sessionStorage.removeItem('accessToken');
+                window.location.href = '/login.html';
+            } else if (result.message && result.message.includes("카카오 로그인 사용자는 정보를 수정할 수 없습니다")) {
+                // 카카오 사용자 수정 불가 처리
+                alert(result.message);
             } else {
                 alert(result.message || '프로필 수정에 실패했습니다.');
             }
@@ -183,68 +185,85 @@ document.getElementById('profile-edit-form').addEventListener('submit', async fu
         }
     } catch (error) {
         console.error('Error updating profile:', error);
-        alert('프로필 수정 중 오류가 발생했습니다.');
+
+        // 네트워크 연결 문제 처리
+        if (error.message && error.message.includes('Failed to fetch')) {
+            alert('네트워크 연결이 불안정하여 프로필 수정에 실패했습니다. 인터넷 연결을 확인하고 다시 시도해주세요.');
+        } else if (error.message && error.message.includes('Access token is invalid or expired')) {
+            // 토큰이 유효하지 않거나 만료된 경우
+            console.error('Access token is invalid or expired. Redirecting to login page.');
+            sessionStorage.removeItem('accessToken');
+            window.location.href = '/login.html';
+        } else {
+            alert('프로필 수정 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.');
+        }
     }
 });
 
+// 수정 폼 초기값 설정
+const editPasswordInput = document.getElementById('edit-password');
+if (editPasswordInput) {
+    // 현재 비밀번호를 마스킹하여 초기값으로 표시
+    editPasswordInput.value = '****';
+}
 // 페이지 로드 시 프로필 정보 가져오기
-        window.onload = function () {
-            fetchAndDisplayProfile();
-        };
+window.onload = function () {
+    fetchAndDisplayProfile();
+};
 
 // 1. 이벤트 리스너 등록
-        document.getElementById('delete-account-button').addEventListener('click', async function () {
-            try {
-                // 2. 사용자 정보 조회
-                const profileResponse = await fetch('/api/user/profile');
-                const profileData = await profileResponse.json();
-                // 카카오 사용자 여부 확인
-                const isKakaoUser = profileData.data.provider === 'kakao';
+document.getElementById('delete-account-button').addEventListener('click', async function () {
+    try {
+        // 2. 사용자 정보 조회
+        const profileResponse = await fetch('/api/user/profile');
+        const profileData = await profileResponse.json();
+        // 카카오 사용자 여부 확인
+        const isKakaoUser = profileData.data.provider === 'kakao';
 
-                // 3. 사용자 유형에 따른 확인 메시지 설정
-                const confirmMessage = isKakaoUser
-                    ? "카카오 계정 연동이 해제되며, 모든 데이터가 삭제됩니다. 정말 탈퇴하시겠습니까?"
-                    : "정말로 계정을 탈퇴하시겠습니까? 탈퇴 시 모든 데이터가 삭제됩니다.";
+        // 3. 사용자 유형에 따른 확인 메시지 설정
+        const confirmMessage = isKakaoUser
+            ? "카카오 계정 연동이 해제되며, 모든 데이터가 삭제됩니다. 정말 탈퇴하시겠습니까?"
+            : "정말로 계정을 탈퇴하시겠습니까? 탈퇴 시 모든 데이터가 삭제됩니다.";
 
-                // 4. 사용자 확인
-                if (confirm(confirmMessage)) {
-                    // 5. 탈퇴 요청 전송
-                    const accessToken = sessionStorage.getItem('accessToken');
-                    const response = await fetch('/mypage/delete-account', {
-                        method: 'DELETE',
-                        headers: {
-                            'Authorization': `Bearer ${accessToken}`,
-                            'Accept': 'application/json'
-                        }
-                    });
-
-                    // 6. 응답 확인
-                    if (!response.ok) {
-                        throw new Error("계정 탈퇴 처리 중 오류가 발생했습니다.");
-                    }
-
-                    // 7. 탈퇴 성공 처리
-                    sessionStorage.removeItem('accessToken');  // 토큰 제거
-
-                    // 8. 사용자 유형에 따른 성공 메시지
-                    alert(isKakaoUser
-                        ? "카카오 계정 연동이 해제되었으며, 계정이 성공적으로 삭제되었습니다."
-                        : "계정이 성공적으로 삭제되었습니다.");
-
-                    // 9. 카카오 사용자 추가 처리
-                    if (isKakaoUser && window.Kakao && window.Kakao.isInitialized()) {
-                        await window.Kakao.Auth.logout();  // 카카오 로그아웃
-                    }
-
-                    // 10. 로그인 페이지로 이동
-                    window.location.href = "/login.html";
+        // 4. 사용자 확인
+        if (confirm(confirmMessage)) {
+            // 5. 탈퇴 요청 전송
+            const accessToken = sessionStorage.getItem('accessToken');
+            const response = await fetch('/mypage/delete-account', {
+                method: 'DELETE',
+                headers: {
+                    'Authorization': `Bearer ${accessToken}`,
+                    'Accept': 'application/json'
                 }
-            } catch (error) {
-                // 11. 에러 처리
-                console.error("계정 탈퇴 오류:", error);
-                alert("계정 탈퇴 처리 중 오류가 발생했습니다.");
+            });
+
+            // 6. 응답 확인
+            if (!response.ok) {
+                throw new Error("계정 탈퇴 처리 중 오류가 발생했습니다.");
             }
-        });
+
+            // 7. 탈퇴 성공 처리
+            sessionStorage.removeItem('accessToken');  // 토큰 제거
+
+            // 8. 사용자 유형에 따른 성공 메시지
+            alert(isKakaoUser
+                ? "카카오 계정 연동이 해제되었으며, 계정이 성공적으로 삭제되었습니다."
+                : "계정이 성공적으로 삭제되었습니다.");
+
+            // 9. 카카오 사용자 추가 처리
+            if (isKakaoUser && window.Kakao && window.Kakao.isInitialized()) {
+                await window.Kakao.Auth.logout();  // 카카오 로그아웃
+            }
+
+            // 10. 로그인 페이지로 이동
+            window.location.href = "/login.html";
+        }
+    } catch (error) {
+        // 11. 에러 처리
+        console.error("계정 탈퇴 오류:", error);
+        alert("계정 탈퇴 처리 중 오류가 발생했습니다.");
+    }
+});
 
 
 // 자녀 프로필 삭제
@@ -283,99 +302,83 @@ document.getElementById('child-profiles').addEventListener('click', function (ev
 });
 
 // 자녀 등록 버튼 클릭 이벤트
-        document.querySelector('.bottom-info button').addEventListener('click', function () {
-            window.location.href = '/childRegister.html';
-        });
+document.querySelector('.bottom-info button').addEventListener('click', function () {
+    window.location.href = '/childRegister.html';
+});
 
 // 자녀 프로필 등록 폼 제출
-        const childRegistrationForm = document.getElementById('child-registration-form'); // 폼 요소 가져오기
+const childRegistrationForm = document.getElementById('child-registration-form'); // 폼 요소 가져오기
 
-        childRegistrationForm.addEventListener('submit', function (event) {
-            event.preventDefault(); // 기본 폼 제출 방지
+childRegistrationForm.addEventListener('submit', function (event) {
+    event.preventDefault(); // 기본 폼 제출 방지
 
-            // 폼 데이터 가져오기
-            const childName = document.getElementById('child-name').value;
-            const birthDate = document.getElementById('birthdate').value;
-            const gender = document.querySelector('input[name="gender"]:checked').value;
-            const profileImage = document.getElementById('profile-img').src; // 이미지 URL 가져오기
+    // 폼 데이터 가져오기
+    const childName = document.getElementById('child-name').value;
+    const birthDate = document.getElementById('birthdate').value;
+    const gender = document.querySelector('input[name="gender"]:checked').value;
+    const profileImage = document.getElementById('profile-img').src; // 이미지 URL 가져오기
 
-            // API 요청
-            fetch('/mypage/child-info', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${sessionStorage.getItem('accessToken')}`
-                },
-                body: JSON.stringify({
-                    name: childName,
-                    birthDate: birthDate,
-                    gender: gender,
-                    profileImage: profileImage // 이미지 URL을 API로 전송
-                })
-            })
-                .then(response => {
-                    if (response.ok) {
-                        alert("자녀 프로필이 등록되었습니다.");
-                        window.location.href = '/mypage.html'; // 마이페이지로 리디렉션
-                    } else {
-                        throw new Error("자녀 프로필 등록 실패");
-                    }
-                })
-                .catch(error => {
-                    console.error("자녀 프로필 등록 오류:", error);
-                    alert("자녀 프로필 등록에 실패했습니다.");
-                });
+    // API 요청
+    fetch('/mypage/child-info', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${sessionStorage.getItem('accessToken')}`
+        },
+        body: JSON.stringify({
+            name: childName,
+            birthDate: birthDate,
+            gender: gender,
+            profileImage: profileImage // 이미지 URL을 API로 전송
+        })
+    })
+        .then(response => {
+            if (response.ok) {
+                alert("자녀 프로필이 등록되었습니다.");
+                window.location.href = '/mypage.html'; // 마이페이지로 리디렉션
+            } else {
+                throw new Error("자녀 프로필 등록 실패");
+            }
+        })
+        .catch(error => {
+            console.error("자녀 프로필 등록 오류:", error);
+            alert("자녀 프로필 등록에 실패했습니다.");
         });
+});
 
 // 탈퇴하기 버튼 기능
-        document.getElementById('delete-account-button').addEventListener('click', function () {
-            const accessToken = sessionStorage.getItem('accessToken');
+document.getElementById('delete-account-button').addEventListener('click', function () {
+    const accessToken = sessionStorage.getItem('accessToken');
 
-            if (confirm("정말로 계정을 탈퇴하시겠습니까? 탈퇴 시 모든 데이터가 삭제됩니다.")) {
-                fetch('/mypage/my-info', {
-                    method: 'DELETE', // DELETE 메서드 사용
-                    headers: {
-                        'Authorization': `Bearer ${accessToken}`
-                    }
-                })
-                    .then(response => {
-                        if (!response.ok) {
-                            throw new Error("계정 탈퇴 실패");
-                        }
-                        // 탈퇴 성공 시 로그아웃 처리
-                        sessionStorage.removeItem('accessToken');
-                        alert("계정이 성공적으로 삭제되었습니다.");
-                        console.log("계정 탈퇴 성공.");
-                        window.location.href = "/login.html";
-                    })
-                    .catch(error => {
-                        console.error("계정 탈퇴 오류:", error);
-                        alert("계정 탈퇴에 실패했습니다.");
-                    });
+    if (confirm("정말로 계정을 탈퇴하시겠습니까? 탈퇴 시 모든 데이터가 삭제됩니다.")) {
+        fetch('/mypage/my-info', {
+            method: 'DELETE', // DELETE 메서드 사용
+            headers: {
+                'Authorization': `Bearer ${accessToken}`
             }
-        });
+        })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error("계정 탈퇴 실패");
+                }
+                // 탈퇴 성공 시 로그아웃 처리
+                sessionStorage.removeItem('accessToken');
+                alert("계정이 성공적으로 삭제되었습니다.");
+                console.log("계정 탈퇴 성공.");
+                window.location.href = "/login.html";
+            })
+            .catch(error => {
+                console.error("계정 탈퇴 오류:", error);
+                alert("계정 탈퇴에 실패했습니다.");
+            });
+    }
+});
 
 // 자녀 등록 버튼 클릭 이벤트
-        document.getElementById('add-child-profile-button').addEventListener('click', function () {
-            window.location.href = '/childRegister.html'; // 자녀 등록 페이지로 이동
-        });
+document.getElementById('add-child-profile-button').addEventListener('click', function () {
+    window.location.href = '/childRegister.html'; // 자녀 등록 페이지로 이동
+});
 // 자녀 상세 페이지로 이동하는 함수
 function goToChildDetail(childId) {
     window.location.href = `/testHistory.html?id=${childId}`;
 }
-
-// 비밀번호 토글 버튼 이벤트
-document.getElementById('toggle-password').addEventListener('click', function() {
-    const passwordInput = document.getElementById('edit-password');
-    const icon = this.querySelector('i');
-
-    if (passwordInput.type === 'password') {
-        passwordInput.type = 'text';
-        icon.classList.remove('fa-eye');
-        icon.classList.add('fa-eye-slash');
-    } else {
-        passwordInput.type = 'password';
-        icon.classList.remove('fa-eye-slash');
-        icon.classList.add('fa-eye');
-    }
-});
