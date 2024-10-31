@@ -18,7 +18,7 @@ public interface BookRepository extends JpaRepository<Book, Long> {
             SELECT *
               FROM book
              WHERE MATCH(title, author, publisher, summary)
-                   AGAINST(CONCAT('*', :keyword, '*') IN BOOLEAN MODE)
+                   AGAINST(CONCAT('*', :keyword, '*') IN NATURAL LANGUAGE MODE)
              ORDER BY title, summary, author, publisher
         """, nativeQuery = true)
 	Page<Book> searchBookByKeyword(@Param(value = "keyword") String keyword, Pageable pageable);
