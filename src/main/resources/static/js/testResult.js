@@ -63,7 +63,7 @@ async function initializeResult() {
         document.getElementById('resultTitle').textContent = `성향 진단 결과`;
 
         const resultCircle = document.getElementById('resultCircle');
-        resultCircle.innerHTML = `<img src="/images/${result.mbtiImage}" alt="${result.mbtiName}">`;
+        resultCircle.innerHTML = `<img src="/image/${result.mbtiImage}" alt="${result.mbtiName}">`;
 
         document.getElementById('mbtiType').textContent = result.mbtiName;
         document.getElementById('mbtiPhrase').textContent = result.mbtiPhrase;
