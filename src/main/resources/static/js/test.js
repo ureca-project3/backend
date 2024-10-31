@@ -44,7 +44,7 @@ function displayCurrentPage() {
 
         const scoreLabels = document.createElement('div');
         scoreLabels.className = 'score-labels';
-        scoreLabels.innerHTML = '<span>매우 그렇다 않다</span><span>매우 그렇다</span>';
+        scoreLabels.innerHTML = '<span>매우 그렇지 않다</span><span>매우 그렇다</span>';
         scoreContainer.appendChild(scoreLabels);
 
         const scoreSelection = document.createElement('div');
