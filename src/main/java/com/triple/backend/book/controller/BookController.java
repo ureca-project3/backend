@@ -60,7 +60,7 @@ public class BookController {
 
 	@GetMapping
 	public ResponseEntity<?> getBookList(@PageableDefault(page = 0, size = 10) Pageable pageable) {
-		List<BookResponseDto> dtoList = bookService.getBookList(pageable);
+		List<BookRankingResponseDto> dtoList = bookService.getBookList(pageable);
 		return CommonResponse.ok("Get BookList Success", dtoList);
 	}
 }
