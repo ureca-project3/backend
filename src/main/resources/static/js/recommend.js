@@ -1,5 +1,5 @@
 function getChildIdFromSession() {
-    return sessionStorage.getItem("Child-Id");
+    return sessionStorage.getItem("currentChildId");
 }
 
 function getAccessTokenFromSession() {

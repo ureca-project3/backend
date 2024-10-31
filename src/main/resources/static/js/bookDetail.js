@@ -2,6 +2,8 @@ window.onload = function () {
     checkLikeHateState();
 };
 
+const childId = sessionStorage.getItem('currentChildId');
+
 // 도서 상세 정보 로드
 document.addEventListener("DOMContentLoaded", async () => {
     const urlParams = new URLSearchParams(window.location.search);
@@ -44,7 +46,8 @@ async function checkLikeHateState() {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': `Bearer ${sessionStorage.getItem('accessToken')}`
+                'Authorization': `Bearer ${sessionStorage.getItem('accessToken')}`,
+                'Child-Id': childId
             }
         });
 
@@ -62,6 +65,8 @@ async function checkLikeHateState() {
         const hateResponse = await fetch(`/hates/${bookId}`, {
             method: 'GET',
             headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${sessionStorage.getItem('accessToken')}`,
                 'Child-Id': childId
             }
         });
@@ -93,7 +98,8 @@ async function toggleLike() {
                 method: 'DELETE',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${sessionStorage.getItem('accessToken')}`
+                    'Authorization': `Bearer ${sessionStorage.getItem('accessToken')}`,
+                    'Child-Id': childId
                 }
             });
             if (response.ok) {
@@ -103,6 +109,8 @@ async function toggleLike() {
             const response = await fetch(`/likes/${bookId}`, {
                 method: 'POST',
                 headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${sessionStorage.getItem('accessToken')}`,
                     'Child-Id': childId
                 }
             });
@@ -129,7 +137,8 @@ async function toggleDislike() {
                 method: 'DELETE',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${sessionStorage.getItem('accessToken')}`
+                    'Authorization': `Bearer ${sessionStorage.getItem('accessToken')}`,
+                    'Child-Id': childId
                 }
             });
             if (response.ok) {
@@ -139,6 +148,8 @@ async function toggleDislike() {
             const response = await fetch(`/hates/${bookId}`, {
                 method: 'POST',
                 headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${sessionStorage.getItem('accessToken')}`,
                     'Child-Id': childId
                 }
             });
