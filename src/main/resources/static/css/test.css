@@ -1,8 +1,6 @@
-@import url('https://fonts.googleapis.com/css2?family=Jua&display=swap');
-
 body {
     font-family: 'Jua', sans-serif;
-    max-width: 800px;
+    max-width: 1000px;
     margin: 0 auto;
     padding: 20px;
     background-color: #FFF5E6;
@@ -130,7 +128,7 @@ body {
     margin: 40px 0;
 }
 
-.nav-button {
+.bottom-button {
     width: 140px;
     height: 50px;
     background-color: #FF9800;
@@ -143,14 +141,14 @@ body {
     box-shadow: 0 4px 6px rgba(0,0,0,0.1);
 }
 
-.nav-button:disabled {
+.bottom-button:disabled {
     background-color: #ccc;
     cursor: not-allowed;
     transform: none;
     box-shadow: none;
 }
 
-.nav-button:not(:disabled):hover {
+.bottom-button:not(:disabled):hover {
     background-color: #F57C00;
     transform: translateY(-2px);
     box-shadow: 0 6px 8px rgba(0,0,0,0.2);
@@ -167,3 +165,4 @@ body {
 .decoration:nth-child(2) { top: 30%; right: 5%; }
 .decoration:nth-child(3) { bottom: 20%; left: 8%; }
 .decoration:nth-child(4) { bottom: 10%; right: 8%; }
+

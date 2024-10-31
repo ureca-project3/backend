@@ -1,9 +1,6 @@
 package com.triple.backend.child.service;
 
-import com.triple.backend.child.dto.ChildHistoryResponseDto;
-import com.triple.backend.child.dto.ChildInfoResponseDto;
-import com.triple.backend.child.dto.ChildTestHistoryDateResponseDto;
-import com.triple.backend.child.dto.ChildTestHistoryResponseDto;
+import com.triple.backend.child.dto.*;
 
 import java.time.LocalDateTime;
 
@@ -19,4 +16,9 @@ public interface ChildService {
 
     // 자녀 성향 진단 결과 모음 날짜 조회
     ChildTestHistoryDateResponseDto getChildTestHistoryDate(Long childId, LocalDateTime date);
+
+    void registerChild(ChildRegisterRequestDto request, String accessToken);
+
+    // 아이디를 기반으로 하는 삭제
+    boolean deleteChildById(Long childId, String accessToken);
 }

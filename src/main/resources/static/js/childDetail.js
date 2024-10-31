@@ -1,4 +1,4 @@
-const CHILD_ID = 1;
+const childId = sessionStorage.getItem('currentChildId');
 
 function setIndicatorPosition(score) {
     const clampedScore = Math.max(0, Math.min(100, score));
@@ -55,7 +55,7 @@ function updateHistoryDates(dates) {
 
 async function loadInitialData() {
     try {
-        const response = await fetch(`/mypage/child-info/result/${CHILD_ID}`);
+        const response = await fetch(`/mypage/child-info/result/${childId}`);
         const data = await response.json();
 
         if (data.message === "Get MyChildTestHistory Success") {
@@ -126,7 +126,7 @@ function updateDisplay(data) {
 
 async function loadDateData(date) {
     try {
-        const response = await fetch(`/mypage/child-info/result/history/${CHILD_ID}?date=${date}`);
+        const response = await fetch(`/mypage/child-info/result/history/${childId}?date=${date}`);
         const data = await response.json();
 
         if (data.message === "Get MyChildTestHistory Success") {
@@ -164,7 +164,7 @@ async function deleteHistory(historyId) {
         const response = await fetch(`/mypage/child-info/${historyId}`, {
             method: 'PATCH',
             headers: {
-                'Child-Id': CHILD_ID.toString()
+                'Child-Id': childId
             }
         });
         const data = await response.json();

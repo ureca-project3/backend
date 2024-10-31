@@ -23,31 +23,27 @@
 
     <form id="loginForm">
         <div class="form-group">
-            <div class="input-group">
+            <div class="input-group" style=" padding-bottom: 20px;">
                 <label for="email">이메일 주소</label>
                 <input type="email" id="email" name="email" required>
             </div>
         </div>
 
         <div class="form-group">
-            <div class="input-group">
+            <div class="input-group" style=" padding-bottom: 20px;">
                 <label for="password">비밀번호</label>
                 <input type="password" id="password" name="password" required>
             </div>
         </div>
-
         <button type="submit" class="login-button">로그인</button>
+        <button type="button" class="kakao-login" onclick="window.location.href='/oauth2/authorization/kakao'">
+            카카오톡 로그인
+        </button>
+
     </form>
 
-    <div class="social-login">
-        <h2>카카오 로그인</h2>
-        <a href="/oauth2/authorization/kakao" class="kakao-login">
-            <img src="/image/kakao_login_medium_narrow.png" alt="카카오 로그인">
-        </a>
-    </div>
-
     <div class="register-link">
-        <p>아직 계정이 없으신가요? <a href="/signup.html">회원가입하기</a></p>
+        <p>아직 계정이 없으신가요? <a href="/signup.html">회원 가입하기</a></p>
     </div>
 </main>
 

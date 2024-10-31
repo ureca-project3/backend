@@ -29,11 +29,8 @@ public class AuthServiceImpl implements AuthService{
         String phone = joinDto.getPhone();
         String password = joinDto.getPassword();
 
-        // 이메일 존재 여부 확인
-        boolean isEmailExist = memberRepository.existsByEmail(email);
-
         // 이미 존재하면 종료
-        if (isEmailExist) {
+        if (existsByEmail(email)) {
             throw new IllegalStateException("이미 존재하는 이메일입니다.");
         }
         // 기본 역할 "010" (사용자) 가져오기
@@ -52,5 +49,11 @@ public class AuthServiceImpl implements AuthService{
                 .build();
 
         memberRepository.save(newMember);
+    }
+
+    // 회원가입시 이메일 중복 체크
+    @Override
+    public boolean existsByEmail(String email) {
+        return memberRepository.existsByEmail(email);
     }
 }

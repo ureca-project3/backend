@@ -2,13 +2,18 @@
 
 body {
     font-family: 'Jua', sans-serif;
-    max-width: 800px;
+    max-width: 1000px;
     margin: 0 auto;
     padding: 20px;
     background-color: #FFF5E6;
     color: #4A4A4A;
-    text-align: center;
-    position: relative;
+}
+
+.date {
+    color: #888;
+    font-size: 20px;
+    margin: 20px 0;
+    text-align: center;  /* 이 줄을 추가합니다 */
 }
 
 .decoration {
@@ -28,6 +33,7 @@ body {
     font-weight: bold;
     margin: 40px 0;
     color: #333;
+    text-align: center;
 }
 
 .result-container {
@@ -127,4 +133,33 @@ body {
     margin: 15px 0;
     text-align: left;
     line-height: 1.6;
+}
+
+.button-container {
+    text-align: center;
+    margin: 40px 0;
+}
+
+.book-recommendation-button {
+    background-color: #FF9F43;
+    color: white;
+    font-family: 'Jua', sans-serif;
+    font-size: 24px;
+    padding: 15px 40px;
+    border: none;
+    border-radius: 30px;
+    cursor: pointer;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+}
+
+.book-recommendation-button:hover {
+    background-color: #FF8412;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
+}
+
+.book-recommendation-button:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
