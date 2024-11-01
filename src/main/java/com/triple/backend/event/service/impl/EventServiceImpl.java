@@ -21,6 +21,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.List;
 
 @Service
@@ -151,20 +152,19 @@ public class EventServiceImpl implements EventService {
 //                return EventApplyResponseDto.failed(getEventTimeErrorMessage(event, now));
 //            }
 
-            // Redis Lua 스크립트 실행 (중복 참여 검증 + 선착순 처리)
+            // Redis Lua 스크립트 실행 (이벤트 검증 + 중복 참여 검증 + 저장)
             Long result = redisTemplate.execute(
                     eventParticipationScript,
                     List.of(
                             EVENT_PARTICIPANT_KEY + request.getEventId(),
-                            EVENT_COUNTER_KEY + request.getEventId(),
-                            EVENT_DATA_KEY + request.getEventId() + ":" + request.getMemberId()
+                            EVENT_DATA_KEY + request.getEventId() + ":" + request.getMemberId(),
+                            EVENT_START_TIME_KEY + request.getEventId(),
+                            EVENT_END_TIME_KEY + request.getEventId()
                     ),
                     request.getMemberId().toString(),
-                    String.valueOf(maxParticipants),
+                    String.valueOf(now.toEpochSecond(ZoneOffset.of("+09:00"))),
                     objectMapper.writeValueAsString(request)
             );
-
-
 
             if (result == null) {
                 return EventApplyResponseDto.failed("시스템 오류가 발생했습니다.");
@@ -172,9 +172,10 @@ public class EventServiceImpl implements EventService {
 
             return switch (result.intValue()) {
                 case -1 -> EventApplyResponseDto.failed("이미 참여하셨습니다.");
+                case -2 -> EventApplyResponseDto.failed("유효하지 않은 이벤트입니다.");
                 case -3 -> EventApplyResponseDto.failed("이벤트가 아직 시작되지 않았습니다.");
                 case -4 -> EventApplyResponseDto.failed("이벤트가 종료되었습니다.");
-                default -> EventApplyResponseDto.success(result);
+                default -> EventApplyResponseDto.success("이벤트 응모가 완료되었습니다.");
             };
 
         } catch (NotFoundException e) {
