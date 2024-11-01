@@ -77,11 +77,11 @@ public class EventController {
     }
 
     // 당첨자 redis -> mysql 등록 컨트롤러
-//    @PostMapping("/apply/db_save")
-//    public ResponseEntity<?> insertWinner() {
-//        scheduledDataTransferService.saveEventParticipantsToDatabase();
-//        return CommonResponse.ok("insert redisWinner Success");
-//    }
+    @PostMapping("/apply/db_save")
+    public ResponseEntity<?> insertWinner() {
+        scheduledDataTransferService.saveEventParticipantsToDatabase();
+        return CommonResponse.ok("insert redisWinner Success");
+    }
 
     @PostMapping("/insert")
     public ResponseEntity<?> insertEvent(@RequestBody EventRequestDto eventRequestDto) {
