@@ -1,6 +1,7 @@
 package com.triple.backend.event.service.impl;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.triple.backend.common.exception.NotFoundException;
 import com.triple.backend.event.dto.*;
 import com.triple.backend.event.entity.Event;
 import com.triple.backend.event.entity.EventPart;
@@ -45,9 +46,9 @@ public class EventServiceImpl implements EventService {
     private final EventPartRepository eventPartRepository;
     private final WinningRepository winningRepository;
     private final RedisTemplate<String, String> redisTemplate;
-    private final EventRepository eventRepository;
     private final DefaultRedisScript<Long> eventParticipationScript;  // 추가
     private final ObjectMapper objectMapper;  // 추가
+
     private static final String EVENT_PARTICIPANT_KEY = "event:participant:";
     private static final String EVENT_DATA_KEY = "event:data:";
     private static final String EVENT_START_TIME_KEY = "event:start:";

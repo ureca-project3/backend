@@ -41,11 +41,6 @@ public class EventController {
         return CommonResponse.ok("Get event Success", eventService.getEvent(eventId));
     }
 
-    // 이벤트 응모 제출 api
-    @PostMapping("/participate")
-    public ResponseEntity<?> participateInEvent(
-            @RequestParam Long eventId,
-            @RequestParam Long memberId) {
     // 이벤트 응모 - lua로 동시성 해결
     @PostMapping("/apply")
     public ResponseEntity<?> applyEvent(@Valid @RequestParam Long memberId, @RequestBody EventApplyRequestDto request, @AuthenticationPrincipal CustomMemberDetails userDetails) {
