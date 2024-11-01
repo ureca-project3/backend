@@ -10,6 +10,13 @@ public class EventApplyResponseDto {
     private final String message;
     private final Long participantNumber;
 
+    public static EventApplyResponseDto success(String message) {
+        return EventApplyResponseDto.builder()
+                .success(true)
+                .message(message)
+                .build();
+    }
+
     public static EventApplyResponseDto success(Long participantNumber) {
         return EventApplyResponseDto.builder()
                 .success(true)
