@@ -23,4 +23,7 @@ public interface BookTraitsRepository extends JpaRepository<BookTraits,Long> {
 	// 성향정보 저장
 	@Query("SELECT bt.trait.traitName, COUNT(bt) AS count FROM BookTraits bt GROUP BY bt.trait.traitName ORDER BY count DESC")
 	List<Object[]> findMbtiTypeStats();
+
+	// 모든 BookTraits 데이터 삭제
+	void deleteAll();
 }

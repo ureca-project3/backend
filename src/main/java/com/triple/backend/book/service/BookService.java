@@ -26,6 +26,10 @@ public interface BookService {
 	// 최신순 도서 목록 조회
 	List<BookRankingResponseDto> getBookList(Pageable pageable);
 
+	// 데이터 배치 기능 
+	@Transactional(readOnly = false)
+	void processExistingBooks();
+
 	// 책 100권 MBTI, 요약
 	Map<String, Object> analyzeMbti(Book book);
 

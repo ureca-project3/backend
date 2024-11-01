@@ -22,6 +22,9 @@ import lombok.RequiredArgsConstructor;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
 @Service
@@ -70,8 +73,38 @@ public class BookServiceImpl implements BookService {
 		return books.stream().map(BookRankingResponseDto::new).collect(Collectors.toList());
 	}
 
+	@Override
+	@Transactional(readOnly = false)
+	public void processExistingBooks() {
+		// 기존 BookTraits 데이터 삭제
+		bookTraitsRepository.deleteAll();
+
+		// 데이터베이스에 이미 존재하는 책 데이터 조회
+		List<Book> existingBooks = bookRepository.findAll();
+
+		// 스레드 풀 생성
+		ExecutorService executorService = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
+
+		// 기존 책 데이터 일괄 처리
+		List<CompletableFuture<Void>> futures = existingBooks.stream()
+				.map(this::processBook)
+				.toList();
+
+		// 모든 작업 완료 대기
+		CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).join();
+
+		// 스레드 풀 종료
+		executorService.shutdown();
+	}
+
+	private CompletableFuture<Void> processBook(Book book) {
+		return CompletableFuture.runAsync(() -> {
+			// MBTI 분석 (BookService.analyzeMbti 호출)
+			analyzeMbti(book);
+		});
+	}
+
 	// 책 전체 MBTI 검사
-// 책 전체 MBTI 검사
 	@Override
 	@Transactional(readOnly = false)
 	public Map<String, Object> analyzeMbti(Book book) {

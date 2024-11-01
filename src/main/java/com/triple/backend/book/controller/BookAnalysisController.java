@@ -19,13 +19,12 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class BookAnalysisController {
 
-    private final BookBatchProcessor bookBatchProcessor;
     private final BookService bookService;
 
     @PostMapping("/analyze/batch")
     public ResponseEntity<?> analyzeExistingBooks() {
         try {
-            bookBatchProcessor.processExistingBooks();
+            bookService.processExistingBooks();
             return CommonResponse.ok("Existing books analyzed successfully");
         } catch (Exception e) {
             return CommonResponse.error("Batch analysis error" + e.getMessage(), HttpStatus.BAD_REQUEST);
