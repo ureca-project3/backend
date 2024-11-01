@@ -60,6 +60,7 @@ public class ChatGptController {
         return CommonResponse.ok("Select Prompt Success", result);
     }
 
+
     @PostMapping("/analyze/book")
     public ResponseEntity<?> analyzeBook(@RequestBody BookAnalysisRequestDto request) {
         try {
@@ -70,6 +71,7 @@ public class ChatGptController {
             );
 
             String content = extractContent(result);
+            log.info("analyzeBook 내용: {}", content);
 
             if ("MBTI".equals(request.getAnalysisType())) {
                 Map<String, Integer> scores = objectMapper.readValue(content,
@@ -81,6 +83,8 @@ public class ChatGptController {
                         .tfScore(scores.get("TF"))
                         .jpScore(scores.get("JP"))
                         .build();
+                log.info("analyzeBook MBTI 점수: {}", scores);
+                log.info("analyzeBook MBTI 분석: {}", mbtiAnalysis);
 
                 Map<String, Object> response = new HashMap<>();
                 response.put("mbtiScores", scores);
@@ -130,4 +134,5 @@ public class ChatGptController {
             throw new RuntimeException("GPT 응답 처리 중 오류가 발생했습니다: " + e.getMessage());
         }
     }
+
 }
