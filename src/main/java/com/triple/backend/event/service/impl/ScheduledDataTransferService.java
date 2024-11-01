@@ -72,6 +72,13 @@ public class ScheduledDataTransferService {
                     .orElseThrow(() -> NotFoundException.entityNotFound("이벤트"));
             if (event.getEndTime().isAfter(LocalDateTime.now())) continue;
 
+            // Redis에서 event:total_count 값 가져오기
+            String totalCountStr = redisTemplate.opsForValue().get("event:total_count:" + eventId);
+            Long totalCount = totalCountStr != null ? Long.parseLong(totalCountStr) : 0L;
+
+            event.updateTotalCnt(totalCount);
+            Event updateEvent = eventRepository.save(event);
+
             List<EventPartRequestDto> participants = getEventParticipants(eventId);
             AtomicLong winnerCount = new AtomicLong(Optional.ofNullable(event.getWinnerCnt()).orElse(0L));
 
@@ -82,7 +89,7 @@ public class ScheduledDataTransferService {
 
                 EventPart eventPart = EventPart.builder()
                         .member(member)
-                        .event(event)
+                        .event(updateEvent)
                         .createdAt(dto.getCreatedAt())
                         .name(dto.getName())
                         .phone(dto.getPhone())

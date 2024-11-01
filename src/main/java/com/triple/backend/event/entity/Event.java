@@ -42,4 +42,8 @@ public class Event {
         this.announceTime = announceTime;
         this.status = status;
     }
+
+    // 총 참여자 수 업데이트
+    public void updateTotalCnt(Long totalCnt) { this.totalCnt = totalCnt; }
+
 }
