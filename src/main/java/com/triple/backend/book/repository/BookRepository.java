@@ -15,15 +15,12 @@ public interface BookRepository extends JpaRepository<Book, Long> {
 
 	// 도서 검색
 	@Query(value = """
-			SELECT b
-			  FROM Book b
-			 WHERE
-			 	LOWER(b.title) LIKE LOWER(CONCAT('%', :keyword, '%')) OR
-			 	LOWER(b.author) LIKE LOWER(CONCAT('%', :keyword, '%')) OR
-			 	LOWER(b.publisher) LIKE LOWER(CONCAT('%', :keyword, '%')) OR
-   				LOWER(b.summary) LIKE LOWER(CONCAT('%', :keyword, '%'))
-			ORDER BY b.title, b.summary, b.author, b.publisher
-		""", countQuery = "SELECT count(b) FROM Book b")
+            SELECT *
+              FROM book
+             WHERE MATCH(title, author, publisher, summary)
+                   AGAINST(CONCAT('*', :keyword, '*') IN NATURAL LANGUAGE MODE)
+             ORDER BY title, summary, author, publisher
+        """, nativeQuery = true)
 	Page<Book> searchBookByKeyword(@Param(value = "keyword") String keyword, Pageable pageable);
 
 	@Query("SELECT b FROM Book b JOIN Feedback f ON b.bookId = f.book.bookId " +
