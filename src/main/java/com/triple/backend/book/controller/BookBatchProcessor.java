@@ -25,10 +25,9 @@ import java.util.concurrent.Executors;
 @RequiredArgsConstructor
 public class BookBatchProcessor {
 
+    private final ChatGptService chatGptService;
     private final BookRepository bookRepository;
-    private final BookTraitsRepository bookTraitsRepository;
-    private final TraitRepository traitRepository;
-    private final BookService bookService;
+    private final BookService bookService; // BookService를 주입
 
     @Async
     public void processExistingBooks() {
@@ -50,51 +49,10 @@ public class BookBatchProcessor {
         executorService.shutdown();
     }
 
-
     private CompletableFuture<Void> processBook(Book book) {
         return CompletableFuture.runAsync(() -> {
-            // MBTI 분석
-            Map<String, Object> mbtiResult = bookService.analyzeMbti(book);
-
-            // MBTI 분석 결과 저장
-            saveBookTraits(book, mbtiResult);
+            // MBTI 분석 (BookService.analyzeMbti 호출)
+            bookService.analyzeMbti(book);
         });
-    }
-
-    private void saveBookTraits(Book book, Map<String, Object> mbtiResult) {
-        // BookTraits 엔티티에 MBTI 분석 결과 저장
-        Map<String, Integer> mbtiScores = (Map<String, Integer>) mbtiResult.get("mbtiScores");
-
-        // Trait 엔티티에서 해당하는 trait 조회
-        Trait eiTrait = traitRepository.findByTraitName("EI");
-        Trait snTrait = traitRepository.findByTraitName("SN");
-        Trait tfTrait = traitRepository.findByTraitName("TF");
-        Trait jpTrait = traitRepository.findByTraitName("JP");
-
-        BookTraits eiBookTraits = BookTraits.builder()
-                .book(book)
-                .trait(eiTrait)
-                .traitScore(mbtiScores.get("EI"))
-                .build();
-        BookTraits snBookTraits = BookTraits.builder()
-                .book(book)
-                .trait(snTrait)
-                .traitScore(mbtiScores.get("SN"))
-                .build();
-        BookTraits tfBookTraits = BookTraits.builder()
-                .book(book)
-                .trait(tfTrait)
-                .traitScore(mbtiScores.get("TF"))
-                .build();
-        BookTraits jpBookTraits = BookTraits.builder()
-                .book(book)
-                .trait(jpTrait)
-                .traitScore(mbtiScores.get("JP"))
-                .build();
-
-        bookTraitsRepository.save(eiBookTraits);
-        bookTraitsRepository.save(snBookTraits);
-        bookTraitsRepository.save(tfBookTraits);
-        bookTraitsRepository.save(jpBookTraits);
     }
 }

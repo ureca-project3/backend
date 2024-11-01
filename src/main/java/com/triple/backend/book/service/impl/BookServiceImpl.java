@@ -71,6 +71,7 @@ public class BookServiceImpl implements BookService {
 	}
 
 	// 책 전체 MBTI 검사
+// 책 전체 MBTI 검사
 	@Override
 	@Transactional(readOnly = false)
 	public Map<String, Object> analyzeMbti(Book book) {
@@ -85,12 +86,17 @@ public class BookServiceImpl implements BookService {
 
 		// 분석 결과를 book_traits 테이블에 저장
 		Map<String, Integer> mbtiScores = (Map<String, Integer>) result.get("mbtiScores");
+		System.out.println("MBTI Scores: " + mbtiScores);
 
 		// Trait 엔티티에서 해당하는 trait 조회
-		com.triple.backend.test.entity.Trait eiTrait = traitRepository.findByTraitName("EI");
-		com.triple.backend.test.entity.Trait snTrait = traitRepository.findByTraitName("SN");
-		com.triple.backend.test.entity.Trait tfTrait = traitRepository.findByTraitName("TF");
-		com.triple.backend.test.entity.Trait jpTrait = traitRepository.findByTraitName("JP");
+		com.triple.backend.test.entity.Trait eiTrait = traitRepository.findByTraitName("에너지방향");
+		System.out.println("EI Trait: " + eiTrait);
+		com.triple.backend.test.entity.Trait snTrait = traitRepository.findByTraitName("인식기능");
+		System.out.println("SN Trait: " + snTrait);
+		com.triple.backend.test.entity.Trait tfTrait = traitRepository.findByTraitName("판단기능");
+		System.out.println("TF Trait: " + tfTrait);
+		com.triple.backend.test.entity.Trait jpTrait = traitRepository.findByTraitName("생활양식");
+		System.out.println("JP Trait: " + jpTrait);
 
 		BookTraits eiBookTraits = BookTraits.builder()
 				.book(book)
@@ -113,7 +119,9 @@ public class BookServiceImpl implements BookService {
 				.traitScore(mbtiScores.get("JP"))
 				.build();
 
+		System.out.println("Saving BookTraits...");
 		bookTraitsRepository.saveAll(List.of(eiBookTraits, snBookTraits, tfBookTraits, jpBookTraits));
+		System.out.println("BookTraits saved.");
 
 		return result;
 	}

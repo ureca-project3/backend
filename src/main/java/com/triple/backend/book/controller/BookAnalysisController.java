@@ -38,7 +38,8 @@ public class BookAnalysisController {
             Map<String, Object> result = bookService.analyzeMbti(book);
             return CommonResponse.ok("MBTI Analysis Success", result);
         } catch (Exception e) {
-            return CommonResponse.error("MBTI Analysis Error" + e.getMessage(), HttpStatus.BAD_REQUEST);
+            return CommonResponse.error("MBTI Analysis Error"+ e.getMessage(), HttpStatus.BAD_REQUEST);
         }
     }
+
 }
