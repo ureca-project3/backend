@@ -3,6 +3,7 @@ local participantKey = KEYS[1]    -- 참여자 Set
 local dataKey = KEYS[2]          -- 참여자 상세 데이터
 local startTimeKey = KEYS[3]      -- 이벤트 시작 시간
 local endTimeKey = KEYS[4]        -- 이벤트 마감 시간
+local totalCountKey = KEYS[5] -- 총 참여자 수
 
 -- 파라미터
 local userId = ARGV[1]
@@ -52,7 +53,10 @@ end
 -- 참여자 등록
 redis.call('SADD', participantKey, userId)
 
+-- 총 참여자 수 증가 및 현재 순위 획득
+local currentRank = redis.call('INCR', totalCountKey)
+
 -- 참여자 상세 데이터 저장
 redis.call('SET', dataKey, jsonData)
 
-return 1  -- 성공
+return currentRank  -- 성공

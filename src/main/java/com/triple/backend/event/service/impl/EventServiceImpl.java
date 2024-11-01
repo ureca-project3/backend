@@ -47,6 +47,8 @@ public class EventServiceImpl implements EventService {
 
     private static final String EVENT_START_TIME_KEY = "event:start:";
     private static final String EVENT_END_TIME_KEY = "event:end:";
+    private static final String EVENT_TOTAL_COUNT_KEY = "event:total_count:";
+
 
     @Value("${event.max-participants:100}")
     private int maxParticipants;
@@ -168,7 +170,8 @@ public class EventServiceImpl implements EventService {
                             EVENT_PARTICIPANT_KEY + request.getEventId(),
                             EVENT_DATA_KEY + request.getEventId() + ":" + request.getMemberId(),
                             EVENT_START_TIME_KEY + request.getEventId(),
-                            EVENT_END_TIME_KEY + request.getEventId()
+                            EVENT_END_TIME_KEY + request.getEventId(),
+                            EVENT_TOTAL_COUNT_KEY + request.getEventId()
                     ),
                     request.getMemberId().toString(),
                     String.valueOf(now.toEpochSecond(ZoneOffset.of("+09:00"))),
@@ -186,7 +189,7 @@ public class EventServiceImpl implements EventService {
                 case -2 -> EventApplyResponseDto.failed("유효하지 않은 이벤트입니다.");
                 case -3 -> EventApplyResponseDto.failed("이벤트가 아직 시작되지 않았습니다.");
                 case -4 -> EventApplyResponseDto.failed("이벤트가 종료되었습니다.");
-                default -> EventApplyResponseDto.success("이벤트 응모가 완료되었습니다.");
+                default -> EventApplyResponseDto.success("이벤트 응모가 완료되었습니다. 참여 순서: " + result);
             };
 
         } catch (Exception e) {
