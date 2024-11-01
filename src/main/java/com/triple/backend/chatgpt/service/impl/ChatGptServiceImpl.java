@@ -5,13 +5,11 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.triple.backend.chatgpt.config.ChatGptConfig;
-import com.triple.backend.chatgpt.dto.ChatCompletionDto;
-import com.triple.backend.chatgpt.dto.ChatRequestMsgDto;
-import com.triple.backend.chatgpt.dto.CompletionDto;
-import com.triple.backend.chatgpt.dto.MbtiAnalysisDto;
+import com.triple.backend.chatgpt.dto.*;
 import com.triple.backend.chatgpt.service.ChatGptService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -19,10 +17,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -30,6 +25,9 @@ import java.util.Map;
 public class ChatGptServiceImpl implements ChatGptService {
 
     private final ChatGptConfig chatGptConfig;
+
+    @Autowired
+    private ObjectMapper objectMapper;
 
     @Value("${openai.url.model}")
     private String modelUrl;
@@ -146,11 +144,49 @@ public class ChatGptServiceImpl implements ChatGptService {
     }
 
     @Override
-    public Map<String, Object> analyzeBook(String content, String analysisType) {
+    public Map<String, Object> analyzeMbti(BookAnalysisRequestDto request) {
+        try {
+            Map<String, Object> result = this.performBookAnalysis(request.getContent(), "MBTI");
+            String bookContent = this.extractContent(result);
+            log.info("analyzeMbti 내용: {}", bookContent);
+
+            Map<String, Integer> scores = objectMapper.readValue(bookContent,
+                    new TypeReference<Map<String, Integer>>() {});
+            log.info("analyzeMbti 점수: {}", scores);
+
+            MbtiAnalysisDto mbtiAnalysis = this.createMbtiAnalysis(scores);
+            log.info("analyzeMbti 분석: {}", mbtiAnalysis);
+
+            Map<String, Object> response = new HashMap<>();
+            response.put("mbtiScores", scores);
+            response.put("mbtiType", mbtiAnalysis.getMbtiType());
+            return response;
+        } catch (Exception e) {
+            log.error("MBTI 분석 중 오류 발생: ", e);
+            throw new RuntimeException("MBTI 분석 중 오류가 발생했습니다: " + e.getMessage());
+        }
+    }
+
+    @Override
+    public Map<String, String> analyzeSummary(BookAnalysisRequestDto request) {
+        try {
+            Map<String, Object> result = this.performBookAnalysis(request.getContent(), "SUMMARY");
+            String bookContent = this.extractContent(result);
+            log.info("analyzeSummary 내용: {}", bookContent);
+
+            Map<String, String> summary = objectMapper.readValue(bookContent, new TypeReference<Map<String, String>>() {});
+            log.info("analyzeSummary 요약: {}", summary.get("summary"));
+            return summary;
+        } catch (Exception e) {
+            log.error("책 요약 중 오류 발생: ", e);
+            throw new RuntimeException("책 요약 중 오류가 발생했습니다: " + e.getMessage());
+        }
+    }
+
+    private Map<String, Object> performBookAnalysis(String content, String analysisType) {
         List<ChatRequestMsgDto> messages = new ArrayList<>();
 
-        // 분석 유형에 따른 프롬프트 설정
-        String systemPrompt = getSystemPrompt(analysisType);
+        String systemPrompt = this.getSystemPrompt(analysisType);
 
         messages.add(ChatRequestMsgDto.builder()
                 .role("system")
@@ -164,9 +200,9 @@ public class ChatGptServiceImpl implements ChatGptService {
 
         ChatCompletionDto chatCompletionDto = ChatCompletionDto.builder()
                 .messages(messages)
-                .build();  // gpt-4o-mini 모델 사용
+                .build();
 
-        return selectPrompt(chatCompletionDto);
+        return this.selectPrompt(chatCompletionDto);
     }
 
     private String getSystemPrompt(String analysisType) {
@@ -184,6 +220,30 @@ public class ChatGptServiceImpl implements ChatGptService {
                     "절대로 JSON 형식 이외의 어떤 텍스트도 포함하지 마세요. " +
                     "JSON 형식에 어긋나는 응답은 처리할 수 없습니다.";
         }
+    }
+
+    private String extractContent(Map<String, Object> response) {
+        try {
+            List<Map<String, Object>> choices = Optional.ofNullable((List<Map<String, Object>>) response.get("choices"))
+                    .orElseThrow(() -> new RuntimeException("GPT 응답이 비어있습니다"));
+            Map<String, Object> message = Optional.ofNullable((Map<String, Object>) choices.get(0).get("message"))
+                    .orElseThrow(() -> new RuntimeException("GPT 응답에 메시지가 없습니다"));
+            String content = Optional.ofNullable((String) message.get("content"))
+                    .orElseThrow(() -> new RuntimeException("GPT 메시지에 내용이 없습니다"));
+            return content;
+        } catch (Exception e) {
+            log.error("Failed to extract content from response", e);
+            throw new RuntimeException("GPT 응답 처리 중 오류가 발생했습니다: " + e.getMessage());
+        }
+    }
+
+    public MbtiAnalysisDto createMbtiAnalysis(Map<String, Integer> scores) {
+        return MbtiAnalysisDto.builder()
+                .eiScore(Optional.ofNullable(scores.get("E-I")).orElse(50))
+                .snScore(Optional.ofNullable(scores.get("S-N")).orElse(50))
+                .tfScore(Optional.ofNullable(scores.get("T-F")).orElse(50))
+                .jpScore(Optional.ofNullable(scores.get("J-P")).orElse(50))
+                .build();
     }
 }
 

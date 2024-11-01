@@ -1,5 +1,6 @@
 package com.triple.backend.chatgpt.service;
 
+import com.triple.backend.chatgpt.dto.BookAnalysisRequestDto;
 import com.triple.backend.chatgpt.dto.ChatCompletionDto;
 import com.triple.backend.chatgpt.dto.CompletionDto;
 
@@ -16,5 +17,7 @@ public interface ChatGptService {
     Map<String, Object> selectPrompt(ChatCompletionDto chatCompletionDto);
 
     // 답변 정보를 담는
-    Map<String, Object> analyzeBook(String content, String analysisType);
+    Map<String, Object> analyzeMbti(BookAnalysisRequestDto request);
+    Map<String, String> analyzeSummary(BookAnalysisRequestDto request);
+
 }

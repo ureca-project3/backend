@@ -60,77 +60,32 @@ public class ChatGptController {
         return CommonResponse.ok("Select Prompt Success", result);
     }
 
-    @PostMapping("/analyze/book")
-    public ResponseEntity<?> analyzeBook(@RequestBody BookAnalysisRequestDto request) {
+
+    @PostMapping("/analyze/mbti")
+    public ResponseEntity<?> analyzeMbti(@RequestBody BookAnalysisRequestDto request) {
         try {
-            log.debug("Book Analysis Request - Type: {}", request.getAnalysisType());
-            Map<String, Object> result = chatGptService.analyzeBook(
-                    request.getContent(),
-                    request.getAnalysisType()
-            );
-
-            String content = extractContent(result);
-            log.info("analyzeBook 내용: {}", content);
-
-            if ("MBTI".equals(request.getAnalysisType())) {
-                Map<String, Integer> scores = objectMapper.readValue(content,
-                        new TypeReference<Map<String, Integer>>() {});
-
-                MbtiAnalysisDto mbtiAnalysis = MbtiAnalysisDto.builder()
-                        .eiScore(scores.get("EI"))
-                        .snScore(scores.get("SN"))
-                        .tfScore(scores.get("TF"))
-                        .jpScore(scores.get("JP"))
-                        .build();
-                log.info("analyzeBook MBTI 점수: {}", scores);
-                log.info("analyzeBook MBTI 분석: {}", mbtiAnalysis);
-
-                Map<String, Object> response = new HashMap<>();
-                response.put("mbtiScores", scores);
-                response.put("mbtiType", mbtiAnalysis.getMbtiType());
-
-                Map<String, Object> data = new HashMap<>();
-                data.put("mbtiScores", scores);
-                data.put("mbtiType", mbtiAnalysis.getMbtiType());
-                return ResponseEntity.ok(data);
-            } else {
-                Map<String, String> summary = objectMapper.readValue(content, new TypeReference<Map<String, String>>() {});
-                return ResponseEntity.ok(summary.get("summary"));
-            }
+            Map<String, Object> result = chatGptService.analyzeMbti(request);
+            return CommonResponse.ok("MBTI Analysis Success", result);
         } catch (Exception e) {
-            log.error("책 분석 중 오류 발생: ", e);
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("책 분석 중 오류가 발생했습니다: " + e.getMessage());
+            log.error("MBTI 분석 중 오류 발생: ", e);
+            return CommonResponse.error("MBTI 분석 중 오류가 발생했습니다: " + e.getMessage(), HttpStatus.BAD_REQUEST);
         }
     }
 
-    // MBTI 분석 DTO 생성 메서드 추가
-    private MbtiAnalysisDto createMbtiAnalysis(Map<String, Integer> scores) {
-        return MbtiAnalysisDto.builder()
-                .eiScore(Optional.ofNullable(scores.get("E-I")).orElse(50))
-                .snScore(Optional.ofNullable(scores.get("S-N")).orElse(50))
-                .tfScore(Optional.ofNullable(scores.get("T-F")).orElse(50))
-                .jpScore(Optional.ofNullable(scores.get("J-P")).orElse(50))
-                .build();
+    @PostMapping("/analyze/summary")
+    public ResponseEntity<?> analyzeSummary(@RequestBody BookAnalysisRequestDto request) {
+        try {
+            Map<String, String> result = chatGptService.analyzeSummary(request);
+            return CommonResponse.ok("Book Summary", result.get("summary"));
+        } catch (Exception e) {
+            log.error("책 요약 중 오류 발생: ", e);
+            return CommonResponse.error("책 요약 중 오류가 발생했습니다: " + e.getMessage(), HttpStatus.BAD_REQUEST);
+        }
     }
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<?> handleException(Exception e) {
         log.error("컨트롤러 오류: ", e);
-        return CommonResponse.ok("오류가 발생했습니다: " + e.getMessage());
-    }
-
-    private String extractContent(Map<String, Object> response) {
-        try {
-            List<Map<String, Object>> choices = Optional.ofNullable((List<Map<String, Object>>) response.get("choices"))
-                    .orElseThrow(() -> new RuntimeException("GPT 응답이 비어있습니다"));
-            Map<String, Object> message = Optional.ofNullable((Map<String, Object>) choices.get(0).get("message"))
-                    .orElseThrow(() -> new RuntimeException("GPT 응답에 메시지가 없습니다"));
-            String content = Optional.ofNullable((String) message.get("content"))
-                    .orElseThrow(() -> new RuntimeException("GPT 메시지에 내용이 없습니다"));
-            return content;
-        } catch (Exception e) {
-            log.error("Failed to extract content from response", e);
-            throw new RuntimeException("GPT 응답 처리 중 오류가 발생했습니다: " + e.getMessage());
-        }
+        return CommonResponse.ok("오류가 발생했습니다: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }
