@@ -1,7 +1,12 @@
-@import url('https://fonts.googleapis.com/css2?family=Jua&display=swap');
+@font-face {
+    font-family: 'Jal_Onuel';
+    src: url('https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_20-10-21@1.0/Jal_Onuel.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+}
 
 body {
-    font-family: 'Jua', sans-serif;
+    font-family: 'Jal_Onuel', serif;
     max-width: 1000px;
     margin: 0 auto;
     padding: 20px;
@@ -10,6 +15,7 @@ body {
     min-height: 100vh;
     display: flex;
     flex-direction: column;
+    margin-top: 20px;
 }
 
 .decoration {
@@ -24,79 +30,166 @@ body {
 .decoration:nth-child(3) { bottom: 20%; left: 8%; }
 .decoration:nth-child(4) { bottom: 10%; right: 8%; }
 
-/* 이벤트 배너 스타일 */
-.event-banners {
-    margin: 2rem 0;
-    padding: 0 20px;
-}
-
-.event-banners h2 {
-    color: #4A4A4A;
-    margin-bottom: 1rem;
-    font-size: 1.5rem;
-}
-
-.banner-container {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 20px;
-}
-
-.event-banner {
-    display: block;
-    text-decoration: none;
-    color: inherit;
-    background: white;
-    border-radius: 15px;
-    overflow: hidden;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-    transition: transform 0.3s ease;
-}
-
-.event-banner.disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-}
-
-.event-banner .status {
-    display: inline-block;
-    padding: 4px 8px;
-    border-radius: 4px;
-    font-size: 0.8rem;
-    font-weight: bold;
-}
-
-.event-banner:hover {
-    transform: translateY(-5px);
-}
-
-.event-banner:not(.disabled):hover {
-    transform: translateY(-5px);
-}
-
-.event-banner img {
-    width: 100%;
-    height: 200px;
-    object-fit: cover;
-}
-
-.banner-info {
-    padding: 1rem;
-}
-
-.banner-info h3 {
-    margin: 0 0 0.5rem;
-    color: #4A4A4A;
-}
-
-.banner-info p {
-    margin: 0.3rem 0;
-}
-
-.footer {
-    margin-top: auto;
-    text-align: center;
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
     padding: 20px 0;
+}
+
+.nav-buttons {
+    display: flex;
+    align-items: center;
+}
+
+.auth-buttons {
+    display: flex;
+    gap: 10px;
+}
+
+.nav-button {
+    background-color: #FF7F50;
+    color: white;
+    border: none;
+    border-radius: 25px;
+    padding: 10px 20px;
+    font-size: 16px;
+    text-decoration: none;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    font-family: inherit;
+}
+
+.nav-button:hover {
+    background-color: #FF6B3D;
+}
+
+.content {
+    padding: 20px;
+    max-width: 100vw; /* body의 max-width를 무시하고 전체 화면 너비로 설정 */
+}
+
+.hero-container {
+    position: relative;
+    width: 100vw; /* 화면 전체 너비로 설정 */
+    margin-left: calc(-50vw + 50%); /* 수평 중심 정렬 */
+    max-height: 400px;
+    overflow: hidden;
+    margin-bottom: 20px;
+    background-color: #fff; /* 배경색을 흰색으로 설정 */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.hero-image {
+    max-width: 1000px; /* 이미지 너비를 최대 1000px로 고정 */
+    height: auto; /* 이미지 비율 유지 */
+}
+
+.event-button {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(50px, 100px);
+    background-color: #3764CE;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    font-family: inherit;
+}
+
+.event-button:hover {
+    background-color: #FF6B3D;
+}
+
+.search-section {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.search-section h2 {
+    font-size: 30px;
+    color: #3A001E;
+}
+
+.search-input {
+    width: 60%;
+    padding: 10px;
+    font-size: 16px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    margin-bottom: 20px;
+}
+
+.recent-books-section h2,
+.popular-books-section h2 {
+    font-size: 25px;
+    color: #333;
+    flex-grow: 1; /* 제목이 가능한 공간을 차지하도록 설정 */
+}
+
+.section-header {
+    display: flex;
+    justify-content: space-between; /* 양쪽 끝 정렬 */
+    align-items: center; /* 세로 정렬 */
+}
+
+.card-container {
+    display: flex;
+    gap: 10px; /* 카드 간의 간격 */
+    justify-content: center; /* 중앙 정렬 */
+    flex-wrap: wrap; /* 여러 줄로 표시 */
+    align-items: flex-start; /* 카드의 시작점에서 정렬 */
+    margin-bottom: 100px;
+}
+
+.book-card {
+    width: 19%; /* 카드 너비를 18%로 설정하여 한 줄에 5개 표시 */
+    height: 230px; /* 카드 높이 유지 */
+    background-color: #fff; /* 카드 배경색 */
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    cursor: pointer;
+    transition: transform 0.3s;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start; /* 자식 요소를 상단으로 정렬 */
+    box-sizing: border-box; /* 패딩을 포함한 크기 계산 */
+}
+
+.book-image {
+    width: 100%; /* 카드 너비에 맞추기 */
+    height: 150px; /* 카드에서 차지할 고정 높이 설정 */
+    object-fit: contain; /* 이미지 비율을 유지하며 최대한 포함 */
+    border-radius: 10px 10px 0 0; /* 위쪽 모서리 둥글게 */
+}
+
+.book-card:hover {
+    transform: scale(1.05);
+}
+
+.book-title {
+    padding-top: 15px;
+    font-size: 14px !important;
+    margin: 2px 0;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    max-width: 100%;
+    display: block
+}
+
+.book-info {
+    font-size: 10px;
     color: #666;
-    font-size: 14px;
+    padding-left: 10px;
+    padding-bottom: 5px;
+    margin: 0;
+    text-align: left;
 }

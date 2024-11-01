@@ -4,11 +4,13 @@ import com.triple.backend.member.entity.Member;
 import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
 @Entity
 @Getter
+@NoArgsConstructor
 public class EventPart {
 
     @Id
@@ -25,12 +27,18 @@ public class EventPart {
 
     private LocalDateTime createdAt;
 
+    private String name;
+
+    private String phone;
+
     @Builder
-    public EventPart(Long eventPartId, Member member, Event event, LocalDateTime createdAt) {
+    public EventPart(Long eventPartId, Member member, Event event, LocalDateTime createdAt, String name, String phone) {
         this.eventPartId = eventPartId;
         this.member = member;
         this.event = event;
         this.createdAt = createdAt;
+        this.name = name;
+        this.phone = phone;
     }
 
 }

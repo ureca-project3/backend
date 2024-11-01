@@ -4,6 +4,7 @@ import com.triple.backend.auth.dto.JoinDto;
 import com.triple.backend.auth.repository.RefreshTokenRepository;
 import com.triple.backend.auth.service.AuthService;
 import com.triple.backend.common.dto.CommonResponse;
+import com.triple.backend.common.dto.ErrorResponse;
 import com.triple.backend.member.entity.Member;
 import com.triple.backend.common.config.JWTUtil;
 import jakarta.servlet.http.HttpServletRequest;
@@ -17,8 +18,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import jakarta.servlet.http.Cookie;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
@@ -50,16 +49,17 @@ public class AuthController {
     public ResponseEntity<?> joinProcess(@RequestBody JoinDto joinDto) {  // @RequestBody 추가
         try {
             authService.joinProcess(joinDto);
-            return ResponseEntity.ok().build();
+            return CommonResponse.ok("회원가입이 성공적으로 완료되었습니다.");
         } catch (IllegalStateException e) {
             Map<String, String> error = new HashMap<>();
             error.put("message", e.getMessage());
-            return ResponseEntity.badRequest().body(error);
+            return ResponseEntity.badRequest()
+                    .body(ErrorResponse.error(HttpStatus.BAD_REQUEST, e.getMessage()));
         }
     }
 
     @GetMapping("/api/member/kakao-logout")
-    public void kakaoLogoutRedirect(
+    public ResponseEntity<?> kakaoLogoutRedirect(
             HttpServletRequest request,
             HttpServletResponse response,
             @CookieValue(value = "refreshToken", required = false) String refreshToken,
@@ -106,16 +106,21 @@ public class AuthController {
 
             // 6. 카카오 로그아웃 페이지로 리다이렉트
             response.sendRedirect(kakaoLogoutUrl);
+            return CommonResponse.ok("카카오 서버에서 로그아웃이 성공적으로 처리되었습니다.");
+
         } catch (Exception e) {
             log.error("Kakao logout error", e);
             response.sendRedirect("/index.html?error=logout_failed");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(ErrorResponse.error(HttpStatus.INTERNAL_SERVER_ERROR, "로그아웃 처리 중 오류가 발생했습니다."));
         }
     }
 
     @GetMapping("/kakao-logout-callback")
-    public void kakaoLogoutCallback(HttpServletResponse response) throws IOException {
+    public ResponseEntity<?> kakaoLogoutCallback(HttpServletResponse response) throws IOException {
         // 카카오 로그아웃 후 최종적으로 우리 서비스의 index.html로 리다이렉트
         response.sendRedirect("/index.html");
+        return CommonResponse.ok("카카오 로그아웃 처리가 완료되었습니다.");
     }
 
     @GetMapping("/token/access")
@@ -148,13 +153,4 @@ public class AuthController {
         }
 
     }
-
-    @GetMapping("/success")
-    public String authSuccess(@RequestParam String accessToken, Model model) {
-        // 토큰을 모델에 추가
-        model.addAttribute("accessToken", accessToken);
-        // auth-success.html 템플릿을 반환
-        return "auth-success";
-    }
-
 }

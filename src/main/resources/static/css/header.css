@@ -1,21 +1,22 @@
-@import url('https://fonts.googleapis.com/css2?family=Jua&display=swap');
 .header {
     display: flex;
     justify-content: space-between;
     align-items: center;
     padding: 20px 0;
-    margin-bottom: 40px;
 }
 
-.banner-link {
-    display: block;
-    max-width: 200px;
+.decoration {
+    position: fixed;
+    font-size: 40px;
+    opacity: 0.2;
+    z-index: -1;
 }
 
-.banner-image {
-    width: 100%;
-    height: auto;
-    border-radius: 10px;
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 0;
 }
 
 .nav-buttons {
@@ -43,6 +44,22 @@
 
 .nav-button:hover {
     background-color: #FF6B3D;
+}
+
+.decoration:nth-child(1) { top: 10%; left: 5%; }
+.decoration:nth-child(2) { top: 30%; right: 5%; }
+.decoration:nth-child(3) { bottom: 20%; left: 8%; }
+.decoration:nth-child(4) { bottom: 10%; right: 8%; }
+
+.banner-link {
+    display: block;
+    max-width: 100px;
+}
+
+.banner-image {
+    width: 200%;
+    height: auto;
+    border-radius: 10px;
 }
 
 .profile-selector {

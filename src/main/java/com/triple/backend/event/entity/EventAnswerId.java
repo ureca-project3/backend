@@ -1,8 +1,6 @@
 package com.triple.backend.event.entity;
 
 import com.triple.backend.member.entity.Member;
-import com.triple.backend.test.entity.TestParticipation;
-import com.triple.backend.test.entity.TestQuestion;
 import jakarta.persistence.Embeddable;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
@@ -10,12 +8,11 @@ import jakarta.persistence.ManyToOne;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.io.Serializable;
-
 @Embeddable
 @Getter
 @NoArgsConstructor(access = lombok.AccessLevel.PROTECTED)
-public class EventAnswerId implements Serializable {
+public class EventAnswerId {
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id")
     private Member memberId;

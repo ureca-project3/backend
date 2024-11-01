@@ -32,10 +32,8 @@ public class JWTUtil {
     // Access Token과 Refresh Token의 만료 시간을 properties에서 가져옴
     @Value("${spring.jwt.access-token.expiration-time}")
     private Long accessTokenExpirationMillis;
-
     @Value("${spring.jwt.refresh-token.expiration-time}")
     private Long refreshTokenExpirationMillis;
-
 
     // secret 값을 Base64 디코딩하여 Key로 변환하는 생성자
     public JWTUtil(@Value("${spring.jwt.secret}") String secret) {
@@ -76,7 +74,6 @@ public class JWTUtil {
             role = commonCodeRepository.findById(roleCodeId)
                     .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 역할 코드입니다."));
         }
-
         // Claims 객체 생성
         Claims claims = Jwts.claims();
         claims.setSubject(email);
@@ -96,7 +93,6 @@ public class JWTUtil {
         System.out.println("생성된 "+ tokenType + "Token : " + jwt );
         return jwt;
     }
-
 
     // Access Token 생성 메서드
     public String createAccessToken(Long memberId, String memberRole) {

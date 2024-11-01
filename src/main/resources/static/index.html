@@ -3,46 +3,57 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>트리플민수</title>
+    <title>아이북조아</title>
     <link rel="stylesheet" href="/css/header.css">
     <link rel="stylesheet" href="/css/index.css">
+    <link rel="stylesheet" href="/css/footer.css">
+    <script src="/js/api.js" defer></script>
 </head>
 <body>
-<!-- Decorative Elements -->
-<div class="decoration">🌟</div>
-<div class="decoration">🎨</div>
-<div class="decoration">✨</div>
-<div class="decoration">🌈</div>
-
 <div id="header-container"></div>
 
-<!-- 이벤트 배너 섹션 추가 -->
-<section class="event-banners">
-    <h2>진행중인 이벤트</h2>
-    <div class="banner-container">
-        <a href="/event.html?eventId=1" class="event-banner">
-            <img src="/image/event1.jpg" alt="첫 번째 이벤트" class="banner-image">
-            <div class="banner-info">
-                <h3>선착순 이벤트</h3>
-                <p>2024.10.29 ~ 2024.10.30</p>
-            </div>
-        </a>
-        <a href="/event.html?eventId=2" class="event-banner">
-            <img src="/image/event2.jpg" alt="두 번째 이벤트" class="banner-image">
-            <div class="banner-info">
-                <h3>특별 이벤트</h3>
-                <p>2024.10.29 ~ 2024.10.30</p>
-            </div>
-        </a>
-    </div>
-</section>
+<div class="hero-container">
+    <img src="/image/hero.png" alt="Hero Image" class="hero-image" />
+    <button class="event-button">이벤트 응모하러 가기</button>
+</div>
 
-<footer class="footer">
-    © 2024 트리플민수. Even하게 익히다.
-</footer>
+<div class="content">
+    <section class="search-section">
+        <h2>오늘은 무슨 책을 읽어 볼까요?</h2>
+        <input type="text" id="searchInput" placeholder="책 제목이나 작가, 보고 싶은 내용이 있다면 키워드를 입력하세요 :)" class="search-input" />
+    </section>
+</div>
 
-<script src="/js/api.js"></script>
-<script src="/js/header.js"></script>
-<script src="/js/index.js"></script>
+<div class="content">
+    <section class="recent-books-section">
+        <div class="section-header">
+            <h2>🔥 빠르게 만나보는 따끈한 신작</h2>
+            <div class="more-button">
+                <button id="moreRecentBooks">더보기</button>
+            </div>
+        </div>
+        <div class="card-container" id="recentBookCards">
+        </div>
+    </section>
+
+    <section class="popular-books-section">
+        <div class="section-header">
+            <h2 id>👀 친구들이 Pick!한 책 엿보기</h2>
+            <div class="more-button">
+                <button id="morePopularBooks">더보기</button>
+            </div>
+        </div>
+        <div class="card-container" id="popularBooksCards">
+        </div>
+    </section>
+</div>
+
+<div id="footer-container"></div>
+
+<script type="module" src="/js/api.js"></script>
+<script type="module" src="/js/header.js"></script>
+<script type="module" src="/js/index.js"></script>
+<script type="module" src="/js/footer.js"></script>
+
 </body>
 </html>

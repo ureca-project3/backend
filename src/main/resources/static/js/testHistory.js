@@ -1,7 +1,7 @@
 // 페이지 로드 시 데이터 가져오기
 document.addEventListener('DOMContentLoaded', function() {
 
-    const childId = 1;
+    const childId = sessionStorage.getItem('currentChildId');
 
     if (childId) {
         fetchChildInfo(childId);
@@ -53,7 +53,7 @@ function updateProfile(data) {
     // 프로필 이미지 업데이트
     const profileImage = document.getElementById('profileImage');
     if (data.profileImage) {
-        profileImage.innerHTML = `<img src="/images/${data.profileImage}" alt="프로필 사진">`;
+        profileImage.innerHTML = `<img src="/image/${data.profileImage}" alt="프로필 사진">`;
     }
 }
 
@@ -119,7 +119,7 @@ function setActiveDate(clickedDate) {
 
 // 특정 날짜의 히스토리 데이터 로드
 async function loadHistoryData(date) {
-    const childId = 1;
+    const childId = sessionStorage.getItem('currentChildId');
     try {
         const response = await fetch(`/mypage/child-info/history/${childId}?date=${date}`);
         if (!response.ok) throw new Error('Network response was not ok');
@@ -137,5 +137,5 @@ async function loadHistoryData(date) {
 
 // 상세 페이지로 이동
 function goToDetailPage() {
-    window.location.href = `childDetail.html`;
+    window.location.href = `/childDetail.html`;
 }

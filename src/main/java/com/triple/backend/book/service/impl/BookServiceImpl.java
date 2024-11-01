@@ -55,8 +55,8 @@ public class BookServiceImpl implements BookService {
 	}
 
 	@Override
-	public List<BookResponseDto> getBookList(Pageable pageable) {
+	public List<BookRankingResponseDto> getBookList(Pageable pageable) {
 		Page<Book> books = bookRepository.findAllOrderByCreatedAtDesc(pageable);
-		return books.stream().map(BookResponseDto::new).collect(Collectors.toList());
+		return books.stream().map(BookRankingResponseDto::new).collect(Collectors.toList());
 	}
 }

@@ -3,7 +3,7 @@ const pageSize = 10;
 const totalQuestions = 20;
 const answers = {};
 let allQuestions = {};
-
+const childId = sessionStorage.getItem('currentChildId');
 // 점수값과 인덱스 매핑을 위한 상수
 const SCORE_VALUES = [-3, -2, -1, 1, 2, 3];
 
@@ -44,7 +44,7 @@ function displayCurrentPage() {
 
         const scoreLabels = document.createElement('div');
         scoreLabels.className = 'score-labels';
-        scoreLabels.innerHTML = '<span>매우 그렇다 않다</span><span>매우 그렇다</span>';
+        scoreLabels.innerHTML = '<span>매우 그렇지 않다</span><span>매우 그렇다</span>';
         scoreContainer.appendChild(scoreLabels);
 
         const scoreSelection = document.createElement('div');
@@ -126,26 +126,37 @@ document.getElementById('next-button').addEventListener('click', () => {
             [questionId]: score
         }));
 
+        // 참여 등록 요청
         fetch('/test/1', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'Child-Id': 1
+                'Child-Id': childId
             }
-        }).catch(error => {
-            console.error('Error:', error);
-            alert('제출 중 오류가 발생했습니다. 다시 시도해주세요.');
-        });
-
-        fetch('/test/result/1', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Child-Id': 1
-            },
-            body: JSON.stringify({ answerList })
         })
-            .then(response => response.json())
+            .then(registrationResponse => {
+                if (!registrationResponse.ok) {
+                    throw new Error('참여 등록 중 오류 발생');
+                }
+                return registrationResponse.json();
+            })
+            .then(() => {
+                // 답변 제출 요청
+                return fetch('/test/result/1', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Child-Id': childId
+                    },
+                    body: JSON.stringify({ answerList })
+                });
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('테스트 제출 중 오류 발생');
+                }
+                return response.json();
+            })
             .then(data => {
                 alert('테스트가 완료되었습니다!');
                 window.location.href = 'testResult.html';
@@ -159,6 +170,7 @@ document.getElementById('next-button').addEventListener('click', () => {
         displayCurrentPage();
     }
 });
+
 
 // 초기 질문 로드
 fetchQuestions();
