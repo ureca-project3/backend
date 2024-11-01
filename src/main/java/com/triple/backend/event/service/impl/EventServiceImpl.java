@@ -2,10 +2,7 @@ package com.triple.backend.event.service.impl;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.triple.backend.common.exception.NotFoundException;
-import com.triple.backend.event.dto.EventApplyRequestDto;
-import com.triple.backend.event.dto.EventApplyResponseDto;
-import com.triple.backend.event.dto.EventResultResponseDto;
-import com.triple.backend.event.dto.WinnerResponseDto;
+import com.triple.backend.event.dto.*;
 import com.triple.backend.event.entity.Event;
 import com.triple.backend.event.entity.EventPart;
 import com.triple.backend.event.repository.EventPartRepository;
@@ -46,6 +43,9 @@ public class EventServiceImpl implements EventService {
     private static final String EVENT_PARTICIPANT_KEY = "event:participant:";
     private static final String EVENT_DATA_KEY = "event:data:";
     private static final String EVENT_COUNTER_KEY = "event:counter:";
+
+    private static final String EVENT_START_TIME_KEY = "event:start:";
+    private static final String EVENT_END_TIME_KEY = "event:end:";
 
     @Value("${event.max-participants:100}")
     private int maxParticipants;
@@ -144,12 +144,12 @@ public class EventServiceImpl implements EventService {
             request.setCreatedAt(now);
 
             // 1. 이벤트 유효성 검증
-            Event event = validateEventAndMember(request.getEventId(), request.getMemberId());
-
-            // 2. 이벤트 시간 검증
-            if (!isEventTimeValid(event, now)) {
-                return EventApplyResponseDto.failed(getEventTimeErrorMessage(event, now));
-            }
+//            Event event = validateEventAndMember(request.getEventId(), request.getMemberId());
+//
+//            // 2. 이벤트 시간 검증
+//            if (!isEventTimeValid(event, now)) {
+//                return EventApplyResponseDto.failed(getEventTimeErrorMessage(event, now));
+//            }
 
             // Redis Lua 스크립트 실행 (중복 참여 검증 + 선착순 처리)
             Long result = redisTemplate.execute(
@@ -164,13 +164,16 @@ public class EventServiceImpl implements EventService {
                     objectMapper.writeValueAsString(request)
             );
 
+
+
             if (result == null) {
                 return EventApplyResponseDto.failed("시스템 오류가 발생했습니다.");
             }
 
             return switch (result.intValue()) {
                 case -1 -> EventApplyResponseDto.failed("이미 참여하셨습니다.");
-                case -2 -> EventApplyResponseDto.failed("이벤트가 마감되었습니다.");
+                case -3 -> EventApplyResponseDto.failed("이벤트가 아직 시작되지 않았습니다.");
+                case -4 -> EventApplyResponseDto.failed("이벤트가 종료되었습니다.");
                 default -> EventApplyResponseDto.success(result);
             };
 
@@ -181,4 +184,31 @@ public class EventServiceImpl implements EventService {
             throw new EventProcessingException("이벤트 참여 처리 중 오류가 발생했습니다.");
         }
     }
+
+    @Override
+    @Transactional
+    public void insertEvent(EventRequestDto eventRequestDto) {
+
+        Event event = Event.builder()
+                .eventName(eventRequestDto.getEventName())
+                .startTime(eventRequestDto.getStartTime())
+                .endTime(eventRequestDto.getEndTime())
+                .winnerCnt(eventRequestDto.getWinnerCnt())
+                .totalCnt(eventRequestDto.getTotalCnt())
+                .announceTime(eventRequestDto.getAnnounceTime())
+                .status(true) // 기본적으로 활성 상태로 설정
+                .build();
+
+        Event savedEvent = eventRepository.save(event);
+
+        // 3. 이벤트 시작 및 종료 시간을 Redis에 저장
+        saveEventTimeToRedis(savedEvent.getEventId(), savedEvent.getStartTime(), savedEvent.getEndTime());
+    }
+
+
+    private void saveEventTimeToRedis(Long eventId, LocalDateTime startTime, LocalDateTime endTime) {
+        redisTemplate.opsForValue().set(EVENT_START_TIME_KEY + eventId, startTime.toString());
+        redisTemplate.opsForValue().set(EVENT_END_TIME_KEY + eventId, endTime.toString());
+    }
+
 }
