@@ -60,7 +60,6 @@ public class ChatGptController {
         return CommonResponse.ok("Select Prompt Success", result);
     }
 
-
     @PostMapping("/analyze/book")
     public ResponseEntity<?> analyzeBook(@RequestBody BookAnalysisRequestDto request) {
         try {
@@ -134,5 +133,4 @@ public class ChatGptController {
             throw new RuntimeException("GPT 응답 처리 중 오류가 발생했습니다: " + e.getMessage());
         }
     }
-
 }
