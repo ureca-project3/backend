@@ -1,6 +1,5 @@
 package com.triple.backend.recbook.repository;
 
-import com.triple.backend.book.entity.Book;
 import com.triple.backend.recbook.entity.RecBook;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
