@@ -6,7 +6,9 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.triple.backend.chatgpt.config.ChatGptConfig;
 import com.triple.backend.chatgpt.dto.ChatCompletionDto;
+import com.triple.backend.chatgpt.dto.ChatRequestMsgDto;
 import com.triple.backend.chatgpt.dto.CompletionDto;
+import com.triple.backend.chatgpt.dto.MbtiAnalysisDto;
 import com.triple.backend.chatgpt.service.ChatGptService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -17,6 +19,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -118,6 +121,7 @@ public class ChatGptServiceImpl implements ChatGptService {
         return resultMap;
     }
 
+    //
     @Override
     public Map<String, Object> selectPrompt(ChatCompletionDto chatCompletionDto) {
         log.debug("[+] 신규 프롬프트를 수행합니다.");
@@ -140,4 +144,46 @@ public class ChatGptServiceImpl implements ChatGptService {
         }
         return resultMap;
     }
+
+    @Override
+    public Map<String, Object> analyzeBook(String content, String analysisType) {
+        List<ChatRequestMsgDto> messages = new ArrayList<>();
+
+        // 분석 유형에 따른 프롬프트 설정
+        String systemPrompt = getSystemPrompt(analysisType);
+
+        messages.add(ChatRequestMsgDto.builder()
+                .role("system")
+                .content(systemPrompt)
+                .build());
+
+        messages.add(ChatRequestMsgDto.builder()
+                .role("user")
+                .content(content)
+                .build());
+
+        ChatCompletionDto chatCompletionDto = ChatCompletionDto.builder()
+                .messages(messages)
+                .build();  // gpt-4o-mini 모델 사용
+
+        return selectPrompt(chatCompletionDto);
+    }
+
+    private String getSystemPrompt(String analysisType) {
+        if ("MBTI".equals(analysisType)) {
+            return "책의 내용을 기반으로 MBTI 성향을 분석하세요. " +
+                    "다음 형식의 JSON으로만 응답하세요: " +
+                    "{\"EI\": score, \"SN\": score, \"TF\": score, \"JP\": score} " +
+                    "각 점수는 0에서 100 사이의 정수여야 합니다. " +
+                    "절대로 JSON 형식 이외의 어떤 텍스트도 포함하지 마세요. " +
+                    "JSON 형식에 어긋나는 응답은 처리할 수 없습니다.";
+        } else {
+            return "책의 내용을 300자 이내로 간단히 요약하세요. " +
+                    "결과를 JSON 형식으로 다음과 같이 반환하세요: " +
+                    "{\"summary\": \"요약 내용\"} " +
+                    "절대로 JSON 형식 이외의 어떤 텍스트도 포함하지 마세요. " +
+                    "JSON 형식에 어긋나는 응답은 처리할 수 없습니다.";
+        }
+    }
 }
+

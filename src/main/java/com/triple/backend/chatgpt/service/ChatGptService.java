@@ -14,4 +14,7 @@ public interface ChatGptService {
     Map<String, Object> selectLegacyPrompt(CompletionDto completionDto);
 
     Map<String, Object> selectPrompt(ChatCompletionDto chatCompletionDto);
+
+    // 답변 정보를 담는
+    Map<String, Object> analyzeBook(String content, String analysisType);
 }

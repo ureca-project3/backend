@@ -38,6 +38,14 @@ public class CommonResponse<T> {
         return LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
     }
 
+    public static <T> ResponseEntity<CommonResponse<T>> error(String message) {
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new CommonResponse<>(message, null, getCurrentTimestamp()));
+    }
+
+    public static <T> ResponseEntity<CommonResponse<T>> error(String message, HttpStatus status) {
+        return ResponseEntity.status(status).body(new CommonResponse<>(message, null, getCurrentTimestamp()));
+    }
+
     public CommonResponse(String message, String timestamp) {
         this.message = message;
         this.timestamp = timestamp;
