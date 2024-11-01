@@ -32,7 +32,7 @@ public class ScheduledDataTransferService {
     private final EventRepository eventRepository;
     private final EventQuestionRepository eventQuestionRepository;
 
-    // Redis에서 참여자 데이터를 가져오는 메서드
+    // Redis에서 참여자 데이터를 가져오는 메소드
     public List<EventPartRequestDto> getEventParticipants(Long eventId) {
         Set<String> memberIds = redisTemplate.opsForSet().members("event:participant:" + eventId);
         List<EventPartRequestDto> participants = new ArrayList<>();
