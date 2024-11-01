@@ -20,4 +20,7 @@ public interface BookTraitsRepository extends JpaRepository<BookTraits,Long> {
 	""")
 	List<Book> findBooksByTraitScoreBetween(@Param("minScore") int minScore, @Param("maxScore") int maxScore, Pageable pageable);
 
+	// 성향정보 저장
+	@Query("SELECT bt.trait.traitName, COUNT(bt) AS count FROM BookTraits bt GROUP BY bt.trait.traitName ORDER BY count DESC")
+	List<Object[]> findMbtiTypeStats();
 }

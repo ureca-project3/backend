@@ -1,11 +1,71 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>관리자 - 도서 MBTI 분석</title>
+    <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body>
-<h1>관리자 페이지</h1>
-<a href="/index.html">메인 페이지로</a>
+<div class="container mx-auto mt-8">
+    <h1 class="text-2xl font-bold mb-4">관리자 - 도서 MBTI 분석</h1>
+
+    <div class="mb-8">
+        <h2 class="text-xl font-bold mb-2">일괄 분석</h2>
+        <button id="batchAnalysisBtn" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded">
+            기존 도서 분석
+        </button>
+        <div id="batchAnalysisResult" class="mt-2"></div>
+    </div>
+
+    <div>
+        <h2 class="text-xl font-bold mb-2">개별 도서 분석</h2>
+        <form id="mbtiAnalysisForm">
+            <div class="mb-4">
+                <label for="bookId" class="block mb-2">도서 ID:</label>
+                <input type="text" id="bookId" name="bookId" class="border border-gray-300 rounded px-2 py-1" required>
+            </div>
+            <button type="submit" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded">
+                MBTI 분석
+            </button>
+        </form>
+        <div id="mbtiAnalysisResult" class="mt-4"></div>
+    </div>
+</div>
+
+<script>
+    document.getElementById('batchAnalysisBtn').addEventListener('click', function() {
+        fetch('/books/analyze/analyze/batch', { method: 'POST' })
+            .then(response => response.json())
+            .then(data => {
+                const resultDiv = document.getElementById('batchAnalysisResult');
+                resultDiv.innerText = data.message;
+            })
+            .catch(error => {
+                console.error('오류:', error);
+            });
+    });
+
+    document.getElementById('mbtiAnalysisForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const bookId = document.getElementById('bookId').value;
+
+        fetch('/books/analyze/analyze/mbti', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ bookId: bookId }),
+        })
+            .then(response => response.json())
+            .then(data => {
+                const resultDiv = document.getElementById('mbtiAnalysisResult');
+                resultDiv.innerText = JSON.stringify(data, null, 2);
+            })
+            .catch(error => {
+                console.error('오류:', error);
+            });
+    });
+</script>
 </body>
 </html>

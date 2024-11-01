@@ -13,4 +13,5 @@ public interface TraitRepository extends JpaRepository<Trait, Long> {
     @Query (value = "select t from Trait t where t.test = :test order by t.traitId")
     List<Trait> findByTest(Test test);
 
+    Trait findByTraitName(String ei);
 }
