@@ -5,9 +5,157 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>관리자 - 도서 MBTI 분석</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Jua&display=swap');
+
+        body {
+            font-family: 'Jua', sans-serif;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #FFF5E6; /* 배경색 */
+            color: #4A4A4A; /* 텍스트 색상 */
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 0;
+            margin-bottom: 40px;
+        }
+
+        .banner-link {
+            display: block;
+            max-width: 200px;
+        }
+
+        .banner-image {
+            width: 100%;
+            height: auto;
+            border-radius: 10px;
+        }
+
+        .nav-buttons {
+            display: flex;
+            align-items: center;
+        }
+
+        .auth-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .nav-button {
+            background-color: #FF7F50; /* 버튼 배경색 */
+            color: white; /* 버튼 텍스트 색상 */
+            border: none;
+            border-radius: 25px;
+            padding: 10px 20px;
+            font-size: 16px;
+            text-decoration: none;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            font-family: inherit;
+        }
+
+        .nav-button:hover {
+            background-color: #FF6B3D; /* 버튼 호버 시 배경색 */
+        }
+
+        .footer {
+            margin-top: auto;
+            text-align: center;
+            padding: 20px 0;
+            color: #666;
+            font-size: 14px;
+        }
+
+        .container {
+            background-color: white;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 4px 15px rgba(255, 127, 80, 0.1);
+        }
+
+        h1, h2 {
+            color: #FF7F50; /* 제목 색상 */
+        }
+
+        .mb-8 {
+            margin-bottom: 24px;
+        }
+
+        .mb-4 {
+            margin-bottom: 12px;
+        }
+
+        .mt-2 {
+            margin-top: 6px;
+        }
+
+        .mt-4 {
+            margin-top: 12px;
+        }
+
+        button {
+            background-color: #FF7F50; /* 버튼 배경색 */
+            color: white; /* 버튼 텍스트 색상 */
+            border: none;
+            border-radius: 25px;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            font-family: inherit;
+        }
+
+        button:hover {
+            background-color: #FF6B3D; /* 버튼 호버 시 배경색 */
+        }
+
+        input[type="text"] {
+            border: 2px solid #FFD4C2; /* 입력 필드 테두리 색상 */
+            border-radius: 8px;
+            padding: 10px;
+            font-size: 16px;
+            width: 100%;
+        }
+
+        .text-bold {
+            font-weight: bold;
+        }
+
+        .bg-gray-300 {
+            background-color: #d9d9d9;
+        }
+
+        .rounded {
+            border-radius: 8px;
+        }
+
+        .px-2 {
+            padding-left: 6px;
+            padding-right: 6px;
+        }
+
+        .py-1 {
+            padding-top: 3px;
+            padding-bottom: 3px;
+        }
+    </style>
 </head>
 <body>
-<div class="container mx-auto mt-8">
+<div class="header">
+    <a href="/" class="banner-link">
+        <img src="/image/logo.png" alt="Banner" class="banner-image">
+    </a>
+</div>
+
+<div class="container">
     <h1 class="text-2xl font-bold mb-4">관리자 - 도서 MBTI 분석</h1>
 
     <div class="mb-8">
@@ -20,22 +168,22 @@
 
     <div>
         <h2 class="text-xl font-bold mb-2">개별 도서 분석</h2>
-        <form id="mbtiAnalysisForm">
-            <div class="mb-4">
-                <label for="bookId" class="block mb-2">도서 ID:</label>
-                <input type="text" id="bookId" name="bookId" class="border border-gray-300 rounded px-2 py-1" required>
-            </div>
-            <button type="submit" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded">
-                MBTI 분석
-            </button>
-        </form>
+        <label for="book-id-input">도서 ID:</label>
+        <input type="text" id="book-id-input" name="bookId">
+        <button onclick="analyzeMbti()" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded">
+            분석 실행
+        </button>
         <div id="mbtiAnalysisResult" class="mt-4"></div>
     </div>
 </div>
 
+<footer class="footer">
+    © 2023 Your Company Name
+</footer>
+
 <script>
-    document.getElementById('batchAnalysisBtn').addEventListener('click', function() {
-        fetch('/books/analyze/analyze/batch', { method: 'POST' })
+    document.getElementById('batchAnalysisBtn').addEventListener('click', function () {
+        fetch('/books/analyze/analyze/batch', {method: 'POST'})
             .then(response => response.json())
             .then(data => {
                 const resultDiv = document.getElementById('batchAnalysisResult');
@@ -46,26 +194,20 @@
             });
     });
 
-    document.getElementById('mbtiAnalysisForm').addEventListener('submit', function(e) {
-        e.preventDefault();
-        const bookId = document.getElementById('bookId').value;
-
-        fetch('/books/analyze/analyze/mbti', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ bookId: bookId }),
+    function analyzeMbti() {
+        var bookId = document.getElementById('book-id-input').value;
+        fetch('/books/analyze/analyze/mbti?bookId=' + bookId, {
+            method: 'POST'
         })
             .then(response => response.json())
             .then(data => {
-                const resultDiv = document.getElementById('mbtiAnalysisResult');
-                resultDiv.innerText = JSON.stringify(data, null, 2);
+                // MBTI 분석 결과 처리
+                document.getElementById('mbtiAnalysisResult').innerHTML = JSON.stringify(data);
             })
             .catch(error => {
-                console.error('오류:', error);
+                console.error('MBTI 분석 오류:', error);
             });
-    });
+    }
 </script>
 </body>
 </html>
