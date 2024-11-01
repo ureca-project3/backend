@@ -1,6 +1,7 @@
 package com.triple.backend.book.service.impl;
 
 import com.triple.backend.book.dto.BookRankingResponseDto;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -48,6 +49,7 @@ public class BookServiceImpl implements BookService {
 	}
 
 	@Override
+	@Cacheable(value = "topLikedBooksCache", cacheManager = "redisCacheManager")
 	public List<BookRankingResponseDto> getTopLikedBooks() {
 		LocalDateTime threeMonthsAgo = LocalDateTime.now().minusMonths(3);
 		List<Book> books = bookRepository.findTop10BooksByLikesInLastThreeMonths(threeMonthsAgo);
@@ -55,6 +57,7 @@ public class BookServiceImpl implements BookService {
 	}
 
 	@Override
+	@Cacheable(value = "CreatedAtDescBooksCache", cacheManager = "redisCacheManager")
 	public List<BookRankingResponseDto> getBookList(Pageable pageable) {
 		Page<Book> books = bookRepository.findAllOrderByCreatedAtDesc(pageable);
 		return books.stream().map(BookRankingResponseDto::new).collect(Collectors.toList());
