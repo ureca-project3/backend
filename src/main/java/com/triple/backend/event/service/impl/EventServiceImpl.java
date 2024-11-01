@@ -144,15 +144,24 @@ public class EventServiceImpl implements EventService {
             LocalDateTime now = LocalDateTime.now();
             request.setCreatedAt(now);
 
-            // 1. 이벤트 유효성 검증
-//            Event event = validateEventAndMember(request.getEventId(), request.getMemberId());
-//
-//            // 2. 이벤트 시간 검증
-//            if (!isEventTimeValid(event, now)) {
-//                return EventApplyResponseDto.failed(getEventTimeErrorMessage(event, now));
-//            }
+//            log.info("Attempting to execute Lua script for event: {}, member: {}",
+//                    request.getEventId(), request.getMemberId());
 
-            // Redis Lua 스크립트 실행 (이벤트 검증 + 중복 참여 검증 + 저장)
+            // Redis에 저장된 이벤트 시간 정보 확인
+//            log.info("Checking stored event times in Redis - Start time: {}, End time: {}",
+//                    redisTemplate.opsForValue().get(EVENT_START_TIME_KEY + request.getEventId()),
+//                    redisTemplate.opsForValue().get(EVENT_END_TIME_KEY + request.getEventId()));
+
+            String jsonData;
+            try {
+                jsonData = objectMapper.writeValueAsString(request);
+//                log.info("Request converted to JSON: {}", jsonData);
+            } catch (Exception e) {
+                log.error("JSON serialization failed", e);
+                throw new EventProcessingException("JSON 변환 중 오류 발생");
+            }
+
+            // Redis Lua 스크립트 실행
             Long result = redisTemplate.execute(
                     eventParticipationScript,
                     List.of(
@@ -163,8 +172,10 @@ public class EventServiceImpl implements EventService {
                     ),
                     request.getMemberId().toString(),
                     String.valueOf(now.toEpochSecond(ZoneOffset.of("+09:00"))),
-                    objectMapper.writeValueAsString(request)
+                    jsonData
             );
+
+            log.info("Lua script execution result: {}", result);
 
             if (result == null) {
                 return EventApplyResponseDto.failed("시스템 오류가 발생했습니다.");
@@ -178,11 +189,9 @@ public class EventServiceImpl implements EventService {
                 default -> EventApplyResponseDto.success("이벤트 응모가 완료되었습니다.");
             };
 
-        } catch (NotFoundException e) {
-            throw e;
         } catch (Exception e) {
-            log.error("이벤트 참여 처리 실패", e);
-            throw new EventProcessingException("이벤트 참여 처리 중 오류가 발생했습니다.");
+            log.error("이벤트 참여 처리 실패. 상세 오류: ", e);
+            throw new EventProcessingException("이벤트 참여 처리 중 오류가 발생했습니다: " + e.getMessage());
         }
     }
 
@@ -190,26 +199,64 @@ public class EventServiceImpl implements EventService {
     @Transactional
     public void insertEvent(EventRequestDto eventRequestDto) {
 
-        Event event = Event.builder()
-                .eventName(eventRequestDto.getEventName())
-                .startTime(eventRequestDto.getStartTime())
-                .endTime(eventRequestDto.getEndTime())
-                .winnerCnt(eventRequestDto.getWinnerCnt())
-                .totalCnt(eventRequestDto.getTotalCnt())
-                .announceTime(eventRequestDto.getAnnounceTime())
-                .status(true) // 기본적으로 활성 상태로 설정
-                .build();
+        try {
+            log.info("Inserting event with data: {}", eventRequestDto);
 
-        Event savedEvent = eventRepository.save(event);
+            Event event = Event.builder()
+                    .eventName(eventRequestDto.getEventName())
+                    .startTime(eventRequestDto.getStartTime())
+                    .endTime(eventRequestDto.getEndTime())
+                    .winnerCnt(eventRequestDto.getWinnerCnt())
+                    .totalCnt(eventRequestDto.getTotalCnt())
+                    .announceTime(eventRequestDto.getAnnounceTime())
+                    .status(true)
+                    .build();
 
-        // 3. 이벤트 시작 및 종료 시간을 Redis에 저장
-        saveEventTimeToRedis(savedEvent.getEventId(), savedEvent.getStartTime(), savedEvent.getEndTime());
+            Event savedEvent = eventRepository.save(event);
+//            log.info("Event saved with ID: {}", savedEvent.getEventId());
+
+            // Redis에 시간 저장
+//            log.info("Saving times to Redis - Start: {}, End: {}",
+//                    savedEvent.getStartTime(),
+//                    savedEvent.getEndTime());
+            saveEventTimeToRedis(savedEvent.getEventId(), savedEvent.getStartTime(), savedEvent.getEndTime());
+
+            // Redis에 저장된 값 확인
+//            log.info("Stored times in Redis - Start: {}, End: {}",
+//                    redisTemplate.opsForValue().get(EVENT_START_TIME_KEY + savedEvent.getEventId()),
+//                    redisTemplate.opsForValue().get(EVENT_END_TIME_KEY + savedEvent.getEventId())
+//            );
+        } catch (Exception e) {
+            log.error("Error saving event times to Redis", e);
+            throw e;
+        }
     }
 
 
     private void saveEventTimeToRedis(Long eventId, LocalDateTime startTime, LocalDateTime endTime) {
-        redisTemplate.opsForValue().set(EVENT_START_TIME_KEY + eventId, startTime.toString());
-        redisTemplate.opsForValue().set(EVENT_END_TIME_KEY + eventId, endTime.toString());
+//        redisTemplate.opsForValue().set(EVENT_START_TIME_KEY + eventId, startTime.toString());
+//        redisTemplate.opsForValue().set(EVENT_END_TIME_KEY + eventId, endTime.toString());
+        try {
+            String startTimeValue = String.valueOf(startTime.toEpochSecond(ZoneOffset.of("+09:00")));
+            String endTimeValue = String.valueOf(endTime.toEpochSecond(ZoneOffset.of("+09:00")));
+
+//            log.info("Saving to Redis - EventId: {}, StartTime: {}, EndTime: {}",
+//                    eventId, startTimeValue, endTimeValue);
+
+            boolean startTimeSaved = Boolean.TRUE.equals(redisTemplate.opsForValue()
+                    .setIfAbsent(EVENT_START_TIME_KEY + eventId, startTimeValue));
+
+            boolean endTimeSaved = Boolean.TRUE.equals(redisTemplate.opsForValue()
+                    .setIfAbsent(EVENT_END_TIME_KEY + eventId, endTimeValue));
+
+            if (!startTimeSaved || !endTimeSaved) {
+                log.warn("Failed to save time to Redis - StartTime saved: {}, EndTime saved: {}",
+                        startTimeSaved, endTimeSaved);
+            }
+        } catch (Exception e) {
+            log.error("Error in saveEventTimeToRedis - EventId: " + eventId, e);
+            throw new RuntimeException("Failed to save event times to Redis", e);
+        }
     }
 
 }
