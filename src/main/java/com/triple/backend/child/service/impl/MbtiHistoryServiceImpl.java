@@ -70,6 +70,10 @@ public class MbtiHistoryServiceImpl implements MbtiHistoryService {
 
         List<MbtiHistory> mbtiHistoryList = mbtiHistoryRepository.findByReasonAndIsDeleted("020", true);
 
+        if (mbtiHistoryList.isEmpty()) {
+            return;
+        }
+
         // mbtiHistory 목록 중 30일 이상 경과한 것만 필터링하기
         List<MbtiHistory> deleteMbtiHistoryList = mbtiHistoryList.stream()
                 .filter(mbtiHistory -> mbtiHistory.getModifiedAt().isBefore(thresholdDate))
