@@ -30,7 +30,6 @@ public class MbtiHistoryServiceImpl implements MbtiHistoryService {
     private final ChildTraitsRepository childTraitsRepository;
     private final TestAnswerRepository testAnswerRepository;
     private final TestParticipationRepository testParticipationRepository;
-    private final TestQuestionRepository testQuestionRepository;
     private final ChildRepository childRepository;
 
     // 자녀 성향 히스토리 논리적 삭제
