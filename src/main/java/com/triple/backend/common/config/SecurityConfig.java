@@ -85,8 +85,7 @@ public class SecurityConfig {
                         .requestMatchers(
                                 "/auth/**",
                                 "/books/**",    // 모든 books 관련 엔드포인트 허용
-                                "/event/**",    // 모든 event 관련 엔드포인트 허용 (단수형)
-                                "/events/**",   // 모든 events 관련 엔드포인트 허용 (복수형)
+                                "/event/api/**",
                                 "/favicon.ico",
                                 "/public/**",
                                 "/login",
