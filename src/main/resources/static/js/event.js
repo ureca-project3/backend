@@ -2,6 +2,7 @@ class EventPage {
     constructor() {
         this.eventId = new URLSearchParams(window.location.search).get('eventId');
         this.eventData = null;
+        this.eventQuestions = null;
         this.answers = {};
         this.modal = null;
         this.modalMessage = null;
@@ -55,10 +56,15 @@ class EventPage {
 
     async loadEventData() {
         try {
-            const response = await Api.get(`/event/${this.eventId}`);
-            const result = await response.json();
+            const eventResponse = await Api.get(`/event/api/${this.eventId}`);
+            const eventResult = await eventResponse.json();
+            this.eventData = eventResult.data;
 
-            this.eventData = result.data;
+            // 이벤트 질문 정보 가져오기
+            const questionResponse = await Api.get(`/event/api/${this.eventId}/question`);
+            const questionResult = await questionResponse.json();
+            this.eventQuestions = questionResult.data;
+
             this.renderEventData();
             this.checkEventTime();
         } catch (error) {
@@ -93,36 +99,36 @@ class EventPage {
     }
 
     renderSurveyQuestions() {
-        if (!this.surveyContainer || !this.eventData.eventQuestion) return;
+        if (!this.surveyContainer || !this.eventQuestions) return;
+
+        console.log('Rendering questions:', this.eventQuestions);
 
         this.surveyContainer.innerHTML = '';
 
-        Object.entries(this.eventData.eventQuestion).forEach(([questionId, questionText]) => {
-            const questionDiv = document.createElement('div');
-            questionDiv.className = 'survey-question';
-            questionDiv.innerHTML = `
-                <p>${questionText}</p>
-                <div class="survey-options">
-                    <label class="survey-option">
-                        <input type="radio" name="question_${questionId}" value="1" required>
-                        <span>예</span>
-                    </label>
-                    <label class="survey-option">
-                        <input type="radio" name="question_${questionId}" value="2" required>
-                        <span>아니오</span>
-                    </label>
-                </div>
-            `;
+        const questionDiv = document.createElement('div');
+        questionDiv.className = 'survey-question';
+        questionDiv.innerHTML = `
+        <p>${this.eventQuestions.eventQText}</p>
+        <div class="survey-options">
+            <label class="survey-option">
+                <input type="radio" name="question_${this.eventQuestions.eventQuestionId}" value="1" required>
+                <span>예</span>
+            </label>
+            <label class="survey-option">
+                <input type="radio" name="question_${this.eventQuestions.eventQuestionId}" value="2" required>
+                <span>아니오</span>
+            </label>
+        </div>
+    `;
 
-            questionDiv.querySelectorAll('input[type="radio"]').forEach(radio => {
-                radio.addEventListener('change', (e) => {
-                    this.answers[questionId] = parseInt(e.target.value);
-                    this.validateForm();
-                });
+        questionDiv.querySelectorAll('input[type="radio"]').forEach(radio => {
+            radio.addEventListener('change', (e) => {
+                this.answers[this.eventQuestions.eventQuestionId] = parseInt(e.target.value);
+                this.validateForm();
             });
-
-            this.surveyContainer.appendChild(questionDiv);
         });
+
+        this.surveyContainer.appendChild(questionDiv);
     }
 
     checkEventTime() {
@@ -142,12 +148,15 @@ class EventPage {
     }
 
     validateForm() {
-        if (!this.submitButton || !this.eventData) return;
+        if (!this.submitButton || !this.eventQuestions) return;
 
         const name = document.getElementById('participant-name')?.value.trim();
         const phone = document.getElementById('participant-phone')?.value.trim();
-        const allQuestionsAnswered = Object.keys(this.eventData.eventQuestion).length ===
-            Object.keys(this.answers).length;
+        // 배열인 경우를 처리
+        const questionCount = Array.isArray(this.eventQuestions) ?
+            this.eventQuestions.length :
+            1;
+        const allQuestionsAnswered = questionCount === Object.keys(this.answers).length;
 
         this.submitButton.disabled = !name || !phone || !allQuestionsAnswered;
     }
@@ -162,23 +171,22 @@ class EventPage {
         }
 
         try {
-            const token = sessionStorage.getItem('accessToken');
-            const payload = JSON.parse(atob(token.split('.')[1]));
-            const memberId = payload.memberId;
+            // answerList 형식으로 변환
+            const answerList = {};
+            Object.entries(this.answers).forEach(([questionId, answer]) => {
+                answerList[questionId] = answer;
+            });
 
             const formData = {
                 eventId: parseInt(this.eventId),
-                memberName: document.getElementById('participant-name').value.trim(),
-                phoneNumber: document.getElementById('participant-phone').value.trim(),
-                answers: Object.entries(this.answers).map(([questionId, answer]) => ({
-                    questionId: parseInt(questionId),
-                    answer: answer
-                }))
+                name: document.getElementById('participant-name').value.trim(),
+                phone: document.getElementById('participant-phone').value.trim(),
+                answerList: answerList
             };
 
-            console.log('Sending data:', formData); // 데이터 확인용
+            console.log('Sending data:', formData);
 
-            const response = await Api.post(`/event/apply?memberId=${memberId}`, formData);
+            const response = await Api.post('/event/apply', formData);
             const result = await response.json();
 
             if (result.success) {

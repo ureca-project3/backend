@@ -1,23 +1,27 @@
 // 이벤트 데이터를 가져오는 함수
 async function fetchEvents() {
     try {
-        const response = await fetch('/event/list');
+        const response = await fetch('/event/api/list');
         if (!response.ok) throw new Error('이벤트 목록을 가져오는데 실패했습니다.');
         const data = await response.json();
 
         // 각 이벤트에 대해 질문 데이터 가져오기
         const eventsWithQuestions = await Promise.all(data.data.map(async (event) => {
             try {
-                const questionResponse = await fetch(`/event/${event.eventId}/question`);
+                const questionResponse = await fetch(`/event/api/${event.eventId}/question`);
                 if (!questionResponse.ok) throw new Error('이벤트 질문을 가져오는데 실패했습니다.');
                 const questionData = await questionResponse.json();
                 return {
                     ...event,
-                    questionText: questionData.data // 질문 텍스트 추가
+                    // API 응답 구조에 맞게 수정
+                    questionText: questionData.data.eventQText // eventQText 속성 사용
                 };
             } catch (error) {
                 console.error(`이벤트 ${event.eventId}의 질문 로딩 실패:`, error);
-                return event;
+                return {
+                    ...event,
+                    questionText: '설문에 참여하고 선물 받아가세요!' // 기본 텍스트
+                };
             }
         }));
 
@@ -27,7 +31,6 @@ async function fetchEvents() {
         return [];
     }
 }
-
 // 이벤트 상태 결정 함수
 function getEventStatus(startDate, endDate) {
     const now = new Date();
