@@ -79,12 +79,15 @@ public class AdminServiceImpl implements AdminService {
                     testRepository.findById(testId).orElseThrow(() -> NotFoundException.entityNotFound("책 성향히스토리 오류"))
             );
 
+            // ChatGPT 응답 분석:
             List<Map<String, Object>> choices = (List<Map<String, Object>>) chatGptResponse.get("choices");
             String content = (String) ((Map<String, Object>) choices.get(0).get("message")).get("content");
 
+            // JSON 파싱 및 MBTI 점수 추출
             ObjectMapper objectMapper = new ObjectMapper();
             Map<String, Integer> mbtiScores = objectMapper.readValue(content, new TypeReference<Map<String, Integer>>() {});
 
+            // BookTraits 생성
             traits.forEach(trait -> {
                 String mbtiKey = switch (trait.getTraitId().intValue()) {
                     case 1 -> "E-I";
