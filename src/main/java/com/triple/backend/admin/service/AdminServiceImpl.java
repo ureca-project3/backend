@@ -78,10 +78,10 @@ public class AdminServiceImpl implements AdminService {
         Map<String, Object> chatGptResponse = chatGptService.selectPrompt(chatCompletionDto);
 
         if (chatGptResponse != null) {
-            // 엔티티 조회 
+            // 엔티티 조회
             Long testId = 1L;
             List<Trait> traits = traitRepository.findByTest(
-                    testRepository.findById(testId).orElseThrow(() -> NotFoundException.entityNotFound("책 성향히스토리 오류"))
+                    testRepository.findById(testId).orElseThrow(() -> NotFoundException.entityNotFound("책 성향 히스토리 오류"))
             );
 
             // ChatGPT 응답 분석:
