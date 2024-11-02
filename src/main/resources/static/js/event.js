@@ -203,6 +203,12 @@ class EventPage {
         if (this.modalMessage) {
             this.modalMessage.textContent = message;
         }
+
+        const confirmButton = document.getElementById('modal-confirm-button');
+        if (confirmButton) {
+            confirmButton.onclick = closeModal;
+        }
+
         if (this.modal) {
             this.modal.style.display = 'flex';
         }
@@ -213,13 +219,14 @@ class EventPage {
             this.modalMessage.textContent = message;
         }
 
-        const confirmButton = document.getElementById('modal-confirm-button');
-        if (confirmButton) {
-            confirmButton.onclick = () => {
+        const oldButton = document.getElementById('modal-confirm-button');
+        if (oldButton) {
+            const newButton = oldButton.cloneNode(true);
+            newButton.onclick = () => {
                 window.location.href = redirectUrl;
             };
+            oldButton.parentNode.replaceChild(newButton, oldButton);
         }
-
         if (this.modal) {
             this.modal.style.display = 'flex';
         }
