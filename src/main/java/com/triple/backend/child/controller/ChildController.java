@@ -72,4 +72,11 @@ public class ChildController {
         childService.deleteChildById(childId, accessToken.substring(7));
         return CommonResponse.ok("Delete Child Success", null);
     }
+
+    // 자녀 성향 히스토리 물리적 삭제 테스트용 컨트롤러
+//    @DeleteMapping("/child-info/cleanup-old")
+//    public ResponseEntity<?> cleanUpOldMbtiHistory() {
+//        mbtiHistoryService.cleanUpOldRecords();
+//        return CommonResponse.ok("Cleanup Old MbtiHistory Success");
+//    }
 }
