@@ -6,8 +6,6 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
-
 @Entity
 @Getter
 @NoArgsConstructor
@@ -30,7 +28,8 @@ public class MbtiHistory extends BaseEntity {
     private boolean isDeleted = false;
 
     @Builder
-    public MbtiHistory(Child child, String currentMbti, String reason,Long reasonId, boolean isDeleted) {
+    public MbtiHistory(Long historyId, Child child, String currentMbti, String reason,Long reasonId, boolean isDeleted) {
+        this.historyId = historyId;
         this.child = child;
         this.currentMbti = currentMbti;
         this.reason = reason;

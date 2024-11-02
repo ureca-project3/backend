@@ -30,7 +30,6 @@ public class MbtiHistoryServiceImpl implements MbtiHistoryService {
     private final ChildTraitsRepository childTraitsRepository;
     private final TestAnswerRepository testAnswerRepository;
     private final TestParticipationRepository testParticipationRepository;
-    private final TestQuestionRepository testQuestionRepository;
     private final ChildRepository childRepository;
 
     // 자녀 성향 히스토리 논리적 삭제
@@ -38,9 +37,10 @@ public class MbtiHistoryServiceImpl implements MbtiHistoryService {
     @Transactional
     public MbtiHistoryDeletedResponseDto deleteMyChildTraitHistory(Long historyId, Long childId) {
 
-        Long historyCount = mbtiHistoryRepository.count();
+        Child child = childRepository.findById(childId)
+                .orElseThrow(() -> NotFoundException.entityNotFound("자녀"));
 
-        Child child = childRepository.findById(childId).orElseThrow(() -> NotFoundException.entityNotFound("자녀"));
+        Long historyCount = mbtiHistoryRepository.countByChild_ChildId(childId);
 
         if(historyCount == 1){
             MbtiHistory mbtiHistory = mbtiHistoryRepository.save(MbtiHistory.builder()
@@ -69,6 +69,10 @@ public class MbtiHistoryServiceImpl implements MbtiHistoryService {
         LocalDateTime thresholdDate = LocalDateTime.now().minusDays(30);
 
         List<MbtiHistory> mbtiHistoryList = mbtiHistoryRepository.findByReasonAndIsDeleted("020", true);
+
+        if (mbtiHistoryList.isEmpty()) {
+            return;
+        }
 
         // mbtiHistory 목록 중 30일 이상 경과한 것만 필터링하기
         List<MbtiHistory> deleteMbtiHistoryList = mbtiHistoryList.stream()

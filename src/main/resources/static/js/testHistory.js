@@ -2,12 +2,17 @@
 document.addEventListener('DOMContentLoaded', function() {
 
     const childId = sessionStorage.getItem('currentChildId');
-
     if (childId) {
         fetchChildInfo(childId);
     } else {
         console.error('Child ID not provided in URL');
     }
+
+    // childProfileChanged 이벤트 리스너 추가
+    document.addEventListener('childProfileChanged', function(event) {
+        // 페이지 리로드
+        window.location.reload();
+    });
 });
 
 // 자녀 정보 가져오기
