@@ -1,11 +1,269 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title>도서 관리 시스템</title>
+    <script src="/js/header.js" defer></script>
+    <link rel="stylesheet" href="/css/header.css">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        /* 기본 스타일 */
+        body {
+            font-family: 'Jua', sans-serif;
+            background-color: #FBF8F1;
+            color: #4A4A4A;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            margin: 0;
+        }
+        main {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            padding: 40px;
+        }
+
+        .container {
+            background-color: white;
+            border-radius: 20px;
+            padding: 40px;
+            margin-top: 20px;
+            width: 90%;
+            max-width: 1200px;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        h1, h2 {
+            color: #FF6F61;
+            font-weight: bold;
+        }
+
+        .header {
+            background-color: #FFDEAD;
+            border-radius: 10px;
+            padding: 15px 20px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .form-group label {
+            font-weight: bold;
+            margin-bottom: 6px;
+        }
+
+        .form-container {
+            margin-bottom: 40px;
+        }
+
+        .form-control, .btn-primary {
+            border-radius: 5px;
+        }
+
+        .btn-primary {
+            background-color: #FF6F61;
+            border: none;
+            font-weight: bold;
+            transition: background-color 0.3s ease;
+        }
+
+        .btn-primary:hover {
+            background-color: #FF4A36;
+        }
+
+        /* 도서 카드 스타일 */
+        .book-list {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 20px;
+        }
+
+        .book-card {
+            background-color: #FFFFFF;
+            border-radius: 12px;
+            padding: 20px;
+            width: 280px;
+            min-height: 350px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s ease, box-shadow 0.3s ease;
+            cursor: pointer;
+            text-align: center;
+        }
+
+        .book-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
+        }
+
+        .book-cover {
+            width: 100%;
+            height: auto;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .book-title {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .book-author {
+            font-size: 1em;
+            color: #777;
+            margin-bottom: 15px;
+        }
+
+        .book-summary {
+            font-size: 0.9em;
+            color: #555;
+            line-height: 1.6;
+        }
+
+        /* 이미지 업로드 스타일 */
+        .image-upload-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .image-upload-preview {
+            width: 100px;
+            height: 100px;
+            border-radius: 8px;
+            overflow: hidden;
+            background-color: #eee;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .image-upload-preview img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .btn-light {
+            color: #FF6F61;
+            border: 1px solid #FF6F61;
+            transition: background-color 0.3s ease;
+        }
+
+        .btn-light:hover {
+            background-color: #FF6F61;
+            color: white;
+        }
+
+        /* 에러 메시지 스타일 */
+        .error-message {
+            color: #FF5733;
+            font-size: 0.9em;
+            margin-top: 10px;
+            padding: 8px;
+            border: 1px solid #FFD4C2;
+            border-radius: 4px;
+            background-color: #FFE7E1;
+            display: none;
+        }
+
+        .form-container.error .error-message {
+            display: block;
+        }
+
+        /* 페이지네이션 스타일 */
+        .pagination .page-item .page-link {
+            color: #FF6F61;
+        }
+        .pagination .page-item .page-link:hover {
+            background-color: #FF6F61;
+            color: white;
+        }
+        .footer {
+            background-color: #FFE0B2;
+            padding: 10px;
+            text-align: center;
+            color: #4A4A4A;
+            font-size: 0.9em;
+        }
+    </style>
 </head>
 <body>
-<h1>관리자 페이지</h1>
-<a href="/index.html">메인 페이지로</a>
+<div id="header-container" class="header">
+    <h1>도서 관리 시스템</h1>
+</div>
+<main>
+    <div class="container">
+        <div class="form-container">
+            <h2>새 도서 등록</h2>
+            <form id="book-form">
+                <div class="form-group">
+                    <label for="title">제목:</label>
+                    <input type="text" id="title" name="title" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label for="author">저자:</label>
+                    <input type="text" id="author" name="author" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label for="genreName">장르:</label>
+                    <select id="genreName" name="genreName" class="form-control">
+                        <option value="소설">소설</option>
+                        <option value="에세이">에세이</option>
+                        <option value="만화">만화</option>
+                        <option value="경제">경제</option>
+                        <option value="역사">역사</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="summary">요약:</label>
+                    <textarea id="summary" name="summary" class="form-control" rows="5" required></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="recAge">추천 나이:</label>
+                    <input type="text" id="recAge" name="recAge" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label for="publisher">출판사:</label>
+                    <input type="text" id="publisher" name="publisher" class="form-control" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="bookcoverImage">표지 이미지:</label>
+                    <div class="image-upload-wrapper">
+                        <div class="image-upload-preview">
+                            <img id="bookcoverImagePreview" src="#" alt="미리보기 이미지">
+                        </div>
+                        <input type="file" id="bookcoverImage" name="bookcoverImage" accept="image/*" onchange="handleImagePreview(event)">
+                        <button type="button" class="btn btn-light" onclick="handleImageUpload()">이미지 업로드</button>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary">도서 등록</button>
+                <div id="error-message" class="error-message"></div>
+            </form>
+        </div>
+
+        <div class="pagination" id="pagination"></div>
+    </div>
+</main>
+
+<footer class="footer">
+    <p>© 2023 도서 관리 시스템</p>
+</footer>
+
+<script>
+    // JavaScript 기능 추가 및 이미지 미리보기
+    function handleImagePreview(event) {
+        const reader = new FileReader();
+        reader.onload = function() {
+            const preview = document.getElementById("bookcoverImagePreview");
+            preview.src = reader.result;
+        };
+        reader.readAsDataURL(event.target.files[0]);
+    }
+</script>
 </body>
 </html>
