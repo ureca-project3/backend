@@ -97,7 +97,7 @@ floatingButton.onclick = () => {
         return;
     }
 
-    const childId = sessionStorage.getItem('child_id');
+    const childId = sessionStorage.getItem('currentChildId');
     if (!childId) {
         // 커스텀 알림창 생성
         const alertDiv = document.createElement('div');
