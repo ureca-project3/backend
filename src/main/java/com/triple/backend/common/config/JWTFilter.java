@@ -17,6 +17,8 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
 
 // JWT 필터 검증
 @AllArgsConstructor
@@ -27,8 +29,24 @@ public class JWTFilter extends OncePerRequestFilter {
     private final MemberRepository memberRepository; // MemberRepository 주입
     private final CommonCodeRepository commonCodeRepository;
 
+    // Public API endpoints
+    private static final List<String> PUBLIC_API_PATHS = Arrays.asList(
+            "/books",               // 최신 도서 목록
+            "/books/ranking",        // 인기 도서 목록
+            "/events",             // 이벤트 관련 API
+            "/event",
+            "/auth",               // 인증 관련 API
+            "/public"              // 공개 API
+    );
+
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+
+        // Public API 요청은 인증 없이 통과
+        if (isPublicApiRequest(request)) {
+            filterChain.doFilter(request, response);
+            return;
+        }
 
         // 인증이 필요없는 경로는 바로 통과
         if (shouldNotFilter(request)) {
@@ -105,14 +123,28 @@ public class JWTFilter extends OncePerRequestFilter {
             }
         }
 
-        // 모든 토큰이 유효하지 않은 경우
-        if (isApiRequest(request)) {
+//        // 모든 토큰이 유효하지 않은 경우
+//        if (isApiRequest(request)) {
+//            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+//            response.setContentType("application/json");
+//            response.getWriter().write("{\"message\": \"Unauthorized\"}");
+//        } else {
+//            response.sendRedirect("/login.html");
+//        }
+
+        // 인증이 필요한 API 요청이지만 토큰이 없는 경우
+        if (isApiRequest(request) && !isPublicApiRequest(request)) {
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             response.setContentType("application/json");
             response.getWriter().write("{\"message\": \"Unauthorized\"}");
         } else {
-            response.sendRedirect("/login.html");
+            filterChain.doFilter(request, response);
         }
+    }
+
+    private boolean isPublicApiRequest(HttpServletRequest request) {
+        String path = request.getRequestURI();
+        return PUBLIC_API_PATHS.stream().anyMatch(path::startsWith);
     }
 
     @Override
@@ -123,11 +155,11 @@ public class JWTFilter extends OncePerRequestFilter {
                 path.startsWith("/css/") ||
                 path.startsWith("/js/") ||
                 path.startsWith("/image/") ||
-                path.equals("/favicon.ico") ||
-                path.equals("/login.html") ||
-                path.equals("/signup.html") ||
-                path.equals("/index.html") ||
-                path.equals("/header.html");
+                path.startsWith("/books/") ||    // 모든 books 관련 경로 추가
+                path.startsWith("/events/") ||   // 모든 events 관련 경로 추가
+                path.startsWith("/event/") ||
+                path.matches(".*\\.(html|ico)$")|| // 모든 html 파일과 favicon.ico
+                isPublicApiRequest(request);
     }
 
     private boolean isApiRequest(HttpServletRequest request) {

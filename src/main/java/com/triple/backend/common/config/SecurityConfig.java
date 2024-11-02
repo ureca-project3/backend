@@ -84,14 +84,13 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
                                 "/auth/**",
+                                "/books/**",    // 모든 books 관련 엔드포인트 허용
+                                "/event/**",    // 모든 event 관련 엔드포인트 허용 (단수형)
+                                "/events/**",   // 모든 events 관련 엔드포인트 허용 (복수형)
                                 "/favicon.ico",
                                 "/public/**",
                                 "/login",
-                                "/index.html",
-                                "/signup.html",
-                                "/login.html",
-                                "/header.html",
-                                "/auth-success.html",
+                                "/*.html",      // 모든 html 파일 허용
                                 "/css/**",
                                 "/js/**",
                                 "/image/**"

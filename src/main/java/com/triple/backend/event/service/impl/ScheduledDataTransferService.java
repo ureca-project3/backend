@@ -71,6 +71,7 @@ public class ScheduledDataTransferService {
             Event event = eventRepository.findById(eventId)
                     .orElseThrow(() -> NotFoundException.entityNotFound("이벤트"));
             if (event.getEndTime().isAfter(LocalDateTime.now())) continue;
+//            if (event.getEndTime().isBefore(LocalDateTime.now())) continue;
 
             // Redis에서 event:total_count 값 가져오기
             String totalCountStr = redisTemplate.opsForValue().get("event:total_count:" + eventId);
@@ -109,9 +110,16 @@ public class ScheduledDataTransferService {
                     eventAnswerRepository.save(eventAnswer);
                 });
 
-                // Winning 저장
-                // 이름, 연락처 검증 로직 추가
-                if(winnerCount.get() > 0 && dto.getName().equals(member.getName()) && dto.getPhone().equals(member.getPhone())) {
+//                // Winning 저장
+//                // 이름, 연락처 검증 로직 추가
+//                if(winnerCount.get() > 0 && dto.getName().equals(member.getName()) && dto.getPhone().equals(member.getPhone())) {
+//                    Winning winning = new Winning(eventPart);
+//                    winningRepository.save(winning);
+//                    winnerCount.decrementAndGet(); // winnerCount 감소
+//                }
+
+                // Winning 저장 부분 수정
+                if(winnerCount.get() > 0 && isValidParticipant(dto, member)) {
                     Winning winning = new Winning(eventPart);
                     winningRepository.save(winning);
                     winnerCount.decrementAndGet(); // winnerCount 감소
@@ -131,6 +139,23 @@ public class ScheduledDataTransferService {
             memberIds.forEach(memberId -> redisTemplate.delete("event:data:" + eventId + ":" + memberId));
         }
         redisTemplate.delete("event:participant:" + eventId);
+    }
+
+    // 참가자 정보 유효성 검증을 위한 메서드 추가
+    private boolean isValidParticipant(EventPartRequestDto dto, Member member) {
+        // dto나 member가 null인 경우 체크
+        if (dto == null || member == null) return false;
+
+        // 이름과 전화번호가 모두 존재하고 일치하는지 확인
+        String dtoName = dto.getName();
+        String dtoPhone = dto.getPhone();
+        String memberName = member.getName();
+        String memberPhone = member.getPhone();
+
+        return dtoName != null && dtoPhone != null
+                && memberName != null && memberPhone != null
+                && dtoName.equals(memberName)
+                && dtoPhone.equals(memberPhone);
     }
 
 }
