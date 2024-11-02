@@ -122,8 +122,6 @@ public class ChildServiceImpl implements ChildService {
             );
             traitsChangeList.add(traitsChange);
         }
-
-        // Batch insert 수행
         childTraitsRepository.saveAll(childTraitsList);
         traitsChangeRepository.saveAll(traitsChangeList);
     }
