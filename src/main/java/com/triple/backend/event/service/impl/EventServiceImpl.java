@@ -39,12 +39,10 @@ public class EventServiceImpl implements EventService {
     private final EventRepository eventRepository;
     private final EventQuestionRepository eventQuestionRepository;
 
-    private final MemberRepository memberRepository;
-    private final EventPartRepository eventPartRepository;
     private final WinningRepository winningRepository;
     private final RedisTemplate<String, String> redisTemplate;
-    private final DefaultRedisScript<Long> eventParticipationScript;  // 추가
-    private final ObjectMapper objectMapper;  // 추가
+    private final DefaultRedisScript<Long> eventParticipationScript;
+    private final ObjectMapper objectMapper;
 
     private static final String EVENT_PARTICIPANT_KEY = "event:participant:";
     private static final String EVENT_DATA_KEY = "event:data:";
