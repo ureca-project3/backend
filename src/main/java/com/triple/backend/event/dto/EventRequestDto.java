@@ -1,10 +1,8 @@
 package com.triple.backend.event.dto;
 
-import com.triple.backend.event.entity.Event;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 import java.time.LocalDateTime;
 

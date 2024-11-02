@@ -1,6 +1,5 @@
 package com.triple.backend.event.dto;
 
-import com.triple.backend.event.entity.EventPart;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
