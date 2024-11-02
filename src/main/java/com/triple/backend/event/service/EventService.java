@@ -1,11 +1,6 @@
 package com.triple.backend.event.service;
 
-import com.triple.backend.event.dto.EventApplyRequestDto;
-import com.triple.backend.event.dto.EventApplyResponseDto;
-import com.triple.backend.event.dto.EventRequestDto;
-import com.triple.backend.event.dto.EventResultResponseDto;
-
-import com.triple.backend.event.dto.EventResponseDto;
+import com.triple.backend.event.dto.*;
 
 public interface EventService {
     EventResultResponseDto getEventWinner(Long eventId);
@@ -15,7 +10,7 @@ public interface EventService {
     // 선착순 응모 이벤트 조회
     EventResponseDto getEvent(Long eventId);
 
-    String getEventQuestion(Long eventId);
+    EventQuestionResponseDto getEventQuestion(Long eventId);
 
     Object getEventList();
 }

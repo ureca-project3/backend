@@ -30,19 +30,19 @@ public class EventController {
     private final ScheduledDataTransferService scheduledDataTransferService;
 
     // 이벤트 결과 페이지 접속 api
-    @GetMapping("/result/{eventId}")
+    @GetMapping("/api/result/{eventId}")
     public ResponseEntity<?> getEventWinner(@PathVariable(name = "eventId") Long eventId) {
         return CommonResponse.ok("Get eventWinner Success", eventService.getEventWinner(eventId));
     }
 
     // 이벤트 페이지 접속 api
-    @GetMapping("/{eventId}")
+    @GetMapping("/api/{eventId}")
     public ResponseEntity<?> getEvent(@PathVariable(name = "eventId") Long eventId) {
         return CommonResponse.ok("Get event Success", eventService.getEvent(eventId));
     }
 
     // 이벤트 배너에 추가할 이벤트 질문 api
-    @GetMapping("/{eventId}/question")
+    @GetMapping("/api/{eventId}/question")
     public ResponseEntity<?> getEventQuestion(@PathVariable(name = "eventId") Long eventId) {
         return CommonResponse.ok("Get event question Success", eventService.getEventQuestion(eventId));
     }
@@ -50,8 +50,8 @@ public class EventController {
 
     // 이벤트 응모 - lua로 동시성 해결
     @PostMapping("/apply")
-    public ResponseEntity<?> applyEvent(@Valid @RequestParam Long memberId, @RequestBody EventApplyRequestDto request, @AuthenticationPrincipal CustomMemberDetails userDetails) {
-//        Long memberId = userDetails.getMemberId();
+    public ResponseEntity<?> applyEvent(@Valid @RequestBody EventApplyRequestDto request, @AuthenticationPrincipal CustomMemberDetails userDetails) {
+        Long memberId = userDetails.getMemberId();
         request.setMemberId(memberId);
 
         System.out.println(memberId);
@@ -66,7 +66,7 @@ public class EventController {
         return CommonResponse.ok(response.getMessage(), response);
     }
 
-    @GetMapping("/list")
+    @GetMapping("/api/list")
     public ResponseEntity<?> getEventList() {
         return CommonResponse.ok("Get event list Success", eventService.getEventList());
     }
@@ -84,13 +84,13 @@ public class EventController {
     }
 
     // 당첨자 redis -> mysql 등록 컨트롤러
-    @PostMapping("/apply/db_save")
+    @PostMapping("/api/apply/db_save")
     public ResponseEntity<?> insertWinner() {
         scheduledDataTransferService.saveEventParticipantsToDatabase();
         return CommonResponse.ok("insert redisWinner Success");
     }
 
-    @PostMapping("/insert")
+    @PostMapping("/api/insert")
     public ResponseEntity<?> insertEvent(@RequestBody EventRequestDto eventRequestDto) {
         eventService.insertEvent(eventRequestDto);
         return CommonResponse.ok("insert Event Success");

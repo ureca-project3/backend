@@ -2,7 +2,7 @@ function fetchEventResult() {
     // URL에서 이벤트 ID 가져오기
     const eventId = new URLSearchParams(window.location.search).get('eventId') || 1;
 
-    fetch(`/event/result/${eventId}`)
+    fetch(`/event/api/result/${eventId}`)
         .then(response => response.json())
         .then(response => {
             if (response.data) {

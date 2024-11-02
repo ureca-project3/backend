@@ -33,8 +33,7 @@ public class JWTFilter extends OncePerRequestFilter {
     private static final List<String> PUBLIC_API_PATHS = Arrays.asList(
             "/books",               // 최신 도서 목록
             "/books/ranking",        // 인기 도서 목록
-            "/events",             // 이벤트 관련 API
-            "/event",
+            "/event/api",
             "/auth",               // 인증 관련 API
             "/public"              // 공개 API
     );
@@ -156,8 +155,7 @@ public class JWTFilter extends OncePerRequestFilter {
                 path.startsWith("/js/") ||
                 path.startsWith("/image/") ||
                 path.startsWith("/books/") ||    // 모든 books 관련 경로 추가
-                path.startsWith("/events/") ||   // 모든 events 관련 경로 추가
-                path.startsWith("/event/") ||
+                path.startsWith("/event/api/") ||
                 path.matches(".*\\.(html|ico)$")|| // 모든 html 파일과 favicon.ico
                 isPublicApiRequest(request);
     }
