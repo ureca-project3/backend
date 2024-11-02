@@ -38,6 +38,7 @@ public class MbtiHistory extends BaseEntity {
         this.isDeleted = isDeleted;
     }
 
+
     // 삭제 상태 업데이트
     public void updateDeleted(boolean isDeleted) {
         this.isDeleted = isDeleted;
