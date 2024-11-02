@@ -23,10 +23,14 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.io.IOException;
 import java.util.*;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
 @Service
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
@@ -43,7 +47,7 @@ public class AdminServiceImpl implements AdminService {
 
     @Override
     @Transactional
-    public void insertBook(AdminBookRequestDto adminBookRequestDto) throws JsonProcessingException {
+    public void insertBook(AdminBookRequestDto adminBookRequestDto) {
         String genreName = adminBookRequestDto.getGenreName();
         Book book = AdminBookRequestDto.toEntity(adminBookRequestDto, Genre.getGenreCode(genreName));
         bookRepository.save(book);
@@ -74,6 +78,7 @@ public class AdminServiceImpl implements AdminService {
         Map<String, Object> chatGptResponse = chatGptService.selectPrompt(chatCompletionDto);
 
         if (chatGptResponse != null) {
+            // 엔티티 조회 
             Long testId = 1L;
             List<Trait> traits = traitRepository.findByTest(
                     testRepository.findById(testId).orElseThrow(() -> NotFoundException.entityNotFound("책 성향히스토리 오류"))
@@ -82,29 +87,33 @@ public class AdminServiceImpl implements AdminService {
             // ChatGPT 응답 분석:
             List<Map<String, Object>> choices = (List<Map<String, Object>>) chatGptResponse.get("choices");
             String content = (String) ((Map<String, Object>) choices.get(0).get("message")).get("content");
+            try {
+                // JSON 파싱 및 MBTI 점수 추출
+                ObjectMapper objectMapper = new ObjectMapper();
+                Map<String, Integer> mbtiScores = objectMapper.readValue(content, new TypeReference<Map<String, Integer>>() {
+                });
 
-            // JSON 파싱 및 MBTI 점수 추출
-            ObjectMapper objectMapper = new ObjectMapper();
-            Map<String, Integer> mbtiScores = objectMapper.readValue(content, new TypeReference<Map<String, Integer>>() {});
+                // BookTraits 생성
+                traits.forEach(trait -> {
+                    String mbtiKey = switch (trait.getTraitId().intValue()) {
+                        case 1 -> "E-I";
+                        case 2 -> "S-N";
+                        case 3 -> "T-F";
+                        case 4 -> "J-P";
+                        default -> "E-I"; // 기본값 설정
+                    };
 
-            // BookTraits 생성
-            traits.forEach(trait -> {
-                String mbtiKey = switch (trait.getTraitId().intValue()) {
-                    case 1 -> "E-I";
-                    case 2 -> "S-N";
-                    case 3 -> "T-F";
-                    case 4 -> "J-P";
-                    default -> "E-I"; // 기본값 설정
-                };
+                    BookTraits bookTrait = BookTraits.builder()
+                            .book(book)
+                            .trait(trait)
+                            .traitScore(mbtiScores.get(mbtiKey))
+                            .build();
 
-                BookTraits bookTrait = BookTraits.builder()
-                        .book(book)
-                        .trait(trait)
-                        .traitScore(mbtiScores.get(mbtiKey))
-                        .build();
-
-                bookTraitsRepository.save(bookTrait);
-            });
+                    bookTraitsRepository.save(bookTrait);
+                });
+            } catch (IOException e) {
+                System.out.println("책 성향 오류");
+            }
         }
     }
 

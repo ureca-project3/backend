@@ -10,7 +10,7 @@ import java.util.List;
 
 public interface AdminService {
 
-    void insertBook(AdminBookRequestDto dto) throws JsonProcessingException;
+    void insertBook(AdminBookRequestDto dto);
 
     List<AdminBookResponseDto> getBookList(Pageable pageable);
 

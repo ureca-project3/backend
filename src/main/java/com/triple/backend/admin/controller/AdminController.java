@@ -1,6 +1,5 @@
 package com.triple.backend.admin.controller;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.triple.backend.admin.dto.AdminBookRequestDto;
 import com.triple.backend.admin.dto.AdminBookResponseDto;
 import com.triple.backend.admin.dto.AdminBookUpdateRequestDto;
@@ -23,7 +22,7 @@ public class AdminController {
     private final AdminService adminService;
 
     @PostMapping("/books")
-    public ResponseEntity<?> insertBook(@RequestBody AdminBookRequestDto dto) throws JsonProcessingException {
+    public ResponseEntity<?> insertBook(@RequestBody AdminBookRequestDto dto) {
         adminService.insertBook(dto);
         return CommonResponse.created("Insert Book Success");
     }
