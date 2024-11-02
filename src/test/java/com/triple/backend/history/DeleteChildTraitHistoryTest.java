@@ -85,13 +85,16 @@ class MbtiHistoryServiceImplTest {
         @DisplayName("마지막 히스토리 삭제 시 기본 INFP 히스토리 생성")
         void deleteLastHistoryTest() {
             // given
-            given(mbtiHistoryRepository.count()).willReturn(1L);
-            given(childRepository.findById(anyLong())).willReturn(Optional.of(child));
-            given(mbtiHistoryRepository.findById(anyLong())).willReturn(Optional.of(mbtiHistory));
+            Long childId = 1L;
+            Long historyId = 1L;
+
+            given(mbtiHistoryRepository.countByChild_ChildId(childId)).willReturn(1L);
+            given(childRepository.findById(childId)).willReturn(Optional.of(child));
+            given(mbtiHistoryRepository.findById(historyId)).willReturn(Optional.of(mbtiHistory));
             given(mbtiHistoryRepository.save(any(MbtiHistory.class))).willReturn(mbtiHistory);
 
             // when
-            MbtiHistoryDeletedResponseDto result = mbtiHistoryService.deleteMyChildTraitHistory(1L, 1L);
+            MbtiHistoryDeletedResponseDto result = mbtiHistoryService.deleteMyChildTraitHistory(historyId, childId);
 
             // then
             assertThat(result.getIsDeleted()).isTrue();
@@ -113,13 +116,16 @@ class MbtiHistoryServiceImplTest {
         @DisplayName("논리적 히스토리 삭제 성공")
         void deleteNormalHistoryTest() {
             // given
-            given(mbtiHistoryRepository.count()).willReturn(2L);
-            given(childRepository.findById(anyLong())).willReturn(Optional.of(child));
-            given(mbtiHistoryRepository.findById(anyLong())).willReturn(Optional.of(mbtiHistory));
+            Long childId = 1L;
+            Long historyId = 1L;
+
+            given(mbtiHistoryRepository.countByChild_ChildId(childId)).willReturn(2L);
+            given(childRepository.findById(childId)).willReturn(Optional.of(child));
+            given(mbtiHistoryRepository.findById(historyId)).willReturn(Optional.of(mbtiHistory));
             given(mbtiHistoryRepository.save(any(MbtiHistory.class))).willReturn(mbtiHistory);
 
             // when
-            MbtiHistoryDeletedResponseDto result = mbtiHistoryService.deleteMyChildTraitHistory(1L, 1L);
+            MbtiHistoryDeletedResponseDto result = mbtiHistoryService.deleteMyChildTraitHistory(historyId, childId);
 
             // then
             assertThat(result.getIsDeleted()).isTrue();

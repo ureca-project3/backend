@@ -24,6 +24,8 @@ public interface MbtiHistoryRepository extends JpaRepository<MbtiHistory, Long> 
     // MBTI 히스토리 논리적 삭제 시 히스토리 1개인지 조회
     long count();
 
+    long countByChild_ChildId(Long childId);
+
     // 자녀 성향 히스토리 모음 조회 - 자녀 성향 진단 결과 중 가장 최신 히스토리 조회
     Optional<MbtiHistory> findTopByChildAndReasonAndIsDeletedFalseOrderByCreatedAtDesc(Child child, String reason);
 

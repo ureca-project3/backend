@@ -38,9 +38,10 @@ public class MbtiHistoryServiceImpl implements MbtiHistoryService {
     @Transactional
     public MbtiHistoryDeletedResponseDto deleteMyChildTraitHistory(Long historyId, Long childId) {
 
-        Long historyCount = mbtiHistoryRepository.count();
+        Child child = childRepository.findById(childId)
+                .orElseThrow(() -> NotFoundException.entityNotFound("자녀"));
 
-        Child child = childRepository.findById(childId).orElseThrow(() -> NotFoundException.entityNotFound("자녀"));
+        Long historyCount = mbtiHistoryRepository.countByChild_ChildId(childId);
 
         if(historyCount == 1){
             MbtiHistory mbtiHistory = mbtiHistoryRepository.save(MbtiHistory.builder()
