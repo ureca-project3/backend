@@ -23,11 +23,10 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.lang.invoke.VarHandle;
 import java.util.*;
-import java.util.stream.Collectors;
-
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 @Service
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
@@ -44,7 +43,7 @@ public class AdminServiceImpl implements AdminService {
 
     @Override
     @Transactional
-    public void insertBook(AdminBookRequestDto adminBookRequestDto) {
+    public void insertBook(AdminBookRequestDto adminBookRequestDto) throws JsonProcessingException {
         String genreName = adminBookRequestDto.getGenreName();
         Book book = AdminBookRequestDto.toEntity(adminBookRequestDto, Genre.getGenreCode(genreName));
         bookRepository.save(book);
@@ -73,31 +72,39 @@ public class AdminServiceImpl implements AdminService {
 
 
         Map<String, Object> chatGptResponse = chatGptService.selectPrompt(chatCompletionDto);
+
         if (chatGptResponse != null) {
-            // ChatGPT 응답 출력
-            System.out.println("ChatGPT 응답: " + chatGptResponse);
             Long testId = 1L;
-            Test test = testRepository.findById(testId).orElseThrow(() -> NotFoundException.entityNotFound("테스트")); // testId 에 해당하는 Test 엔티티를 조회
-            List<Trait> traits = traitRepository.findByTest(test);
+            List<Trait> traits = traitRepository.findByTest(
+                    testRepository.findById(testId).orElseThrow(() -> NotFoundException.entityNotFound("책 성향히스토리 오류"))
+            );
 
-            // ChatGPT 응답을 JSON 객체로 파싱
-            JSONObject jsonObject = new JSONObject(chatGptResponse);
+            List<Map<String, Object>> choices = (List<Map<String, Object>>) chatGptResponse.get("choices");
+            String content = (String) ((Map<String, Object>) choices.get(0).get("message")).get("content");
 
-            // 각 trait에 대해 BookTraits 생성 및 저장
+            ObjectMapper objectMapper = new ObjectMapper();
+            Map<String, Integer> mbtiScores = objectMapper.readValue(content, new TypeReference<Map<String, Integer>>() {});
+
             traits.forEach(trait -> {
-                // traitId를 사용하여 jsonObject에서 점수 가져오기
-                Integer traitScore = Integer.parseInt(jsonObject.get(trait.getTraitId().toString()).toString());
+                String mbtiKey = switch (trait.getTraitId().intValue()) {
+                    case 1 -> "E-I";
+                    case 2 -> "S-N";
+                    case 3 -> "T-F";
+                    case 4 -> "J-P";
+                    default -> "E-I"; // 기본값 설정
+                };
 
                 BookTraits bookTrait = BookTraits.builder()
                         .book(book)
                         .trait(trait)
-                        .traitScore(traitScore)
+                        .traitScore(mbtiScores.get(mbtiKey))
                         .build();
 
                 bookTraitsRepository.save(bookTrait);
             });
         }
     }
+
     @Override
     public List<AdminBookResponseDto> getBookList(Pageable pageable) {
         Page<Book> books = bookRepository.findAll(pageable);

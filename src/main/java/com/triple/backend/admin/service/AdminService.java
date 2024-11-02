@@ -1,5 +1,6 @@
 package com.triple.backend.admin.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.triple.backend.admin.dto.AdminBookRequestDto;
 import com.triple.backend.admin.dto.AdminBookResponseDto;
 import com.triple.backend.admin.dto.AdminBookUpdateRequestDto;
@@ -9,7 +10,7 @@ import java.util.List;
 
 public interface AdminService {
 
-    void insertBook(AdminBookRequestDto dto);
+    void insertBook(AdminBookRequestDto dto) throws JsonProcessingException;
 
     List<AdminBookResponseDto> getBookList(Pageable pageable);
 
