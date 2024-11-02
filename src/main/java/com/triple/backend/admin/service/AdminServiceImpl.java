@@ -4,8 +4,10 @@ import com.triple.backend.admin.dto.AdminBookRequestDto;
 import com.triple.backend.admin.dto.AdminBookResponseDto;
 import com.triple.backend.admin.dto.AdminBookUpdateRequestDto;
 import com.triple.backend.book.entity.Book;
+import com.triple.backend.book.entity.BookTraits;
 import com.triple.backend.book.entity.Genre;
 import com.triple.backend.book.repository.BookRepository;
+import com.triple.backend.book.repository.BookTraitsRepository;
 import com.triple.backend.chatgpt.dto.ChatCompletionDto;
 import com.triple.backend.chatgpt.dto.ChatRequestMsgDto;
 import com.triple.backend.chatgpt.service.ChatGptService;
@@ -15,15 +17,16 @@ import com.triple.backend.test.entity.Trait;
 import com.triple.backend.test.repository.TestRepository;
 import com.triple.backend.test.repository.TraitRepository;
 import lombok.RequiredArgsConstructor;
+import net.minidev.json.JSONObject;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.lang.invoke.VarHandle;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional(readOnly = true)
@@ -34,6 +37,7 @@ public class AdminServiceImpl implements AdminService {
     private final ChatGptService chatGptService;
     private final TraitRepository traitRepository;
     private final TestRepository testRepository;
+    private final BookTraitsRepository bookTraitsRepository;
 
     @Value("${openai.prompt.system}")
     private String systemPrompt;
@@ -69,15 +73,31 @@ public class AdminServiceImpl implements AdminService {
 
 
         Map<String, Object> chatGptResponse = chatGptService.selectPrompt(chatCompletionDto);
-
-        // 응답을 바탕으로 bookTraits 업데이트 (미완성/ gpt의 응답을 잘 쪼개서 bookTrait에 차곡차곡 들어가도록 해야 함)
         if (chatGptResponse != null) {
+            // ChatGPT 응답 출력
+            System.out.println("ChatGPT 응답: " + chatGptResponse);
             Long testId = 1L;
-            Test test = testRepository.findById(testId).orElseThrow(() -> NotFoundException.entityNotFound("테스트"));
+            Test test = testRepository.findById(testId).orElseThrow(() -> NotFoundException.entityNotFound("테스트")); // testId 에 해당하는 Test 엔티티를 조회
             List<Trait> traits = traitRepository.findByTest(test);
+
+            // ChatGPT 응답을 JSON 객체로 파싱
+            JSONObject jsonObject = new JSONObject(chatGptResponse);
+
+            // 각 trait에 대해 BookTraits 생성 및 저장
+            traits.forEach(trait -> {
+                // traitId를 사용하여 jsonObject에서 점수 가져오기
+                Integer traitScore = Integer.parseInt(jsonObject.get(trait.getTraitId().toString()).toString());
+
+                BookTraits bookTrait = BookTraits.builder()
+                        .book(book)
+                        .trait(trait)
+                        .traitScore(traitScore)
+                        .build();
+
+                bookTraitsRepository.save(bookTrait);
+            });
         }
     }
-
     @Override
     public List<AdminBookResponseDto> getBookList(Pageable pageable) {
         Page<Book> books = bookRepository.findAll(pageable);
