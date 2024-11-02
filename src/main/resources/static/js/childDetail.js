@@ -92,7 +92,7 @@ function updateDisplay(data) {
     document.getElementById('personality-code').textContent = data.currentMbti;
     document.getElementById('personality-description').textContent = data.mbtiPhrase;
     document.getElementById('mbti-full-description').textContent = data.mbtiDescription;
-    document.getElementById('mbti-image').src = `/images/${data.mbtiImage}`;
+    document.getElementById('mbti-image').src = `/image/${data.mbtiImage}`;
 
     data.historyMbti.forEach(trait => {
         const score = trait.traitScore;
