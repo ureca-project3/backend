@@ -1,6 +1,5 @@
 package com.triple.backend.admin.service;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.triple.backend.admin.dto.AdminBookRequestDto;
 import com.triple.backend.admin.dto.AdminBookResponseDto;
 import com.triple.backend.admin.dto.AdminBookUpdateRequestDto;
