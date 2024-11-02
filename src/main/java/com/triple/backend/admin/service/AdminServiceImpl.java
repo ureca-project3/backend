@@ -1,16 +1,19 @@
 package com.triple.backend.admin.service;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.triple.backend.admin.dto.AdminBookRequestDto;
 import com.triple.backend.admin.dto.AdminBookResponseDto;
 import com.triple.backend.admin.dto.AdminBookUpdateRequestDto;
 import com.triple.backend.book.entity.Book;
+import com.triple.backend.book.entity.BookTraits;
 import com.triple.backend.book.entity.Genre;
 import com.triple.backend.book.repository.BookRepository;
+import com.triple.backend.book.repository.BookTraitsRepository;
 import com.triple.backend.chatgpt.dto.ChatCompletionDto;
 import com.triple.backend.chatgpt.dto.ChatRequestMsgDto;
 import com.triple.backend.chatgpt.service.ChatGptService;
 import com.triple.backend.common.exception.NotFoundException;
-import com.triple.backend.test.entity.Test;
 import com.triple.backend.test.entity.Trait;
 import com.triple.backend.test.repository.TestRepository;
 import com.triple.backend.test.repository.TraitRepository;
@@ -21,6 +24,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -34,6 +38,7 @@ public class AdminServiceImpl implements AdminService {
     private final ChatGptService chatGptService;
     private final TraitRepository traitRepository;
     private final TestRepository testRepository;
+    private final BookTraitsRepository bookTraitsRepository;
 
     @Value("${openai.prompt.system}")
     private String systemPrompt;
@@ -70,11 +75,44 @@ public class AdminServiceImpl implements AdminService {
 
         Map<String, Object> chatGptResponse = chatGptService.selectPrompt(chatCompletionDto);
 
-        // 응답을 바탕으로 bookTraits 업데이트 (미완성/ gpt의 응답을 잘 쪼개서 bookTrait에 차곡차곡 들어가도록 해야 함)
         if (chatGptResponse != null) {
+            // 엔티티 조회
             Long testId = 1L;
-            Test test = testRepository.findById(testId).orElseThrow(() -> NotFoundException.entityNotFound("테스트"));
-            List<Trait> traits = traitRepository.findByTest(test);
+            List<Trait> traits = traitRepository.findByTest(
+                    testRepository.findById(testId).orElseThrow(() -> NotFoundException.entityNotFound("책 성향"))
+            );
+
+            // ChatGPT 응답 분석:
+            List<Map<String, Object>> choices = (List<Map<String, Object>>) chatGptResponse.get("choices");
+            String content = (String) ((Map<String, Object>) choices.get(0).get("message")).get("content");
+            try {
+                // JSON 파싱 및 MBTI 점수 추출
+                ObjectMapper objectMapper = new ObjectMapper();
+                Map<String, Integer> mbtiScores = objectMapper.readValue(content, new TypeReference<Map<String, Integer>>() {
+                });
+
+                // BookTraits 생성
+                traits.forEach(trait -> {
+                    String mbtiKey = switch (trait.getTraitId().intValue()) {
+                        case 1 -> "E-I";
+                        case 2 -> "S-N";
+                        case 3 -> "T-F";
+                        case 4 -> "J-P";
+                        default -> "E-I"; // 기본값 설정
+                    };
+
+                    BookTraits bookTrait = BookTraits.builder()
+                            .book(book)
+                            .trait(trait)
+                            .traitScore(mbtiScores.get(mbtiKey))
+                            .build();
+
+                    bookTraitsRepository.save(bookTrait);
+                });
+            } catch (IOException e) {
+                System.out.println("책 성향 오류");
+            }
+
         }
     }
 
