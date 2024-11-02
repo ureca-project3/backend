@@ -41,6 +41,13 @@ public class EventController {
         return CommonResponse.ok("Get event Success", eventService.getEvent(eventId));
     }
 
+    // 이벤트 배너에 추가할 이벤트 질문 api
+    @GetMapping("/{eventId}/question")
+    public ResponseEntity<?> getEventQuestion(@PathVariable(name = "eventId") Long eventId) {
+        return CommonResponse.ok("Get event question Success", eventService.getEventQuestion(eventId));
+    }
+
+
     // 이벤트 응모 - lua로 동시성 해결
     @PostMapping("/apply")
     public ResponseEntity<?> applyEvent(@Valid @RequestParam Long memberId, @RequestBody EventApplyRequestDto request, @AuthenticationPrincipal CustomMemberDetails userDetails) {

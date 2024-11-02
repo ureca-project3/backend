@@ -1,28 +1,46 @@
 class EventPage {
     constructor() {
         this.eventId = new URLSearchParams(window.location.search).get('eventId');
+        this.eventData = null;
+        this.answers = {};
+        this.modal = null;
+        this.modalMessage = null;
+
+        this.createInitialModal();
+
         if (!this.eventId) {
             this.showModal('잘못된 접근입니다.');
             return;
         }
-
-        this.eventData = null;
-        this.answers = {};
 
         this.initElements();
         this.initEventListeners();
         this.loadEventData();
     }
 
+    createInitialModal() {
+        const modalHTML = `
+            <div id="event-modal" class="modal">
+                <div class="modal-content">
+                    <p id="modal-message"></p>
+                    <button id="modal-confirm-button" class="modal-button" onclick="closeModal()">
+                        확인
+                    </button>
+                </div>
+            </div>
+        `;
+        document.body.insertAdjacentHTML('beforeend', modalHTML);
+        this.modal = document.getElementById('event-modal');
+        this.modalMessage = document.getElementById('modal-message');
+    }
+
     initElements() {
         this.form = document.getElementById('event-form');
         this.submitButton = document.querySelector('.submit-button');
         this.surveyContainer = document.getElementById('survey-container');
-        this.modal = document.getElementById('event-modal');
-        this.modalMessage = document.getElementById('modal-message');
 
         // 요소가 없는 경우 처리
-        if (!this.form || !this.submitButton || !this.surveyContainer || !this.modal || !this.modalMessage) {
+        if (!this.form || !this.submitButton || !this.surveyContainer) {
             console.error('Required elements not found');
             return;
         }
@@ -137,32 +155,72 @@ class EventPage {
     async handleSubmit(e) {
         e.preventDefault();
 
-        const formData = {
-            eventId: parseInt(this.eventId),
-            name: document.getElementById('participant-name').value.trim(),
-            phone: document.getElementById('participant-phone').value.trim(),
-            answerList: Object.entries(this.answers).map(([questionId, answer]) => ({
-                [questionId]: answer
-            }))
-        };
+        const accessToken = sessionStorage.getItem('accessToken');
+        if (!accessToken) {
+            this.showModalWithRedirect('로그인이 필요한 서비스입니다.', '/login.html');
+            return;
+        }
 
         try {
-            const response = await Api.post('/event/participate', formData);
+            const token = sessionStorage.getItem('accessToken');
+            const payload = JSON.parse(atob(token.split('.')[1]));
+            const memberId = payload.memberId;
+
+            const formData = {
+                eventId: parseInt(this.eventId),
+                memberName: document.getElementById('participant-name').value.trim(),
+                phoneNumber: document.getElementById('participant-phone').value.trim(),
+                answers: Object.entries(this.answers).map(([questionId, answer]) => ({
+                    questionId: parseInt(questionId),
+                    answer: answer
+                }))
+            };
+
+            console.log('Sending data:', formData); // 데이터 확인용
+
+            const response = await Api.post(`/event/apply?memberId=${memberId}`, formData);
             const result = await response.json();
 
-            this.showModal('이벤트 응모가 완료되었습니다.');
-            if (this.submitButton) {
-                this.submitButton.disabled = true;
+            if (result.success) {
+                this.showModalWithRedirect('이벤트 응모가 완료되었습니다.', '/index.html');
+                if (this.submitButton) {
+                    this.submitButton.disabled = true;
+                }
+            } else {
+                this.showModal(result.message || '이벤트 응모에 실패했습니다.');
             }
         } catch (error) {
             console.error('Error submitting event participation:', error);
-            this.showModal(error.message || '이벤트 응모 중 오류가 발생했습니다.');
+            if (error.message.includes('500')) {
+                this.showModal('서버 오류가 발생했습니다. 잠시 후 다시 시도해주세요.');
+            } else {
+                this.showModal(error.message || '이벤트 응모 중 오류가 발생했습니다.');
+            }
         }
     }
 
     showModal(message) {
-        if (this.modalMessage && this.modal) {
+        if (this.modalMessage) {
             this.modalMessage.textContent = message;
+        }
+        if (this.modal) {
+            this.modal.style.display = 'flex';
+        }
+    }
+
+    showModalWithRedirect(message, redirectUrl) {
+        if (this.modalMessage) {
+            this.modalMessage.textContent = message;
+        }
+
+        const confirmButton = document.getElementById('modal-confirm-button');
+        if (confirmButton) {
+            confirmButton.onclick = () => {
+                window.location.href = redirectUrl;
+            };
+        }
+
+        if (this.modal) {
             this.modal.style.display = 'flex';
         }
     }

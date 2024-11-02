@@ -40,10 +40,20 @@ class Api {
     static async get(url) {
         return this.fetch(url, { method: 'GET' });
     }
+    //
+    // static async post(url, data) {
+    //     return this.fetch(url, {
+    //         method: 'POST',
+    //         body: JSON.stringify(data)
+    //     });
+    // }
 
     static async post(url, data) {
         return this.fetch(url, {
             method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
             body: JSON.stringify(data)
         });
     }

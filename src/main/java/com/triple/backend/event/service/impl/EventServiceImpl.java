@@ -91,6 +91,18 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
+    public String getEventQuestion(Long eventId) {
+        Event event = eventRepository.findById(eventId)
+                .orElseThrow(() -> NotFoundException.entityNotFound("이벤트"));
+
+        return eventQuestionRepository.findByEvent(event)
+                .stream()
+                .findFirst()
+                .map(EventQuestion::getEventQText)
+                .orElse("설문에 참여하고 선물 받아가세요!"); // 기본 텍스트
+    }
+
+    @Override
     @Transactional
     public EventApplyResponseDto applyEvent(EventApplyRequestDto request) {
         try {

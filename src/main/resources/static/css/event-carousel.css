@@ -1,0 +1,257 @@
+/* 기본 캐러셀 구조 */
+.carousel {
+    position: relative;
+    width: 100%;
+    height: 400px;
+    overflow: hidden;
+    background-color: rgb(255, 245, 230);
+}
+
+.carousel-item {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    display: none;
+    transition: opacity 0.5s ease-in-out;
+}
+
+/* 이벤트 콘텐츠 레이아웃 */
+.event-content {
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding: 40px;
+    height: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    gap: 60px;
+}
+
+/* 이미지 관련 스타일 */
+.event-image-container {
+    flex: 0 0 auto;
+    width: 320px;
+    height: 320px;
+}
+
+.event-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* 이벤트 정보 스타일 */
+.event-info {
+    flex: 1;
+    max-width: 500px;
+    text-align: left;
+    color: #333;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin-top: 20px;
+}
+
+.event-title-container {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 15px;
+}
+
+.event-title {
+    font-size: 32px;
+    color: #3A001E;
+    margin: 0;
+}
+
+.event-question {
+    font-size: 19px;
+    color: #333;
+    text-align: center;
+    margin: 20px 0;
+    padding: 15px;
+    background-color: rgba(255, 255, 255, 0.7);
+    border-radius: 8px;
+    font-weight: 500;
+}
+
+.event-datetime {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+.datetime-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.event-datetime .label {
+    font-weight: 700;  /* 볼드 처리 */
+    color: #333;
+    min-width: 100px;  /* 라벨 너비 고정 */
+}
+
+.event-datetime .date {
+    color: #666;
+}
+
+/* 이벤트 뱃지 스타일 */
+.event-badge {
+    display: inline-block;
+    padding: 8px 16px;
+    border-radius: 20px;
+    color: #333333;
+    font-weight: bold;
+    font-size: 14px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    flex-shrink: 0;
+}
+
+.event-badge.upcoming {
+    background-color: #FF9F40;
+}
+
+.event-badge.ongoing {
+    background-color: #90EE90;
+}
+
+.event-badge.ended {
+    background-color: #D3D3D3;
+}
+
+/* 버튼 스타일 */
+.event-button {
+    display: block;
+    margin: 30px auto 0;
+    padding: 12px 30px;
+    font-size: 16px;
+    background-color: #3764CE;
+    color: white;
+    border: none;
+    border-radius: 25px;
+    cursor: pointer;
+    width: fit-content;
+}
+
+.event-badge.ended ~ .event-content .event-button {
+    background-color: #666666;
+}
+
+.event-button:disabled {
+    background-color: #cccccc;
+    cursor: not-allowed;
+}
+
+.modal {
+    display: flex;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.modal-content {
+    background-color: white;
+    padding: 20px;
+    border-radius: 10px;
+    text-align: center;
+    max-width: 400px;
+    width: 90%;
+}
+
+.modal-content button {
+    margin-top: 15px;
+    padding: 8px 20px;
+    background-color: #3764CE;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.modal-content button:hover {
+    background-color: #2850B8;
+}
+
+/* 이벤트 정보 스타일 수정 */
+.event-period {
+    font-size: 18px;
+    font-weight: bold;
+    color: #4A4A4A;
+    margin-top: 15px;
+}
+
+.event-date {
+    font-size: 16px;
+    color: #666;
+    margin-top: 5px;
+}
+
+/* 캐러셀 네비게이션 */
+.carousel-nav-container {
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    z-index: 3;
+}
+
+.carousel-indicators {
+    display: flex;
+    gap: 10px;
+    margin-right: 15px;
+}
+
+.carousel-indicator {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background-color: rgba(0, 0, 0, 0.2);
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.carousel-indicator.active {
+    background-color: #3764CE;
+    transform: scale(1.2);
+}
+
+/* 이전/다음 버튼 */
+.carousel-prev,
+.carousel-next {
+    background: none;
+    border: none;
+    color: #999;  /* 기본 색상을 회색으로 */
+    font-size: 24px;
+    cursor: pointer;
+    padding: 0 5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: color 0.3s ease;
+}
+
+.carousel-prev:hover,
+.carousel-next:hover {
+    color: #3764CE;  /* 호버 시 파란색으로 */
+}
+
+.carousel-prev:active,
+.carousel-next:active {
+    color: #2850B8;  /* 클릭 시 더 진한 파란색으로 */
+}
