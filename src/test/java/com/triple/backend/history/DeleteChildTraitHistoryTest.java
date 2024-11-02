@@ -308,14 +308,13 @@ class MbtiHistoryServiceImplTest {
 
         // 생성 분리하기~
         private Trait createTestTrait(com.triple.backend.test.entity.Test test) {
-            Trait trait = new Trait();
-            ReflectionTestUtils.setField(trait, "traitId", 1L);
-            ReflectionTestUtils.setField(trait, "traitName", "에너지방향");
-            ReflectionTestUtils.setField(trait, "traitDescription", "에너지방향 설명");
-            ReflectionTestUtils.setField(trait, "maxScore", 100);
-            ReflectionTestUtils.setField(trait, "minScore", 0);
-            ReflectionTestUtils.setField(trait, "test", test);
-            return trait;
+            return Trait.builder()
+                    .traitName("에너지방향")
+                    .traitDescription("에너지방향 설명")
+                    .maxScore(100)
+                    .minScore(0)
+                    .test(test)
+                    .build();
         }
 
         private TestQuestion createTestQuestion(com.triple.backend.test.entity.Test test, Trait trait) {
