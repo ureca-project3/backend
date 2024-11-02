@@ -49,20 +49,42 @@ document.addEventListener('DOMContentLoaded', function() {
             if (data.data?.accessToken) {
                 sessionStorage.setItem('accessToken', data.data.accessToken);
 
-                // 로그인 성공 시 알림 메시지 표시
-                if (data.data.provider === 'kakao') {
-                    alert('카카오 계정으로 로그인이 되었습니다.');
-                } else {
-                    alert('로그인이 되었습니다.');
-                }
-
-                window.location.href = '/index.html';
+                showLoginModal('로그인이 되었습니다.', true);
             } else {
                 throw new Error('토큰을 받지 못했습니다.');
             }
         } catch (error) {
             console.error('Login error:', error);
-            alert(error.message);
+            showLoginModal(error.message, false);
         }
     });
 });
+
+function showLoginModal(message, isSuccess) {
+    const modal = document.getElementById('loginModal');
+    const modalMessage = document.getElementById('loginModalMessage');
+    modalMessage.textContent = message;
+    modal.style.display = 'flex';
+
+    const confirmButton = modal.querySelector('.modal-button');
+    confirmButton.onclick = function() {
+        if (isSuccess) {
+            window.location.href = '/index.html';
+        } else {
+            modal.style.display = 'none';
+        }
+    };
+}
+
+function closeModal() {
+    const modal = document.getElementById('loginModal');
+    modal.style.display = 'none';
+}
+
+// Close the modal when clicking outside of it
+window.onclick = function(event) {
+    const modal = document.getElementById('loginModal');
+    if (event.target === modal) {
+        modal.style.display = 'none';
+    }
+}
