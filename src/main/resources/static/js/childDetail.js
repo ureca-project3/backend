@@ -1,5 +1,14 @@
 const childId = sessionStorage.getItem('currentChildId');
 
+document.addEventListener('DOMContentLoaded', function() {
+
+    // childProfileChanged 이벤트 리스너 추가
+    document.addEventListener('childProfileChanged', function(event) {
+        // 페이지 리로드
+        window.location.reload();
+    });
+});
+
 function setIndicatorPosition(score) {
     const clampedScore = Math.max(0, Math.min(100, score));
     return `${clampedScore}%`;
@@ -92,7 +101,7 @@ function updateDisplay(data) {
     document.getElementById('personality-code').textContent = data.currentMbti;
     document.getElementById('personality-description').textContent = data.mbtiPhrase;
     document.getElementById('mbti-full-description').textContent = data.mbtiDescription;
-    document.getElementById('mbti-image').src = `/images/${data.mbtiImage}`;
+    document.getElementById('mbti-image').src = `/image/${data.mbtiImage}`;
 
     data.historyMbti.forEach(trait => {
         const score = trait.traitScore;
@@ -135,7 +144,7 @@ async function loadDateData(date) {
             document.getElementById('personality-code').textContent = historyData.currentMbti;
             document.getElementById('personality-description').textContent = historyData.mbtiPhrase;
             document.getElementById('mbti-full-description').textContent = historyData.mbtiDescription;
-            document.getElementById('mbti-image').src = `/images/${historyData.mbtiImage}`;
+            document.getElementById('mbti-image').src = `/image/${historyData.mbtiImage}`;
 
             const historyMbti = historyData.historyMbti;
             updateIndicator('energy-bar', historyMbti["에너지방향"]);
