@@ -110,14 +110,6 @@ public class ScheduledDataTransferService {
                     eventAnswerRepository.save(eventAnswer);
                 });
 
-//                // Winning 저장
-//                // 이름, 연락처 검증 로직 추가
-//                if(winnerCount.get() > 0 && dto.getName().equals(member.getName()) && dto.getPhone().equals(member.getPhone())) {
-//                    Winning winning = new Winning(eventPart);
-//                    winningRepository.save(winning);
-//                    winnerCount.decrementAndGet(); // winnerCount 감소
-//                }
-
                 // Winning 저장 부분 수정
                 if(winnerCount.get() > 0 && isValidParticipant(dto, member)) {
                     Winning winning = new Winning(eventPart);

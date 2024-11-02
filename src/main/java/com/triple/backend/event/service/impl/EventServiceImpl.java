@@ -4,16 +4,13 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.triple.backend.common.exception.NotFoundException;
 import com.triple.backend.event.dto.*;
 import com.triple.backend.event.entity.Event;
-import com.triple.backend.event.entity.EventPart;
 import com.triple.backend.event.repository.EventPartRepository;
 import com.triple.backend.event.repository.EventRepository;
 import com.triple.backend.event.repository.WinningRepository;
 import com.triple.backend.event.service.EventService;
-import com.triple.backend.member.entity.Member;
 import com.triple.backend.member.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.script.DefaultRedisScript;
 import com.triple.backend.event.exception.EventProcessingException;
@@ -164,19 +161,6 @@ public class EventServiceImpl implements EventService {
         } catch (Exception e) {
             throw new RuntimeException("Failed to save event times to Redis", e);
         }
-    }
-
-    private void saveEventParticipation(Event event, Long memberId) {
-        Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> NotFoundException.entityNotFound("회원"));
-
-        EventPart eventPart = EventPart.builder()
-                .event(event)
-                .member(member)
-                .createdAt(LocalDateTime.now())
-                .build();
-
-        eventPartRepository.save(eventPart);
     }
 
     @Override
