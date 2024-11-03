@@ -35,13 +35,17 @@ dependencies {
     implementation 'com.google.code.gson:gson:2.8.7'
     implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
     implementation 'org.springframework.boot:spring-boot-starter-validation'
+
+    // Batch Test
+    testImplementation 'org.springframework.batch:spring-batch-test'
+
     // JWT 의존성 추가
     // implementation 'io.jsonwebtoken:jjwt:0.9.1'
 
     // OAuth 2.0
     implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
-    // Jwt
-    // 시큐리티
+
+    // Jwt & 시큐리티
     implementation 'org.springframework.boot:spring-boot-starter-security'
     implementation 'io.jsonwebtoken:jjwt-api:0.11.5'
     runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.11.5'
