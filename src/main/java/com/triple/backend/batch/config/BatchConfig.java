@@ -1,6 +1,7 @@
 package com.triple.backend.batch.config;
 
 import com.triple.backend.batch.dto.*;
+import com.triple.backend.batch.exception.CustomSkipListener;
 import com.triple.backend.batch.mapper.FeedbackAndTraitsRowMapper;
 import com.triple.backend.batch.mapper.TraitsChangeRowMapper;
 import com.triple.backend.batch.tasklet.syncFeedbackStep.MySqlFeedbackWriter;
@@ -8,6 +9,7 @@ import com.triple.backend.batch.tasklet.syncFeedbackStep.RedisFeedbackReader;
 import com.triple.backend.batch.tasklet.updateMbtiHistory.MbtiProcessor;
 import com.triple.backend.batch.tasklet.updateMbtiHistory.MbtiReader;
 import com.triple.backend.common.utils.MbtiCalculator;
+import com.triple.backend.notification.NotificationService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.core.Job;
@@ -21,11 +23,10 @@ import org.springframework.batch.item.Chunk;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.batch.item.database.JdbcCursorItemReader;
-import org.springframework.batch.item.redis.RedisItemReader;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
-import org.springframework.jdbc.datasource.DataSourceTransactionManager;
+import org.springframework.retry.policy.SimpleRetryPolicy;
 import org.springframework.transaction.PlatformTransactionManager;
 
 import javax.sql.DataSource;
@@ -45,6 +46,8 @@ public class BatchConfig extends DefaultBatchConfiguration {
     private final MbtiReader mbtiReader;
     private final DataSource dataSource;
     private final NamedParameterJdbcTemplate namedParameterJdbcTemplate;
+
+    private final NotificationService notificationService;
 
     /*
     Job 이름: syncFeedbackAndUpdateTraitsJob
@@ -78,6 +81,10 @@ public class BatchConfig extends DefaultBatchConfiguration {
                 .<FeedbackDto, FeedbackDto>chunk(10, transactionManager)
                 .reader(feedbackReader)
                 .writer(feedbackWriter)
+                .faultTolerant()
+                .skip(RuntimeException.class)
+                .skipLimit(10)
+                .listener(customSkipListener())
                 .build();
     }
 
@@ -108,6 +115,12 @@ public class BatchConfig extends DefaultBatchConfiguration {
                 .processor(mbtiProcessor)
                 .writer(mbtiWriter())
                 .build();
+    }
+
+    // listener
+    @Bean
+    public CustomSkipListener customSkipListener() {
+        return new CustomSkipListener("syncFeedbackStep", notificationService);
     }
 
     // Tasklet
@@ -328,4 +341,11 @@ public class BatchConfig extends DefaultBatchConfiguration {
         };
     }
 
+
+    @Bean
+    public SimpleRetryPolicy retryPolicy() {
+        SimpleRetryPolicy retryPolicy = new SimpleRetryPolicy();
+        retryPolicy.setMaxAttempts(3);
+        return retryPolicy;
+    }
 }
