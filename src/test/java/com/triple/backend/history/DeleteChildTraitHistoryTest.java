@@ -76,9 +76,7 @@ class DeleteChildTraitHistoryTest {
 
         @BeforeEach
         void setUp() {
-            child = Child.builder()
-                    .childId(1L)
-                    .build();
+            child = mock(Child.class);
 
             mbtiHistory = MbtiHistory.builder()
                     .historyId(1L)
@@ -215,9 +213,7 @@ class DeleteChildTraitHistoryTest {
                     .build();
             ReflectionTestUtils.setField(day30History, "modifiedAt", day30);
 
-            Child child = Child.builder()
-                    .childId(1L)
-                    .build();
+            Child child = mock(Child.class);
 
             com.triple.backend.test.entity.Test test = new com.triple.backend.test.entity.Test();
             Trait trait = createTestTrait(test);
