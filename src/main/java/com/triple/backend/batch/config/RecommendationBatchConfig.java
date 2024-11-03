@@ -1,5 +1,6 @@
 package com.triple.backend.batch.config;
 
+import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -17,6 +18,7 @@ import org.springframework.batch.core.job.builder.JobBuilder;
 import org.springframework.batch.core.launch.support.RunIdIncrementer;
 import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.batch.core.step.builder.StepBuilder;
+import org.springframework.batch.item.Chunk;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.batch.item.database.JdbcPagingItemReader;
@@ -25,19 +27,17 @@ import org.springframework.batch.item.database.builder.JdbcPagingItemReaderBuild
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.transaction.PlatformTransactionManager;
 
+import com.triple.backend.batch.dto.ChildHistoryDto;
 import com.triple.backend.book.entity.Book;
 import com.triple.backend.book.repository.BookTraitsRepository;
 import com.triple.backend.child.entity.Child;
-import com.triple.backend.child.entity.ChildTraits;
-import com.triple.backend.child.entity.MbtiHistory;
 import com.triple.backend.child.repository.ChildRepository;
-import com.triple.backend.child.repository.ChildTraitsRepository;
-import com.triple.backend.child.repository.MbtiHistoryRepository;
-import com.triple.backend.common.exception.NotFoundException;
 import com.triple.backend.recbook.entity.RecBook;
-import com.triple.backend.recbook.repository.RecBookRepository;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -49,10 +49,8 @@ public class RecommendationBatchConfig {
 
 	private final DataSource dataSource;
 	private final PlatformTransactionManager platformTransactionManager;
-	private final ChildTraitsRepository childTraitsRepository;
+	private final NamedParameterJdbcTemplate namedParameterJdbcTemplate;
 	private final BookTraitsRepository bookTraitsRepository;
-	private final RecBookRepository recBookRepository;
-	private final MbtiHistoryRepository mbtiHistoryRepository;
 	private final ChildRepository childRepository;
 
 	/**
@@ -61,7 +59,6 @@ public class RecommendationBatchConfig {
 	@Bean
 	public Job recommendBookJob(JobRepository jobRepository) {
 
-		// TODO: Skip Exception Handling
 		return new JobBuilder("recommendBookJob", jobRepository)
 			.incrementer(new RunIdIncrementer())
 			.flow(recommendBookStep(jobRepository))
@@ -77,7 +74,7 @@ public class RecommendationBatchConfig {
 	public Step recommendBookStep(JobRepository jobRepository) {
 
 		return new StepBuilder("recommendBookStep", jobRepository)
-			.<Long, List<RecBook>>chunk(10, platformTransactionManager)
+			.<ChildHistoryDto, List<RecBook>>chunk(100, platformTransactionManager)
 			.reader(recommendBookItemReader())
 			.processor(recommendBookItemProcessor())
 			.writer(recommendBookWriter())
@@ -89,16 +86,36 @@ public class RecommendationBatchConfig {
 	 */
 	@Bean
 	@StepScope
-	public JdbcPagingItemReader<Long> recommendBookItemReader() {
-
-		return new JdbcPagingItemReaderBuilder<Long>()
+	public JdbcPagingItemReader<ChildHistoryDto> recommendBookItemReader() {
+		return new JdbcPagingItemReaderBuilder<ChildHistoryDto>()
 			.name("recommendBookReader")
 			.dataSource(dataSource)
-			.selectClause("SELECT child_id")
-			.fromClause("FROM child")
-			.sortKeys(Collections.singletonMap("child_id", Order.ASCENDING))
-			.pageSize(10)
-			.rowMapper((rs, rowNum) -> rs.getLong("child_id"))
+			.selectClause("""
+				SELECT c.child_id, mh.history_id AS mbti_history_id,
+					   ct1.trait_score AS trait1, ct2.trait_score AS trait2,
+					   ct3.trait_score AS trait3, ct4.trait_score AS trait4
+        	""")
+			.fromClause("""
+				FROM child c
+				JOIN mbti_history mh ON c.child_id = mh.child_id
+				LEFT JOIN child_traits ct1 ON mh.history_id = ct1.history_id AND ct1.trait_id = 1
+				LEFT JOIN child_traits ct2 ON mh.history_id = ct2.history_id AND ct2.trait_id = 2
+				LEFT JOIN child_traits ct3 ON mh.history_id = ct3.history_id AND ct3.trait_id = 3
+				LEFT JOIN child_traits ct4 ON mh.history_id = ct4.history_id AND ct4.trait_id = 4
+			""")
+			.whereClause("mh.created_at = (SELECT MAX(created_at) FROM mbti_history WHERE child_id = c.child_id)")
+			.sortKeys(Collections.singletonMap("c.child_id", Order.ASCENDING))
+			.pageSize(100)
+			.rowMapper((rs, rowNum) -> new ChildHistoryDto(
+				rs.getLong("child_id"),
+				rs.getLong("mbti_history_id"),
+				new int[]{
+					rs.getInt("trait1"),
+					rs.getInt("trait2"),
+					rs.getInt("trait3"),
+					rs.getInt("trait4")
+				}
+			))
 			.build();
 	}
 
@@ -107,35 +124,23 @@ public class RecommendationBatchConfig {
 	 */
 	@Bean
 	@StepScope
-	public ItemProcessor<Long, List<RecBook>> recommendBookItemProcessor() {
-
-		return childId -> {
-			MbtiHistory mbtiHistory = mbtiHistoryRepository.findTopByChild_ChildIdOrderByCreatedAtDesc(childId)
-				.orElse(null);
-			List<ChildTraits> childTraits = childTraitsRepository.findLatestTraitsByHistoryId(mbtiHistory.getHistoryId());
-
-			if (childTraits.isEmpty()) {
-				throw NotFoundException.entityNotFound("아이성향");
-			}
-
-			int[] childTraitScore = new int[4];
-
-			for (int i = 0; i < 4; i++) {
-				childTraitScore[i] = childTraits.get(i).getTraitScore();
-			}
-
+	public ItemProcessor<ChildHistoryDto, List<RecBook>> recommendBookItemProcessor() {
+		return childData -> {
+			int[] childTraitScore = childData.getTraitScores();
 			Set<Book> recBooks = new HashSet<>();
 
-			for (int i = 0; i < 4; i++){
-				int minScore = Math.max(0, childTraitScore[i] - 10);
-				int maxScore = Math.min(100, childTraitScore[i] + 10);
-
-				List<Book> books = bookTraitsRepository.findBooksByTraitScoreBetween(minScore, maxScore, PageRequest.of(0, 15));
-
+			for (int i = 0; i < 4; i++) {
+				int minScore = Math.max(0, childTraitScore[i] - 5);
+				int maxScore = Math.min(100, childTraitScore[i] + 5);
+				List<Book> books = bookTraitsRepository.findBooksByTraitScoreBetween(minScore, maxScore, PageRequest.of(0, 10));
 				recBooks.addAll(books);
+
+				if (recBooks.size() >= 20) {
+					break;
+				}
 			}
 
-			Optional<Child> child = childRepository.findById(childId);
+			Optional<Child> child = childRepository.findById(childData.getChildId());
 
 			return recBooks.stream()
 				.map(book -> RecBook.builder()
@@ -151,9 +156,67 @@ public class RecommendationBatchConfig {
 	 */
 	@Bean
 	public ItemWriter<List<RecBook>> recommendBookWriter() {
-		return recBooks -> {
-			for (List<RecBook> recBook : recBooks) {
-				recBookRepository.saveAll(recBook);
+		return new ItemWriter<List<RecBook>>() {
+			@Override
+			public void write(Chunk<? extends List<RecBook>> chunk) throws Exception {
+				log.info("mysql 추천책 write 시작");
+
+				LocalDateTime now = LocalDateTime.now();
+
+				// 1. 임시 테이블에 삽입할 파라미터 리스트 생성
+				List<SqlParameterSource> batchParams = chunk.getItems().stream()
+					.flatMap(List::stream)
+					.map(recBook -> new MapSqlParameterSource()
+						.addValue("child_id", recBook.getChild().getChildId())
+						.addValue("book_id", recBook.getBook().getBookId())
+						.addValue("created_at", now)
+						.addValue("modified_at", now))
+					.collect(Collectors.toList());
+
+				// 2. 임시 테이블에 데이터 배치 삽입
+				String dropTempTable = "DROP TABLE IF EXISTS temp_rec_book";
+				String createTempTable = """
+						CREATE TABLE temp_rec_book (
+							child_id BIGINT NOT NULL,
+							book_id BIGINT NOT NULL,
+							created_at TIMESTAMP NOT NULL,
+							modified_at TIMESTAMP NOT NULL,
+							PRIMARY KEY (child_id, book_id)
+						) ENGINE=InnoDB
+					""";
+				namedParameterJdbcTemplate.getJdbcTemplate().execute(dropTempTable);
+				namedParameterJdbcTemplate.getJdbcTemplate().execute(createTempTable);
+
+				String tempInsertQuery = """
+						INSERT INTO temp_rec_book (child_id, book_id, created_at, modified_at)
+						VALUES (:child_id, :book_id, :created_at, :modified_at)
+					""";
+				namedParameterJdbcTemplate.batchUpdate(tempInsertQuery, batchParams.toArray(new SqlParameterSource[0]));
+
+				// 3. 중복 데이터에 대해 rec_book 테이블을 UPDATE
+				String updateQuery = """
+						UPDATE rec_book AS r
+						JOIN temp_rec_book AS t
+						ON r.child_id = t.child_id AND r.book_id = t.book_id
+						SET r.modified_at = t.modified_at
+					""";
+				namedParameterJdbcTemplate.getJdbcTemplate().execute(updateQuery);
+
+				// 4. 새 데이터에 대해 rec_book 테이블에 INSERT
+				String insertQuery = """
+						INSERT INTO rec_book (child_id, book_id, created_at, modified_at)
+						SELECT t.child_id, t.book_id, t.created_at, t.modified_at
+						FROM temp_rec_book t
+						LEFT JOIN rec_book r
+						ON t.child_id = r.child_id AND t.book_id = r.book_id
+						WHERE r.child_id IS NULL
+					""";
+				namedParameterJdbcTemplate.getJdbcTemplate().execute(insertQuery);
+
+				log.info("mysql 추천책 write 종료");
+
+				// 5. 임시 테이블 데이터 삭제
+				namedParameterJdbcTemplate.getJdbcTemplate().execute("TRUNCATE TABLE temp_rec_book");
 			}
 		};
 	}
