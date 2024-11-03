@@ -89,7 +89,7 @@ body {
 
 .event-button {
     position: absolute;
-    top: 50%;
+    top: 43%;
     left: 50%;
     transform: translate(50px, 100px);
     background-color: #3764CE;

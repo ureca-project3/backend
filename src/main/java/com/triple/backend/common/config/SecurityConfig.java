@@ -85,14 +85,12 @@ public class SecurityConfig {
                         .requestMatchers(
                                 "/",
                                 "/auth/**",
+                                "/books/**",    // 모든 books 관련 엔드포인트 허용
+                                "/event/api/**",
                                 "/favicon.ico",
                                 "/public/**",
                                 "/login",
-                                "/index.html",
-                                "/signup.html",
-                                "/login.html",
-                                "/header.html",
-                                "/auth-success.html",
+                                "/*.html",      // 모든 html 파일 허용
                                 "/css/**",
                                 "/js/**",
                                 "/image/**"

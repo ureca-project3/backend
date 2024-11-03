@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>이벤트 참여</title>
+    <link rel="stylesheet" href="/css/header.css">
+    <link rel="stylesheet" href="/css/event.css">
+</head>
+<body>
+<div id="header-container"></div>
+
+<main class="event-container">
+    <div class="event-content">
+        <h1 id="event-title">이벤트 제목</h1>
+
+        <div class="event-info">
+            <p id="event-time"></p>
+            <p id="winner-count"></p>
+        </div>
+
+        <div class="event-description">
+            <h2>이벤트 내용</h2>
+            <p>본 이벤트는 선착순으로 진행되며, 모든 항목을 입력하셔야 응모가 가능합니다.</p>
+        </div>
+
+        <form id="event-form" class="event-form">
+            <div id="survey-container" class="survey-container">
+                <!-- 설문 질문이 여기에 동적으로 추가됩니다 -->
+            </div>
+
+            <div class="form-group">
+                <label for="participant-name">이름</label>
+                <input type="text" id="participant-name" name="name" required>
+            </div>
+
+            <div class="form-group">
+                <label for="participant-phone">전화번호</label>
+                <input type="tel" id="participant-phone" name="phone" required>
+<!--                       pattern="[0-9]{3}-[0-9]{4}-[0-9]{4}"-->
+<!--                       placeholder="010-0000-0000" required>-->
+            </div>
+
+            <button type="submit" class="submit-button" disabled>응모하기</button>
+        </form>
+    </div>
+</main>
+
+<div id="event-modal" class="modal">
+    <div class="modal-content">
+        <p id="modal-message"></p>
+        <button id="modal-confirm-button" class="modal-button">확인</button>
+    </div>
+</div>
+<footer class="footer">
+    © 2024 트리플민수. Even하게 익히다.
+</footer>
+<script src="/js/api.js"></script>
+<script src="/js/header.js"></script>
+<script src="/js/event.js"></script>
+</body>
+</html>
