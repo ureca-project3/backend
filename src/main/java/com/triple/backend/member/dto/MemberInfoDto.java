@@ -1,4 +1,4 @@
-package com.triple.backend.member.entity;
+package com.triple.backend.member.dto;
 
 import com.triple.backend.child.entity.Child;
 import lombok.AllArgsConstructor;

@@ -50,13 +50,14 @@ public class ChildServiceImpl implements ChildService {
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new EntityNotFoundException("사용자를 찾을 수 없습니다."));
 
-        Child child = new Child();
-        child.setMember(member);
-        child.setName(request.getName());
-        child.setBirthdate(request.getBirthDate());
-        child.setGender(request.getGender().equals("F") ? "여자" : "남자");
-        child.setImageUrl(request.getProfileImage());
-        child.setAge(request.getAge());
+        Child child = Child.builder()
+                .member(member)
+                .name(request.getName())
+                .birthdate(request.getBirthDate())
+                .gender(request.getGender().equals("F") ? "여자" : "남자")
+                .imageUrl(request.getProfileImage())
+                .age(request.getAge())
+                .build();
 
         childRepository.save(child);
     }
