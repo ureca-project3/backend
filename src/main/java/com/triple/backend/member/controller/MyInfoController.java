@@ -2,7 +2,7 @@ package com.triple.backend.member.controller;
 
 import com.triple.backend.auth.dto.CustomMemberDetails;
 import com.triple.backend.member.entity.Member;
-import com.triple.backend.member.entity.MemberInfoDto;
+import com.triple.backend.member.dto.MemberInfoDto;
 import com.triple.backend.member.service.MemberService;
 import lombok.RequiredArgsConstructor;
 

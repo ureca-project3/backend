@@ -1,4 +1,4 @@
-package com.triple.backend.member.service;
+package com.triple.backend.member.service.impl;
 
 import com.triple.backend.auth.dto.CustomMemberDetails;
 import com.triple.backend.auth.repository.RefreshTokenRepository;
@@ -6,13 +6,11 @@ import com.triple.backend.child.dto.ChildDto;
 import com.triple.backend.child.entity.Child;
 import com.triple.backend.child.repository.ChildRepository;
 import com.triple.backend.member.entity.Member;
-import com.triple.backend.member.entity.MemberInfoDto;
+import com.triple.backend.member.dto.MemberInfoDto;
 import com.triple.backend.member.repository.MemberRepository;
+import com.triple.backend.member.service.MemberService;
 import jakarta.transaction.Transactional;
-import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -98,19 +96,21 @@ public class MemberServiceImpl implements MemberService, UserDetailsService {
             throw new IllegalStateException("이메일이 이미 존재합니다");
         }
 
-        // 필드 업데이트
-        member.setName(updatedMember.getName());
-        member.setEmail(updatedMember.getEmail());
-        member.setPhone(updatedMember.getPhone());
-
-        // 비밀번호 암호화하여 업데이트 (비어 있지 않은 경우에만)
-        if (updatedMember.getPassword() != null && !updatedMember.getPassword().isEmpty()) {
-            String encodedPassword = passwordEncoder.encode(updatedMember.getPassword());
-            member.setPassword(encodedPassword);
-        }
+        // Builder를 사용한 업데이트
+        Member updatedMemberInfo = Member.builder()
+                .name(updatedMember.getName())
+                .email(updatedMember.getEmail())
+                .phone(updatedMember.getPhone())
+                .password(updatedMember.getPassword() != null && !updatedMember.getPassword().isEmpty()
+                        ? passwordEncoder.encode(updatedMember.getPassword())
+                        : member.getPassword())
+                .provider(member.getProvider())
+                .providerId(member.getProviderId())
+                .role_code(member.getRole_code())
+                .build();
 
         // 변경된 정보 저장
-        memberRepository.save(member);
+        memberRepository.save(updatedMemberInfo);
     }
 
     // 회원 정보 삭제 하면거 Refresh 토큰 제거

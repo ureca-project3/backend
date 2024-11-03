@@ -2,7 +2,7 @@ package com.triple.backend.member.service;
 
 import com.triple.backend.child.dto.ChildDto;
 import com.triple.backend.member.entity.Member;
-import com.triple.backend.member.entity.MemberInfoDto;
+import com.triple.backend.member.dto.MemberInfoDto;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 

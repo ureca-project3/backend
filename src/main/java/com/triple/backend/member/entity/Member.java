@@ -4,12 +4,13 @@ import com.triple.backend.common.entity.BaseEntity;
 import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 
 @Entity
 @Table
 @Getter
-@Setter
+@RequiredArgsConstructor
 public class Member extends BaseEntity {
 
     @Id
@@ -40,6 +41,4 @@ public class Member extends BaseEntity {
         this.providerId = providerId;
         this.role_code = role_code;
     }
-
-    public Member() {}
 }
