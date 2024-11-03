@@ -55,6 +55,12 @@ dependencies {
 
     // JDBC
     implementation 'org.springframework.boot:spring-boot-starter-jdbc'
+
+    // Slack Webhook
+    implementation 'com.slack.api:slack-api-client:1.28.0'
+    implementation 'com.squareup.okhttp3:okhttp:4.10.0'
+    implementation 'com.slack.api:slack-app-backend:1.28.0'
+    implementation 'com.slack.api:slack-api-model:1.28.0'
 }
 
 tasks.named('test') {

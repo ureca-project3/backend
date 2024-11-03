@@ -40,6 +40,7 @@ public class JWTFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+        String path = request.getRequestURI();
 
         // Public API 요청은 인증 없이 통과
         if (isPublicApiRequest(request)) {
@@ -136,8 +137,10 @@ public class JWTFilter extends OncePerRequestFilter {
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             response.setContentType("application/json");
             response.getWriter().write("{\"message\": \"Unauthorized\"}");
+        } else if (!"/".equals(path)) {
+            response.sendRedirect("/login.html");
         } else {
-            filterChain.doFilter(request, response);
+            filterChain.doFilter(request, response);  // "/" 경로 필터링 통과
         }
     }
 
@@ -167,6 +170,7 @@ public class JWTFilter extends OncePerRequestFilter {
 
     private void clearAuthentication(HttpServletRequest request, HttpServletResponse response) throws IOException {
         SecurityContextHolder.clearContext();
+        String path = request.getRequestURI();
         if (isApiRequest(request)) {
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             response.setContentType("application/json");

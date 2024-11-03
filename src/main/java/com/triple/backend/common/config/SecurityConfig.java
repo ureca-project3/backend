@@ -83,6 +83,7 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
+                                "/",
                                 "/auth/**",
                                 "/books/**",    // 모든 books 관련 엔드포인트 허용
                                 "/event/api/**",
