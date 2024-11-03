@@ -83,8 +83,8 @@ public class BatchConfig extends DefaultBatchConfiguration {
                 .writer(feedbackWriter)
                 .faultTolerant()
                 .skip(RuntimeException.class)
-                .skipLimit(10)
-                .listener(customSkipListener())
+                .skipLimit(3)
+                .listener(new CustomSkipListener("syncFeedbackStep", notificationService))
                 .build();
     }
 
@@ -95,6 +95,10 @@ public class BatchConfig extends DefaultBatchConfiguration {
                 .reader(mySQLFeedbackReader())
                 .processor(traitsChangeProcessor())
                 .writer(traitsChangeWriter())
+                .faultTolerant()
+                .skip(RuntimeException.class)
+                .skipLimit(3)
+                .listener(new CustomSkipListener("updateTraitsChange", notificationService))
                 .build();
     }
 
@@ -104,6 +108,10 @@ public class BatchConfig extends DefaultBatchConfiguration {
                 .<TraitsChangeDto, TraitsChangeDto>chunk(10, transactionManager)
                 .reader(traitsChangeReader())
                 .writer(childTraitsWriter())
+                .faultTolerant()
+                .skip(RuntimeException.class)
+                .skipLimit(3)
+                .listener(new CustomSkipListener("updateChildTraits", notificationService))
                 .build();
     }
 
@@ -114,13 +122,11 @@ public class BatchConfig extends DefaultBatchConfiguration {
                 .reader(mbtiReader)
                 .processor(mbtiProcessor)
                 .writer(mbtiWriter())
+                .faultTolerant()
+                .skip(RuntimeException.class)
+                .skipLimit(3)
+                .listener(new CustomSkipListener("updateMbtiHistory", notificationService))
                 .build();
-    }
-
-    // listener
-    @Bean
-    public CustomSkipListener customSkipListener() {
-        return new CustomSkipListener("syncFeedbackStep", notificationService);
     }
 
     // Tasklet
