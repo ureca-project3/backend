@@ -128,16 +128,35 @@ public class EventServiceImpl implements EventService {
                     String.valueOf(now.toEpochSecond(ZoneOffset.of("+09:00"))),
                     jsonData
             );
+
+            EventApplyResponseDto.EventApplyResponseDtoBuilder responseBuilder = EventApplyResponseDto.builder();
             if (result == null) {
-                return EventApplyResponseDto.failed("시스템 오류가 발생했습니다.");
+                return responseBuilder
+                        .success(false)
+                        .message("시스템 오류가 발생했습니다.")
+                        .build();
             }
-            return switch (result.intValue()) {
-                case -1 -> EventApplyResponseDto.failed("이미 참여하셨습니다.");
-                case -2 -> EventApplyResponseDto.failed("유효하지 않은 이벤트입니다.");
-                case -3 -> EventApplyResponseDto.failed("이벤트가 아직 시작되지 않았습니다.");
-                case -4 -> EventApplyResponseDto.failed("이벤트가 종료되었습니다.");
-                default -> EventApplyResponseDto.success("이벤트 응모가 완료되었습니다. 참여 순서: " + result);
-            };
+            String message;
+            boolean success = false;
+            switch (result.intValue()) {
+                case -1 -> message = "이미 참여하셨습니다.";
+                case -2 -> message = "유효하지 않은 이벤트입니다.";
+                case -3 -> message = "이벤트가 아직 시작되지 않았습니다.";
+                case -4 -> message = "이벤트가 종료되었습니다.";
+                default -> {
+                    success = true;
+                    message = "이벤트 응모가 완료되었습니다. 참여 순서: " + result;
+                    return responseBuilder
+                            .success(success)
+                            .message(message)
+                            .participantNumber(result)
+                            .build();
+                }
+            }
+            return responseBuilder
+                    .success(success)
+                    .message(message)
+                    .build();
         } catch (Exception e) {
             log.error("이벤트 참여 처리 실패. 상세 오류: ", e);
             throw new EventProcessingException("이벤트 참여 처리 중 오류가 발생했습니다: " + e.getMessage());
