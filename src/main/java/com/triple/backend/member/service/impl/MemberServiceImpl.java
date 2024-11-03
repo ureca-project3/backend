@@ -5,6 +5,7 @@ import com.triple.backend.auth.repository.RefreshTokenRepository;
 import com.triple.backend.child.dto.ChildDto;
 import com.triple.backend.child.entity.Child;
 import com.triple.backend.child.repository.ChildRepository;
+import com.triple.backend.member.dto.MemberUpdateDto;
 import com.triple.backend.member.entity.Member;
 import com.triple.backend.member.dto.MemberInfoDto;
 import com.triple.backend.member.repository.MemberRepository;
@@ -63,6 +64,7 @@ public class MemberServiceImpl implements MemberService, UserDetailsService {
         return member.getProvider();
     }
 
+
     @Override
     public List<ChildDto> getChildrenByMemberId(Long memberId) {
         Member member = memberRepository.findById(memberId)
@@ -81,7 +83,7 @@ public class MemberServiceImpl implements MemberService, UserDetailsService {
     }
 
     @Override
-    public void updateMemberInfo(Long memberId, Member updatedMember) {
+    public void updateMemberInfo(Long memberId, MemberUpdateDto memberUpdateDto) {
         // 기존 회원 정보 조회
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new IllegalArgumentException("Member not found"));
@@ -91,26 +93,18 @@ public class MemberServiceImpl implements MemberService, UserDetailsService {
             throw new IllegalStateException("카카오 로그인 사용자는 정보를 수정할 수 없습니다.");
         }
         // 필드 업데이트 전에 이메일 중복 체크
-        if (!member.getEmail().equals(updatedMember.getEmail()) &&
-                memberRepository.existsByEmailAndMemberIdNot(updatedMember.getEmail(), memberId)) {
+        if (!member.getEmail().equals(memberUpdateDto.getEmail()) &&
+                memberRepository.existsByEmailAndMemberIdNot(memberUpdateDto.getEmail(), memberId)) {
             throw new IllegalStateException("이메일이 이미 존재합니다");
         }
 
-        // Builder를 사용한 업데이트
-        Member updatedMemberInfo = Member.builder()
-                .name(updatedMember.getName())
-                .email(updatedMember.getEmail())
-                .phone(updatedMember.getPhone())
-                .password(updatedMember.getPassword() != null && !updatedMember.getPassword().isEmpty()
-                        ? passwordEncoder.encode(updatedMember.getPassword())
-                        : member.getPassword())
-                .provider(member.getProvider())
-                .providerId(member.getProviderId())
-                .role_code(member.getRole_code())
-                .build();
-
-        // 변경된 정보 저장
-        memberRepository.save(updatedMemberInfo);
+        // 필드 업데이트
+        String encodedPassword = "";
+        if (memberUpdateDto.getPassword() != null && !memberUpdateDto.getPassword().isEmpty()) {
+            encodedPassword = passwordEncoder.encode(memberUpdateDto.getPassword());
+        }
+        member.updateMember(memberUpdateDto, encodedPassword);
+        memberRepository.save(member);
     }
 
     // 회원 정보 삭제 하면거 Refresh 토큰 제거

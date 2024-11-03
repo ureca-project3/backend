@@ -1,6 +1,7 @@
 package com.triple.backend.member.entity;
 
 import com.triple.backend.common.entity.BaseEntity;
+import com.triple.backend.member.dto.MemberUpdateDto;
 import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
@@ -40,5 +41,12 @@ public class Member extends BaseEntity {
         this.provider = provider;
         this.providerId = providerId;
         this.role_code = role_code;
+    }
+
+    public void updateMember(MemberUpdateDto memberUpdateDto, String encodedPassword) {
+        this.name = memberUpdateDto.getName();
+        this.email = memberUpdateDto.getEmail();
+        this.phone = memberUpdateDto.getPhone();
+        this.password = encodedPassword;
     }
 }

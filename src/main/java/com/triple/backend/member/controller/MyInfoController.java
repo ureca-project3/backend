@@ -1,6 +1,7 @@
 package com.triple.backend.member.controller;
 
 import com.triple.backend.auth.dto.CustomMemberDetails;
+import com.triple.backend.member.dto.MemberUpdateDto;
 import com.triple.backend.member.entity.Member;
 import com.triple.backend.member.dto.MemberInfoDto;
 import com.triple.backend.member.service.MemberService;
@@ -39,7 +40,7 @@ public class MyInfoController {
     // 사용자 개인정보 수정
     @PostMapping("/my-info")
     public ResponseEntity<Map<String, String>> updateMemberInfo(
-            @RequestBody Member member,
+            @RequestBody MemberUpdateDto member,
             Authentication authentication) {
 
         CustomMemberDetails memberDetails = (CustomMemberDetails) authentication.getPrincipal();
