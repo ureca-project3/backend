@@ -50,6 +50,102 @@ function updateHeaderWithUserInfo(accessToken) {
     }
 }
 
+// 자녀 성향 진단하기 버튼
+const floatingButton = document.createElement("button");
+floatingButton.className = "floating-button";
+floatingButton.innerHTML = `
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <!-- 귀여운 아기 얼굴 아이콘 -->
+        <circle cx="12" cy="10" r="7" /> <!-- 얼굴 -->
+        <circle cx="9" cy="8" r="1" fill="currentColor" /> <!-- 왼쪽 눈 -->
+        <circle cx="15" cy="8" r="1" fill="currentColor" /> <!-- 오른쪽 눈 -->
+        <path d="M9 12a3 3 0 0 0 6 0" /> <!-- 웃는 입 -->
+        <path d="M6 20c1-2 3-3 6-3s5 1 6 3" /> <!-- 볼살 -->
+        <path d="M8 4s1-1 4-1 4 1 4 1" /> <!-- 앞머리 -->
+    </svg>
+    자녀 성향 진단하기
+`;
+
+// 버튼 클릭 이벤트
+floatingButton.onclick = () => {
+    const accessToken = sessionStorage.getItem('accessToken');
+    if (!accessToken) {
+        // 커스텀 로그인 알림창 생성
+        const loginAlertDiv = document.createElement('div');
+        loginAlertDiv.className = 'custom-alert';
+        loginAlertDiv.innerHTML = `
+        <div class="alert-content">
+            <p>로그인이 필요해요 🙂</p>
+            <div class="alert-buttons">
+                <button id="goToLogin" class="goLogin-btn">로그인하러 가기</button>
+                <button id="closeLoginAlert" class="close-btn">닫기</button>
+            </div>
+        </div>
+    `;
+
+        document.body.appendChild(loginAlertDiv);
+
+        // 로그인 페이지로 이동
+        document.getElementById('goToLogin').onclick = () => {
+            window.location.href = '/login.html';
+        };
+
+        // 알림창 닫기
+        document.getElementById('closeLoginAlert').onclick = () => {
+            loginAlertDiv.remove();
+        };
+        return;
+    }
+
+    const childId = sessionStorage.getItem('currentChildId');
+    if (!childId) {
+        // 커스텀 알림창 생성
+        const alertDiv = document.createElement('div');
+        alertDiv.className = 'custom-alert';
+        alertDiv.innerHTML = `
+            <div class="alert-content">
+                <p>자녀 등록 후 이용 가능합니다 🥰</p>
+                <button id="goToRegister" class="register-btn">자녀 등록하러 가기</button>
+                <button id="closeAlert" class="close-btn">닫기</button>
+            </div>
+        `;
+
+        document.body.appendChild(alertDiv);
+
+        // 자녀 등록 페이지로 이동
+        document.getElementById('goToRegister').onclick = () => {
+            window.location.href = '/childRegister.html';
+        };
+
+        // 알림창 닫기
+        document.getElementById('closeAlert').onclick = () => {
+            alertDiv.remove();
+        };
+        return;
+    }
+
+    window.location.href = '/test.html';
+}
+
+document.body.appendChild(floatingButton);
+
+// 스크롤 이벤트 리스너 추가
+let lastScroll = 0;
+window.addEventListener('scroll', () => {
+    const currentScroll = window.pageYOffset;
+
+    if (currentScroll <= 0) {
+        floatingButton.style.opacity = "1";
+    }
+
+    if (currentScroll > lastScroll && currentScroll > 300) {
+        floatingButton.style.opacity = "0.7";
+    } else {
+        floatingButton.style.opacity = "1";
+    }
+
+    lastScroll = currentScroll;
+});
 
 window.onload = async function() {
     const tempAccessTokenCookie = document.cookie
