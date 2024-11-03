@@ -33,11 +33,12 @@ public class Child {
 
     @Builder
     public Child(Member member, String name, String birthdate, String gender, String imageUrl, Integer age) {
-        this.member = member;      // member 필드 추가
+        this.member = member;
         this.name = name;
         this.birthdate = birthdate;
         this.gender = gender;
         this.imageUrl = imageUrl;
         this.age = age;
     }
+
 }

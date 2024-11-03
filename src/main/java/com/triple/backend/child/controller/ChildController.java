@@ -61,9 +61,7 @@ public class ChildController {
     @PostMapping("/child-info")
     public ResponseEntity<?> registerChild(@RequestBody ChildRegisterRequestDto request, @RequestHeader(name = "Authorization") String accessToken) {
         childService.registerChild(request, accessToken.substring(7));
-        ChildRegisterResponseDto response = new ChildRegisterResponseDto();
-        response.setData(new ChildRegisterResponseDto.ChildData(request.getName()));
-        return CommonResponse.ok("자녀등록을 성공했습니다.", response);
+        return CommonResponse.ok("자녀등록을 성공했습니다.", new ChildRegisterResponseDto.ChildData(request.getName()));
     }
 
     // 자녀 삭제
