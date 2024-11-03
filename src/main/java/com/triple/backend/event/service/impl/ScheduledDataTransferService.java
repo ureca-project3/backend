@@ -71,7 +71,6 @@ public class ScheduledDataTransferService {
             Event event = eventRepository.findById(eventId)
                     .orElseThrow(() -> NotFoundException.entityNotFound("이벤트"));
             if (event.getEndTime().isAfter(LocalDateTime.now())) continue;
-//            if (event.getEndTime().isBefore(LocalDateTime.now())) continue;
 
             // Redis에서 event:total_count 값 가져오기
             String totalCountStr = redisTemplate.opsForValue().get("event:total_count:" + eventId);
