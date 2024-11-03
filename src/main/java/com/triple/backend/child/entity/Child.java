@@ -42,4 +42,13 @@ public class Child {
         this.imageUrl = imageUrl;
         this.age = age;
     }
+    public Child(Member member, String name, String birthdate, String gender, String imageUrl, Integer age) {
+        this.member = member;
+        this.name = name;
+        this.birthdate = birthdate;
+        this.gender = gender;
+        this.imageUrl = imageUrl;
+        this.age = age;
+    }
+
 }
