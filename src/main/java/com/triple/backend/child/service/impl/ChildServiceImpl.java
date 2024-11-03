@@ -74,7 +74,7 @@ public class ChildServiceImpl implements ChildService {
                 member,
                 request.getName(),
                 request.getBirthDate(),
-                request.getGender().equals("여") ? "여자" : "남자",
+                request.getGender().equals("F") ? "여자" : "남자",
                 request.getProfileImage(),
                 request.getAge()
         );
