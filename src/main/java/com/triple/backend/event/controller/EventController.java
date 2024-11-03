@@ -69,18 +69,6 @@ public class EventController {
         return CommonResponse.ok("Get event list Success", eventService.getEventList());
     }
 
-    // Validation 실패 시 처리
-    @ExceptionHandler(BindException.class)
-    public ResponseEntity<ErrorResponse> handleBindException(BindException e) {
-        String errorMessage = e.getBindingResult()
-                .getAllErrors()
-                .get(0)
-                .getDefaultMessage();
-
-        return ResponseEntity.badRequest()
-                .body(ErrorResponse.error(HttpStatus.BAD_REQUEST, errorMessage));
-    }
-
     // 당첨자 redis -> mysql 등록 컨트롤러
     @PostMapping("/api/apply/db_save")
     public ResponseEntity<?> insertWinner() {
