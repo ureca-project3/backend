@@ -38,7 +38,7 @@ public class MbtiCalculator {
         return -1; // 잘못된 traitId
     }
 
-    public static Integer calculateTraitChange(int bookTrait, int childTrait) {
+    public static Integer calculateTraitChange(int childTrait, int bookTrait) {
 
         int changeAmount = BASE_CHANGE_AMOUNT;
 
