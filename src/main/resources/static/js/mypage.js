@@ -18,6 +18,7 @@ async function fetchAndDisplayProfile() {
             document.getElementById('user-name').textContent = `이름: ${profileData.name || ''}`;
             document.getElementById('user-email').textContent = profileData.email || '';
             document.getElementById('user-phone').textContent = profileData.phone || '';
+            document.getElementById('user-provider').textContent = profileData.provider || '';
 
             // provider 확인하여 수정 버튼 표시/숨김 처리
             const editButton = document.querySelector('.button-container button:first-child');

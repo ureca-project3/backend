@@ -85,7 +85,7 @@ public class ChildServiceImpl implements ChildService {
         MbtiHistory initialHistory = MbtiHistory.builder()
                 .child(child)
                 .currentMbti("ISFP")       // 초기 등록
-                .reason("성향진단")            // 성향 변경 이유
+                .reason("기본")            // 성향 변경 이유
                 .reasonId(1L)              // 초기 reasonId 값 설정
                 .isDeleted(false)
                 .build();
