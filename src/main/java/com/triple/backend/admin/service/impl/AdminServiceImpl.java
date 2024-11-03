@@ -1,10 +1,11 @@
-package com.triple.backend.admin.service;
+package com.triple.backend.admin.service.impl;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.triple.backend.admin.dto.AdminBookRequestDto;
 import com.triple.backend.admin.dto.AdminBookResponseDto;
 import com.triple.backend.admin.dto.AdminBookUpdateRequestDto;
+import com.triple.backend.admin.service.AdminService;
 import com.triple.backend.book.entity.Book;
 import com.triple.backend.book.entity.BookTraits;
 import com.triple.backend.book.entity.Genre;

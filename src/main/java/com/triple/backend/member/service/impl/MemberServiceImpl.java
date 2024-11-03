@@ -1,18 +1,17 @@
-package com.triple.backend.member.service;
+package com.triple.backend.member.service.impl;
 
 import com.triple.backend.auth.dto.CustomMemberDetails;
 import com.triple.backend.auth.repository.RefreshTokenRepository;
 import com.triple.backend.child.dto.ChildDto;
 import com.triple.backend.child.entity.Child;
 import com.triple.backend.child.repository.ChildRepository;
+import com.triple.backend.member.dto.MemberUpdateDto;
 import com.triple.backend.member.entity.Member;
-import com.triple.backend.member.entity.MemberInfoDto;
+import com.triple.backend.member.dto.MemberInfoDto;
 import com.triple.backend.member.repository.MemberRepository;
+import com.triple.backend.member.service.MemberService;
 import jakarta.transaction.Transactional;
-import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -65,6 +64,7 @@ public class MemberServiceImpl implements MemberService, UserDetailsService {
         return member.getProvider();
     }
 
+
     @Override
     public List<ChildDto> getChildrenByMemberId(Long memberId) {
         Member member = memberRepository.findById(memberId)
@@ -83,7 +83,7 @@ public class MemberServiceImpl implements MemberService, UserDetailsService {
     }
 
     @Override
-    public void updateMemberInfo(Long memberId, Member updatedMember) {
+    public void updateMemberInfo(Long memberId, MemberUpdateDto memberUpdateDto) {
         // 기존 회원 정보 조회
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new IllegalArgumentException("Member not found"));
@@ -93,23 +93,17 @@ public class MemberServiceImpl implements MemberService, UserDetailsService {
             throw new IllegalStateException("카카오 로그인 사용자는 정보를 수정할 수 없습니다.");
         }
         // 필드 업데이트 전에 이메일 중복 체크
-        if (!member.getEmail().equals(updatedMember.getEmail()) &&
-                memberRepository.existsByEmailAndMemberIdNot(updatedMember.getEmail(), memberId)) {
+        if (!member.getEmail().equals(memberUpdateDto.getEmail()) &&
+                memberRepository.existsByEmailAndMemberIdNot(memberUpdateDto.getEmail(), memberId)) {
             throw new IllegalStateException("이메일이 이미 존재합니다");
         }
 
         // 필드 업데이트
-        member.setName(updatedMember.getName());
-        member.setEmail(updatedMember.getEmail());
-        member.setPhone(updatedMember.getPhone());
-
-        // 비밀번호 암호화하여 업데이트 (비어 있지 않은 경우에만)
-        if (updatedMember.getPassword() != null && !updatedMember.getPassword().isEmpty()) {
-            String encodedPassword = passwordEncoder.encode(updatedMember.getPassword());
-            member.setPassword(encodedPassword);
+        String encodedPassword = "";
+        if (memberUpdateDto.getPassword() != null && !memberUpdateDto.getPassword().isEmpty()) {
+            encodedPassword = passwordEncoder.encode(memberUpdateDto.getPassword());
         }
-
-        // 변경된 정보 저장
+        member.updateMember(memberUpdateDto, encodedPassword);
         memberRepository.save(member);
     }
 

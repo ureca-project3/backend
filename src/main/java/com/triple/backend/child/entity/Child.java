@@ -5,11 +5,9 @@ import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 @Entity
 @Getter
-@Setter
 @NoArgsConstructor
 public class Child {
 
@@ -34,11 +32,11 @@ public class Child {
     private Integer age;
 
     @Builder
-    public Child(Long childId, String name, String gender, String birthdate, String imageUrl, Integer age) {
-        this.childId = childId;
+    public Child(Member member, String name, String birthdate, String gender, String imageUrl, Integer age) {
+        this.member = member;      // member 필드 추가
         this.name = name;
-        this.gender = gender;
         this.birthdate = birthdate;
+        this.gender = gender;
         this.imageUrl = imageUrl;
         this.age = age;
     }

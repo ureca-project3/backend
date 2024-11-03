@@ -54,8 +54,16 @@ public class OAuthLoginSuccessHandler extends SimpleUrlAuthenticationSuccessHand
         // 사용자 정보 추출 (이메일, 성함, 전화번호)
         Map<String, Object> kakaoAccount = (Map<String, Object>) attributes.get("kakao_account");
         String email = (String) kakaoAccount.get("email");
-        String phone = (String) kakaoAccount.get("phone_number");
+        String rawPhone = (String) kakaoAccount.get("phone_number");
         String name = (String) kakaoAccount.get("name");
+
+        String phone = rawPhone;
+        if (rawPhone != null) {
+            // +82 제거, 공백 제거, 하이픈(-) 제거
+            phone = rawPhone.replace("+82 ", "0")
+                    .replaceAll("\\s+", "")
+                    .replaceAll("-", "");
+        }
 
         // ProviderId로 사용자 찾기
         Member existMember = memberRepository.findByProviderId(providerId);

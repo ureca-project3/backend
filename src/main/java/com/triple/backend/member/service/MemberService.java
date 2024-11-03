@@ -1,8 +1,9 @@
 package com.triple.backend.member.service;
 
 import com.triple.backend.child.dto.ChildDto;
+import com.triple.backend.member.dto.MemberUpdateDto;
 import com.triple.backend.member.entity.Member;
-import com.triple.backend.member.entity.MemberInfoDto;
+import com.triple.backend.member.dto.MemberInfoDto;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
@@ -25,7 +26,7 @@ public interface MemberService {
     String getProviderByMemberId(Long memberId);
 
     // 회원 정보 업데이트 메서드
-    void updateMemberInfo(Long memberId, Member member);
+    void updateMemberInfo(Long memberId, MemberUpdateDto memberUpdateDto);
 
     void deleteMember(Long memberId); // 회원 탈퇴 메서드
 

@@ -1,15 +1,17 @@
 package com.triple.backend.member.entity;
 
 import com.triple.backend.common.entity.BaseEntity;
+import com.triple.backend.member.dto.MemberUpdateDto;
 import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 
 @Entity
 @Table
 @Getter
-@Setter
+@RequiredArgsConstructor
 public class Member extends BaseEntity {
 
     @Id
@@ -41,5 +43,10 @@ public class Member extends BaseEntity {
         this.role_code = role_code;
     }
 
-    public Member() {}
+    public void updateMember(MemberUpdateDto memberUpdateDto, String encodedPassword) {
+        this.name = memberUpdateDto.getName();
+        this.email = memberUpdateDto.getEmail();
+        this.phone = memberUpdateDto.getPhone();
+        this.password = encodedPassword;
+    }
 }

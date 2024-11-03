@@ -1,17 +1,21 @@
 package com.triple.backend.history;
 
-import com.triple.backend.child.dto.MbtiHistoryDeletedResponseDto;
-import com.triple.backend.child.entity.Child;
-import com.triple.backend.child.entity.ChildTraits;
-import com.triple.backend.child.entity.MbtiHistory;
-import com.triple.backend.child.repository.ChildRepository;
-import com.triple.backend.child.repository.ChildTraitsRepository;
-import com.triple.backend.child.repository.MbtiHistoryRepository;
-import com.triple.backend.child.service.impl.MbtiHistoryServiceImpl;
-import com.triple.backend.common.exception.NotFoundException;
-import com.triple.backend.test.entity.*;
-import com.triple.backend.test.repository.TestAnswerRepository;
-import com.triple.backend.test.repository.TestParticipationRepository;
+import static org.assertj.core.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.BDDMockito.never;
+import static org.mockito.BDDMockito.times;
+import static org.mockito.BDDMockito.verify;
+import static org.mockito.BDDMockito.*;
+import static org.mockito.Mockito.anyList;
+import static org.mockito.Mockito.eq;
+
+import java.time.LocalDateTime;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -24,21 +28,25 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
 
-import java.time.LocalDateTime;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.*;
+import com.triple.backend.child.dto.MbtiHistoryDeletedResponseDto;
+import com.triple.backend.child.entity.Child;
+import com.triple.backend.child.entity.ChildTraits;
+import com.triple.backend.child.entity.MbtiHistory;
+import com.triple.backend.child.repository.ChildRepository;
+import com.triple.backend.child.repository.ChildTraitsRepository;
+import com.triple.backend.child.repository.MbtiHistoryRepository;
+import com.triple.backend.child.service.impl.MbtiHistoryServiceImpl;
+import com.triple.backend.common.exception.NotFoundException;
+import com.triple.backend.test.entity.TestAnswer;
+import com.triple.backend.test.entity.TestAnswerId;
+import com.triple.backend.test.entity.TestParticipation;
+import com.triple.backend.test.entity.TestQuestion;
+import com.triple.backend.test.entity.Trait;
+import com.triple.backend.test.repository.TestAnswerRepository;
+import com.triple.backend.test.repository.TestParticipationRepository;
 
 @ExtendWith(MockitoExtension.class)
-class MbtiHistoryServiceImplTest {
+class DeleteChildTraitHistoryTest {
 
     @InjectMocks
     private MbtiHistoryServiceImpl mbtiHistoryService;

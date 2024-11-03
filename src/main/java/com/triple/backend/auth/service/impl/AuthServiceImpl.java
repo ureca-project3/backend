@@ -1,6 +1,7 @@
-package com.triple.backend.auth.service;
+package com.triple.backend.auth.service.impl;
 
 import com.triple.backend.auth.dto.JoinDto;
+import com.triple.backend.auth.service.AuthService;
 import com.triple.backend.common.code.CommonCode;
 import com.triple.backend.common.code.CommonCodeId;
 import com.triple.backend.common.config.JWTUtil;
@@ -14,7 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @AllArgsConstructor
-public class AuthServiceImpl implements AuthService{
+public class AuthServiceImpl implements AuthService {
 
     private final PasswordEncoder passwordEncoder; // 타입 변경
     private final MemberRepository memberRepository;
