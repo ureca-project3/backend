@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>로그인 - 트리플민수</title>
     <link rel="stylesheet" href="/css/login.css">
+    <link rel="stylesheet" href="/css/footer.css">
 </head>
 <body>
 <div class="decoration">🌟</div>
@@ -14,7 +15,7 @@
 
 <header class="header">
     <a href="/index.html" class="banner-link">
-        <img src="/image/1.jpg" alt="사이트 배너" class="banner-image">
+        <img src="/image/logo.png" alt="사이트 배너" class="banner-image">
     </a>
 </header>
 
@@ -45,13 +46,20 @@
     <div class="register-link">
         <p>아직 계정이 없으신가요? <a href="/signup.html">회원 가입하기</a></p>
     </div>
+
+    <div id="loginModal" class="modal">
+        <div class="modal-content">
+            <p id="loginModalMessage"></p>
+            <button class="modal-button">확인</button>
+        </div>
+    </div>
+
 </main>
 
-
-<footer>
-    <p>© 2024 트리플민수. Even하게 익히다.</p>
-</footer>
+<div id="footer-container"></div>
 
 <script src="/js/login.js"></script>
+<script type="module" src="/js/footer.js"></script>
+
 </body>
 </html>
