@@ -57,7 +57,7 @@
 
 |**김범수**|**박시은**|**이도림**|**이민수**|**이승희**|**이신지**|
 |:------:|:------:|:------:|:------:|:------:|:------:|
-| [<img src="https://avatars.githubusercontent.com/u/88920973?v=4" height=150 width=150> <br/> @KIMBUMSU123](https://github.com/KIMBUMSU123) | [<img src="https://avatars.githubusercontent.com/u/62862307?v=4" height=150 width=150> <br/> @ssIIIn](https://github.com/ssIIIn) | [<img src="https://avatars.githubusercontent.com/u/65598286?v=4" height=150 width=150> <br/> @LeeDoRim](https://github.com/LeeDoRim) | [<img src="https://avatars.githubusercontent.com/u/89891084?v=4" height=150 width=150> <br/> @99MinSu](https://github.com/99MinSu) | [<img src="https://avatars.githubusercontent.com/u/87460638?v=4" height=150 width=150> <br/> @leeseunghee00](https://github.com/leeseunghee00) | [<img src="https://avatars.githubusercontent.com/u/153038259?v=4" height=150 width=150> <br/> @kuma0112](https://github.com/kuma0112)  |
+| [<img src="https://avatars.githubusercontent.com/u/88920973?v=4" height=130 width=130> <br/> @KIMBUMSU123](https://github.com/KIMBUMSU123) | [<img src="https://avatars.githubusercontent.com/u/62862307?v=4" height=130 width=130> <br/> @ssIIIn](https://github.com/ssIIIn) | [<img src="https://avatars.githubusercontent.com/u/65598286?v=4" height=130 width=130> <br/> @LeeDoRim](https://github.com/LeeDoRim) | [<img src="https://avatars.githubusercontent.com/u/89891084?v=4" height=130 width=130> <br/> @99MinSu](https://github.com/99MinSu) | [<img src="https://avatars.githubusercontent.com/u/87460638?v=4" height=130 width=130> <br/> @leeseunghee00](https://github.com/leeseunghee00) | [<img src="https://avatars.githubusercontent.com/u/153038259?v=4" height=130 width=130> <br/> @kuma0112](https://github.com/kuma0112)  |
 
 </div>
 
@@ -87,7 +87,7 @@
 #### 2. 피드백 (좋아요 & 싫어요)
 - 피드백: 좋아요/싫어요 데이터가 다량 발생할 것을 고려하여 Redis 에 저장 후, 익일 새벽에 배치 처리를 통해 MySQL 로 이관
 - 피드백 배치: 총 4개의 Step 으로 구성하여 자녀 성향에 반영
-  - Step1. Redis 에 임시 저장되어 있던 좋아요/싫어요를 MzySQL 에 이관
+  - Step1. Redis 에 임시 저장되어 있던 좋아요/싫어요를 MySQL 에 이관
   - Step2. 오늘자 피드백을 읽어 성향에 반영될 점수 계산 및 누적된 성향 변화량 업데이트
   - Step3. 누적 변화량 ≥ 5 일 경우, 자녀 성향 레코드 생성
   - Step4. MBTI 변화가 감지될 경우, 새로운 MBTI 레코드 생성
