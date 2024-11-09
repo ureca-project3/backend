@@ -111,7 +111,7 @@
 
 <br />
 
-#### 2. 카카오 로그인 성공 후, 메인 페이지 리다이렉트 시 헤어데 담은 AccessToken 이 전송되지 않는 문제
+#### 2. 카카오 로그인 성공 후, 메인 페이지 리다이렉트 시 헤더에 담은 AccessToken 이 전송되지 않는 문제
 - 해결1: 소셜 로그인 성공 후 RefreshToken 은 쿠키에, AccessToken 은 리다이렉트 URL 에 담아서 전달. 
 - 해결2: url 에 직접적으로 AccessToken 담는 방식은 토큰 탈취에 매우 취약하므로, OTT(One-Time Token) 을 사용하여 보안을 강화함.
 - 정리한 문서: [토큰탈취 및 CSRF](https://courageous-fluorine-f2d.notion.site/CSRF-87471d32a44b4e0eb45d7fb9771a1ab1?pvs=4)
