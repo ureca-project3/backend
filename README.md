@@ -53,13 +53,10 @@
 <br />
 
 ## _Member._
-<div align="center">
 
 |**김범수**|**박시은**|**이도림**|**이민수**|**이승희**|**이신지**|
 |:------:|:------:|:------:|:------:|:------:|:------:|
 | [<img src="https://avatars.githubusercontent.com/u/88920973?v=4" height=130 width=130> <br/> @KIMBUMSU123](https://github.com/KIMBUMSU123) | [<img src="https://avatars.githubusercontent.com/u/62862307?v=4" height=130 width=130> <br/> @ssIIIn](https://github.com/ssIIIn) | [<img src="https://avatars.githubusercontent.com/u/65598286?v=4" height=130 width=130> <br/> @LeeDoRim](https://github.com/LeeDoRim) | [<img src="https://avatars.githubusercontent.com/u/89891084?v=4" height=130 width=130> <br/> @99MinSu](https://github.com/99MinSu) | [<img src="https://avatars.githubusercontent.com/u/87460638?v=4" height=130 width=130> <br/> @leeseunghee00](https://github.com/leeseunghee00) | [<img src="https://avatars.githubusercontent.com/u/153038259?v=4" height=130 width=130> <br/> @kuma0112](https://github.com/kuma0112)  |
-
-</div>
 
 <br />
 
